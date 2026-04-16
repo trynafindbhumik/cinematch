@@ -40,7 +40,6 @@ export default defineConfig([
 
       /* -------- Imports -------- */
       'import/no-unresolved': 'error',
-      'no-duplicate-imports': 'error',
       'import/order': [
         'warn',
         {
@@ -68,5 +67,13 @@ export default defineConfig([
   prettier,
 
   // Ignore generated files
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    'node_modules/**',
+    'package-lock.json',
+    'pnpm-lock.yaml',
+  ]),
 ]);

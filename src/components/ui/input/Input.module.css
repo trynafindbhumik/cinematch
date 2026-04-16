@@ -1,0 +1,311 @@
+.inputWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.label {
+  color: #4a4a4a;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.input {
+  height: 44px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #b0b0b0;
+  color: var(--color-ink, #1a1a1a);
+  outline: none;
+  width: 100%;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  font-family: inherit;
+  background: transparent;
+}
+
+/* Prevent Chrome autofill from overriding styles */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-ink, #1a1a1a) !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input--withIcon {
+  padding-right: 36px;
+}
+
+.input--withPrefix {
+  padding-left: 36px;
+}
+
+.input:focus {
+  border: 1.5px solid var(--color-accent, #8c7851);
+  box-shadow: 0 0 0 3px rgba(140, 120, 81, 0.1);
+}
+
+.input::placeholder {
+  color: #a4a4a4;
+  opacity: 1;
+}
+
+.prefixIcon {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6e6e6e;
+  z-index: 1;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.crossIcon {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  color: #a4a4a4;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.disabled {
+  border: 1px solid #e8ebec;
+  cursor: not-allowed;
+  background: #e8ebec;
+}
+
+.error {
+  border: 1px solid #d33838;
+}
+
+.errorText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #d33838;
+  font-size: 0.75rem;
+}
+
+.errorText svg {
+  width: 12px;
+  height: 12px;
+}
+
+.required {
+  color: #d33838;
+}
+
+/* ─────────────────────────────────────────────
+   Underline variant
+───────────────────────────────────────────── */
+
+.underlineWrapper {
+  gap: 4px;
+}
+
+.underlineLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.underlineLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(26, 26, 26, 0.4);
+  transition: color 0.3s ease;
+  font-family: var(--font-sans), sans-serif;
+}
+
+.underlineWrapper:focus-within .underlineLabel {
+  color: var(--color-accent, #8c7851);
+}
+
+.actionLabel {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(26, 26, 26, 0.4);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  font-family: var(--font-sans), sans-serif;
+}
+
+.actionLabel:hover {
+  color: var(--color-accent, #8c7851);
+}
+
+.underlineContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  /* Was 0.1 opacity — now 0.2 so it's readable on warm bg */
+  border-bottom: 1.5px solid rgba(26, 26, 26, 0.2);
+  transition: border-color 0.5s ease;
+}
+
+.underlineContainer:focus-within {
+  border-color: var(--color-accent, #8c7851);
+}
+
+.underlinePrefixIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: rgba(26, 26, 26, 0.3);
+  width: 1rem;
+  height: 1rem;
+  transition: color 0.3s ease;
+}
+
+.underlineContainer:focus-within .underlinePrefixIcon {
+  color: var(--color-accent, #8c7851);
+}
+
+.underlineInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.125rem;
+  font-weight: 300;
+  color: var(--color-ink, #1a1a1a);
+  font-family: var(--font-sans), sans-serif;
+  line-height: 1;
+}
+
+.underlineInput::placeholder {
+  color: rgba(26, 26, 26, 0.2);
+  opacity: 1;
+}
+
+/* Prevent Chrome autofill from overriding styles */
+.underlineInput:-webkit-autofill,
+.underlineInput:-webkit-autofill:hover,
+.underlineInput:-webkit-autofill:focus,
+.underlineInput:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-ink, #1a1a1a) !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.underlineInput:focus {
+  border: none;
+  outline: none;
+}
+
+.underlineDisabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ─────────────────────────────────────────────
+   Filled variant — warm background box style
+   Used in modals, profile forms, search inputs
+───────────────────────────────────────────── */
+
+.filledWrapper {
+  gap: 6px;
+}
+
+.filledLabel {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(26, 26, 26, 0.35);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.filledContainer {
+  position: relative;
+  width: 100%;
+}
+
+.filledInput {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: var(--color-bg-warm, #faf9f6);
+  /*
+   * FIX: was rgba(26,26,26,0.06) — nearly invisible on #faf9f6.
+   * Now 0.18 — clearly a visible border without being heavy.
+   */
+  border: 1.5px solid rgba(26, 26, 26, 0.18);
+  border-radius: 1rem;
+  outline: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink, #1a1a1a);
+  font-family: var(--font-sans), sans-serif;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+/* Prevent Chrome autofill from overriding styles */
+.filledInput:-webkit-autofill,
+.filledInput:-webkit-autofill:hover,
+.filledInput:-webkit-autofill:focus,
+.filledInput:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-ink, #1a1a1a) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-bg-warm, #faf9f6) inset !important;
+  background-color: var(--color-bg-warm, #faf9f6) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.filledInput--noIcon {
+  padding-left: 1rem;
+}
+
+.filledInput:focus {
+  border-color: var(--color-accent, #8c7851);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 3px rgba(140, 120, 81, 0.12);
+}
+
+.filledInput::placeholder {
+  color: rgba(26, 26, 26, 0.28);
+  font-weight: 400;
+}
+
+.filledInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.filledPrefixIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: rgba(26, 26, 26, 0.3);
+  pointer-events: none;
+  transition: color 0.2s ease;
+  z-index: 1;
+}
+
+.filledContainer:focus-within .filledPrefixIcon {
+  color: var(--color-accent, #8c7851);
+}

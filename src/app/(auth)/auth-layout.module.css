@@ -1,0 +1,462 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-bg-warm);
+}
+
+@media (min-width: 768px) {
+  .page {
+    flex-direction: row;
+  }
+}
+
+.leftSection {
+  display: none;
+  position: relative;
+  background-color: var(--color-ink);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .leftSection {
+    display: flex;
+    width: 55%;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .leftSection {
+    padding: 6rem;
+  }
+}
+
+.bgImageWrap {
+  position: absolute;
+  inset: 0;
+  animation: scaleIn 1.5s ease-out both;
+}
+
+.bgImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+  mix-blend-mode: luminosity;
+}
+
+.gradientLeft {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to left, rgba(250, 249, 246, 0.1), transparent);
+}
+
+.gradientBottom {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(26, 26, 26, 1), rgba(26, 26, 26, 0) 50%, transparent);
+  opacity: 0.9;
+}
+
+.cardContainer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.cardMotion {
+  position: relative;
+  animation: fadeSlideUp 1s ease-out 0.5s both;
+}
+
+.bgCard1 {
+  position: absolute;
+  top: 1rem;
+  right: -1rem;
+  width: 100%;
+  height: 100%;
+  background: rgba(250, 249, 246, 0.05);
+  border-radius: 1rem;
+  border: 1px solid rgba(250, 249, 246, 0.1);
+  transform: rotate(6deg);
+}
+
+.bgCard2 {
+  position: absolute;
+  top: 0.5rem;
+  right: -0.5rem;
+  width: 100%;
+  height: 100%;
+  background: rgba(250, 249, 246, 0.1);
+  border-radius: 1rem;
+  border: 1px solid rgba(250, 249, 246, 0.2);
+  transform: rotate(3deg);
+}
+
+.mainCard {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background-color: var(--color-bg-warm);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(250, 249, 246, 0.2);
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.7s ease;
+}
+
+.mainCard:hover .cardImage {
+  filter: grayscale(0);
+}
+
+.cardGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(26, 26, 26, 0.8), transparent 50%, transparent);
+}
+
+.cardInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  color: var(--color-bg-warm);
+}
+
+.aiTag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sparkleIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--color-accent);
+}
+
+.aiTagText {
+  opacity: 0.6;
+}
+
+.movieTitle {
+  margin-bottom: 0.25rem;
+}
+
+.movieMeta {
+  opacity: 0.5;
+}
+
+.swipeLeft {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 1rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.swipeRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 1rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.mainCard:hover .swipeLeft,
+.mainCard:hover .swipeRight {
+  opacity: 1;
+}
+
+.swipeCircleLeft {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.swipeCircleRight {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.swipeIconX {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgb(239, 68, 68);
+}
+
+.swipeIconHeart {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgb(16, 185, 129);
+}
+
+.quoteBlock {
+  margin-top: 3rem;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out 1.2s both;
+}
+
+.quoteText {
+  color: var(--color-bg-warm);
+  opacity: 0.8;
+}
+
+.dots {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  height: 0.25rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background: rgba(250, 249, 246, 0.2);
+  transition: all 0.5s ease;
+}
+
+.dotActive {
+  width: 2rem;
+  background: var(--color-accent);
+}
+
+.leftBranding {
+  position: absolute;
+  top: 3rem;
+  left: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoCircle {
+  width: 2rem;
+  height: 2rem;
+  background: var(--color-bg-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.logoIcon {
+  color: var(--color-ink);
+  width: 1rem;
+  height: 1rem;
+}
+
+.logoText {
+  color: var(--color-bg-warm);
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+
+.rightSection {
+  width: 100%;
+  padding: 2rem;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 10;
+  background-color: var(--color-bg-warm);
+  animation: fadeSlideFromRight 0.8s ease-out both;
+}
+
+@media (min-width: 768px) {
+  .rightSection {
+    width: 45%;
+    padding: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rightSection {
+    padding: 1rem 6rem;
+  }
+}
+
+.mobileHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .mobileHeader {
+    display: none;
+  }
+}
+
+.mobileLogoCircle {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.mobileLogoIcon {
+  color: var(--color-bg-warm);
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.mobileLogoText {
+  letter-spacing: -0.025em;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.desktopSpacer {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktopSpacer {
+    display: block;
+  }
+}
+
+.formMain {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .formMain {
+    margin: 0;
+  }
+}
+
+.footer {
+  margin-top: 3rem;
+}
+
+@media (min-width: 768px) {
+  .footer {
+    margin-top: 0;
+  }
+}
+
+.footerTop {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.avatarStack {
+  display: flex;
+}
+
+.avatarStack > * + * {
+  margin-left: -0.5rem;
+}
+
+.avatarItem {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg-warm);
+  background: rgba(26, 26, 26, 0.1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatarItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.footerUsers {
+  color: rgba(26, 26, 26, 0.4);
+}
+
+.footerUsers strong {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.footerCopy {
+  color: rgba(26, 26, 26, 0.2);
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeSlideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
