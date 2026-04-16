@@ -1,24 +1,30 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { Cormorant_Garamond, Inter } from 'next/font/google';
+import './globals.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const cormorantGaramond = Cormorant_Garamond({
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-cormorant',
+  subsets: ['latin'],
+  display: 'swap',
+  style: ['normal', 'italic'],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const inter = Inter({
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-inter',
+  subsets: ['latin'],
+  display: 'swap',
+  style: ['normal'],
 });
 
 export const metadata = {
-  title: "CineMatch",
-  description: "Created By Bhumik Jain",
+  title: 'CineMatch',
+  description: 'Created By Bhumik Jain',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`}>
       <body>{children}</body>
     </html>
   );
