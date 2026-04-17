@@ -44,7 +44,6 @@ export default function Login() {
 
   return (
     <div className={styles.tabWrapper}>
-      {/* Header */}
       <div className={styles.headerGroup}>
         <div className={styles.badge}>
           <Sparkles className={styles.badgeIcon} />
@@ -62,7 +61,6 @@ export default function Login() {
         </p>
       </div>
 
-      {/* Demo hint */}
       <div className={styles.demoHint}>
         <span className={clsx('text-micro', styles.demoHintLabel)}>Demo credentials</span>
         <code className={clsx('text-sm', styles.demoHintCode)}>

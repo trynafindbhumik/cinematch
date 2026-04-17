@@ -68,6 +68,7 @@
   --color-ink-72: rgba(26, 26, 26, 0.72);
   --color-ink-80: rgba(26, 26, 26, 0.8);
   --color-ink-60: rgba(26, 26, 26, 0.6);
+  --color-ink-55: rgba(26, 26, 26, 0.55);
   --color-ink-50: rgba(26, 26, 26, 0.5);
   --color-ink-45: rgba(26, 26, 26, 0.45);
   --color-ink-40: rgba(26, 26, 26, 0.4);
@@ -78,12 +79,7 @@
   --color-ink-20: rgba(26, 26, 26, 0.2);
   --color-ink-14: rgba(26, 26, 26, 0.14);
   --color-ink-18: rgba(26, 26, 26, 0.18);
-  --color-error-06: rgba(239, 68, 68, 0.06);
-  --color-error-18: rgba(239, 68, 68, 0.18);
-  --color-accent-15: rgba(140, 120, 81, 0.15);
-  --color-ink-65: rgba(26, 26, 26, 0.65);
-  --color-bg-white-95: rgba(255, 255, 255, 0.95);
-  --color-bg-white-92: rgba(255, 255, 255, 0.92);
+  --color-ink-15: rgba(26, 26, 26, 0.15);
   --color-ink-12: rgba(26, 26, 26, 0.12);
   --color-ink-10: rgba(26, 26, 26, 0.1);
   --color-ink-08: rgba(26, 26, 26, 0.08);
@@ -92,6 +88,9 @@
   --color-ink-05: rgba(26, 26, 26, 0.05);
   --color-ink-04: rgba(26, 26, 26, 0.04);
   --color-ink-02: rgba(26, 26, 26, 0.02);
+  --color-ink-01: rgba(26, 26, 26, 0.01);
+  --color-error-06: rgba(239, 68, 68, 0.06);
+  --color-error-18: rgba(239, 68, 68, 0.18);
 
   /* 2c. Accent Alpha Stack */
   /*
@@ -102,13 +101,19 @@
   --color-accent-30: rgba(140, 120, 81, 0.3);
   --color-accent-25: rgba(140, 120, 81, 0.25);
   --color-accent-20: rgba(140, 120, 81, 0.2);
+  --color-accent-18: rgba(140, 120, 81, 0.18);
+  --color-accent-15: rgba(140, 120, 81, 0.15);
   --color-accent-12: rgba(140, 120, 81, 0.12);
   --color-accent-10: rgba(140, 120, 81, 0.1);
   --color-accent-08: rgba(140, 120, 81, 0.08);
   --color-accent-06: rgba(140, 120, 81, 0.06);
   --color-accent-05: rgba(140, 120, 81, 0.05);
   --color-accent-04: rgba(140, 120, 81, 0.04);
+  --color-accent-03: rgba(140, 120, 81, 0.03);
   --color-accent-02: rgba(140, 120, 81, 0.02);
+  --color-accent-50: rgba(140, 120, 81, 0.5);
+  --color-bg-white-95: rgba(255, 255, 255, 0.95);
+  --color-bg-white-92: rgba(255, 255, 255, 0.92);
 
   /* 2d. Status / Semantic Colors */
 
@@ -121,9 +126,21 @@
   --color-error-25: rgba(211, 56, 56, 0.25);
   --color-error-10: rgba(239, 68, 68, 0.1);
   --color-error-50: rgba(239, 68, 68, 0.5);
+  --color-error-15: rgba(239, 68, 68, 0.15);
   --color-success: #22c55e;
   --color-success-50: rgba(16, 185, 129, 0.5);
   --color-success-10: rgba(16, 185, 129, 0.1);
+  --color-like-green: #10b981;
+  --color-like-green-25: rgba(16, 185, 129, 0.25);
+  --color-like-green-50: rgba(16, 185, 129, 0.5);
+  --color-error-red: #dc2626;
+  --color-error-red-18: rgba(220, 38, 38, 0.18);
+  --color-error-red-30: rgba(220, 38, 38, 0.3);
+  --color-error-red-35: rgba(220, 38, 38, 0.35);
+  --color-error-red-45: rgba(220, 38, 38, 0.45);
+  --color-error-red-85: rgba(220, 38, 38, 0.85);
+  --color-error-red-95: rgba(220, 38, 38, 0.95);
+  --color-rating-yellow: #fbbf24;
 
   /* 2e. Reaction / Swipe Palette */
 
@@ -142,15 +159,68 @@
   --color-input-disabled-bg: #e8ebec;
 }
 
-/*
- 3.  TYPOGRAPHY UTILITY CLASSES
-  
-   Naming convention:  .text-{size}
-   All values reference tokens from Section 2.
-  
-   TEXT family     (.text-xs, .text-sm, .text-base, etc.)
-   HEADING family  (.h-xl, .h-2xl, .h-3xl, etc.)
- */
+/* HEADING family  (.h-xl, .h-2xl, .h-3xl, etc.) */
+
+.h-base {
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+
+.h-md {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+}
+
+.h-lg {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+.h-xl {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.15;
+}
+
+.h-2xl {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.1;
+}
+
+.h-3xl {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.05;
+}
+
+.h-4xl {
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.1;
+}
+
+@media (min-width: 768px) {
+  .h-2xl {
+    font-size: var(--fs-2xl);
+  }
+  .h-3xl {
+    font-size: var(--fs-3xl);
+  }
+  .h-4xl {
+    font-size: var(--fs-4xl);
+  }
+}
 
 .text-micro {
   font-family: var(--font-primary);
@@ -170,6 +240,22 @@
 }
 
 .text-sm {
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm); /* 12px */
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.text-base-tight {
+  font-family: var(--font-primary);
+  font-size: var(--fs-base); /* 14px */
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+.text-base {
   font-family: var(--font-primary);
   font-size: var(--fs-sm); /* 12px */
   font-weight: var(--fw-bold);

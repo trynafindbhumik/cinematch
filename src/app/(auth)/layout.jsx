@@ -85,7 +85,6 @@ export default function AuthLayout({ children }) {
       </div>
 
       <div className={styles.rightSection}>
-        {/* Mobile-only header */}
         <header className={styles.mobileHeader}>
           <div className={styles.mobileLogoCircle}>
             <Film className={styles.mobileLogoIcon} />

@@ -1,0 +1,47 @@
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  color: var(--color-ink-35);
+}
+
+.toggle {
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  background: var(--color-ink-10);
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.toggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toggleOn {
+  background: var(--color-accent);
+}
+
+.thumb {
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  background: var(--color-surface);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px var(--color-ink-30);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toggleOn .thumb {
+  transform: translateX(1rem);
+}
