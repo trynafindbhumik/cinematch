@@ -57,7 +57,7 @@ export default function Dropdown({
 
   return (
     <div className={clsx(styles.wrapper, className)} ref={wrapperRef}>
-      {label && <span className={styles.label}>{label}</span>}
+      {label && <span className={clsx('text-xs', styles.label)}>{label}</span>}
 
       <button
         type="button"
@@ -79,7 +79,7 @@ export default function Dropdown({
             <>
               <button
                 type="button"
-                className={clsx(styles.option, styles.clearOption)}
+                className={clsx('text-xs', styles.option, styles.clearOption)}
                 onClick={handleClear}
                 role="option"
                 aria-selected={false}

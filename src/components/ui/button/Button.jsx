@@ -39,6 +39,7 @@ export default function Button({
       disabled={disabled}
       onClick={onClick}
       className={clsx(
+        'text-sm',
         styles.button,
         styles[variant],
         styles[`size--${size}`],
@@ -48,7 +49,6 @@ export default function Button({
       )}
       {...props}
     >
-      {/* Sliding accent overlay — cinema variant only */}
       {variant === 'cinema' && <span className={styles.overlay} aria-hidden="true" />}
 
       {leftIcon && <span className={clsx(styles.iconWrap, styles.iconLeft)}>{leftIcon}</span>}

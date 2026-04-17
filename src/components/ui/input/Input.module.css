@@ -12,7 +12,7 @@
 }
 
 .label {
-  color: #4a4a4a;
+  color: var(--color-input-label);
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -21,7 +21,7 @@
   height: 44px;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #b0b0b0;
+  border: 1px solid var(--color-input-border);
   color: var(--color-ink, #1a1a1a);
   outline: none;
   width: 100%;
@@ -31,11 +31,14 @@
   background: transparent;
 }
 
-/* Prevent Chrome autofill from overriding styles */
 .input:-webkit-autofill,
 .input:-webkit-autofill:hover,
 .input:-webkit-autofill:focus,
-.input:-webkit-autofill:active {
+.input:-webkit-autofill:active,
+.underlineInput:-webkit-autofill,
+.underlineInput:-webkit-autofill:hover,
+.underlineInput:-webkit-autofill:focus,
+.underlineInput:-webkit-autofill:active {
   -webkit-text-fill-color: var(--color-ink, #1a1a1a) !important;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
   background-color: transparent !important;
@@ -52,11 +55,11 @@
 
 .input:focus {
   border: 1.5px solid var(--color-accent, #8c7851);
-  box-shadow: 0 0 0 3px rgba(140, 120, 81, 0.1);
+  box-shadow: 0 0 0 3px var(--color-accent-10);
 }
 
 .input::placeholder {
-  color: #a4a4a4;
+  color: var(--color-input-placeholder);
   opacity: 1;
 }
 
@@ -66,7 +69,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6e6e6e;
+  color: var(--color-input-icon);
   z-index: 1;
   top: 50%;
   transform: translateY(-50%);
@@ -76,7 +79,7 @@
   position: absolute;
   width: 16px;
   height: 16px;
-  color: #a4a4a4;
+  color: var(--color-input-placeholder);
   top: 50%;
   right: 12px;
   transform: translateY(-50%);
@@ -84,20 +87,20 @@
 }
 
 .disabled {
-  border: 1px solid #e8ebec;
+  border: 1px solid var(--color-input-disabled-bg);
   cursor: not-allowed;
-  background: #e8ebec;
+  background: var(--color-input-disabled-bg);
 }
 
 .error {
-  border: 1px solid #d33838;
+  border: 1px solid var(--color-error);
 }
 
 .errorText {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #d33838;
+  color: var(--color-error);
   font-size: 0.75rem;
 }
 
@@ -107,12 +110,8 @@
 }
 
 .required {
-  color: #d33838;
+  color: var(--color-error);
 }
-
-/* ─────────────────────────────────────────────
-   Underline variant
-───────────────────────────────────────────── */
 
 .underlineWrapper {
   gap: 4px;
@@ -125,13 +124,8 @@
 }
 
 .underlineLabel {
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: rgba(26, 26, 26, 0.4);
+  color: var(--color-ink-40);
   transition: color 0.3s ease;
-  font-family: var(--font-sans), sans-serif;
 }
 
 .underlineWrapper:focus-within .underlineLabel {
@@ -139,13 +133,10 @@
 }
 
 .actionLabel {
-  font-size: 0.625rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(26, 26, 26, 0.4);
+  color: var(--color-ink-40);
   cursor: pointer;
   transition: color 0.2s ease;
-  font-family: var(--font-sans), sans-serif;
 }
 
 .actionLabel:hover {
@@ -157,8 +148,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 0;
-  /* Was 0.1 opacity — now 0.2 so it's readable on warm bg */
-  border-bottom: 1.5px solid rgba(26, 26, 26, 0.2);
+  border-bottom: 1.5px solid var(--color-ink-20);
   transition: border-color 0.5s ease;
 }
 
@@ -170,7 +160,7 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  color: rgba(26, 26, 26, 0.3);
+  color: var(--color-ink-30);
   width: 1rem;
   height: 1rem;
   transition: color 0.3s ease;
@@ -193,19 +183,8 @@
 }
 
 .underlineInput::placeholder {
-  color: rgba(26, 26, 26, 0.2);
+  color: var(--color-ink-20);
   opacity: 1;
-}
-
-/* Prevent Chrome autofill from overriding styles */
-.underlineInput:-webkit-autofill,
-.underlineInput:-webkit-autofill:hover,
-.underlineInput:-webkit-autofill:focus,
-.underlineInput:-webkit-autofill:active {
-  -webkit-text-fill-color: var(--color-ink, #1a1a1a) !important;
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
-  background-color: transparent !important;
-  transition: background-color 5000s ease-in-out 0s;
 }
 
 .underlineInput:focus {
@@ -218,22 +197,13 @@
   opacity: 0.6;
 }
 
-/* ─────────────────────────────────────────────
-   Filled variant — warm background box style
-   Used in modals, profile forms, search inputs
-───────────────────────────────────────────── */
-
 .filledWrapper {
   gap: 6px;
 }
 
 .filledLabel {
-  font-size: 0.625rem;
-  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: rgba(26, 26, 26, 0.35);
-  font-family: var(--font-sans), sans-serif;
+  color: var(--color-ink-35);
 }
 
 .filledContainer {
@@ -245,11 +215,7 @@
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
   background: var(--color-bg-warm, #faf9f6);
-  /*
-   * FIX: was rgba(26,26,26,0.06) — nearly invisible on #faf9f6.
-   * Now 0.18 — clearly a visible border without being heavy.
-   */
-  border: 1.5px solid rgba(26, 26, 26, 0.18);
+  border: 1.5px solid var(--color-ink-18);
   border-radius: 1rem;
   outline: none;
   font-size: 0.9375rem;
@@ -262,7 +228,6 @@
     background 0.2s ease;
 }
 
-/* Prevent Chrome autofill from overriding styles */
 .filledInput:-webkit-autofill,
 .filledInput:-webkit-autofill:hover,
 .filledInput:-webkit-autofill:focus,
@@ -279,12 +244,12 @@
 
 .filledInput:focus {
   border-color: var(--color-accent, #8c7851);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 3px rgba(140, 120, 81, 0.12);
+  background: var(--color-bg-white-95);
+  box-shadow: 0 0 0 3px var(--color-accent-12);
 }
 
 .filledInput::placeholder {
-  color: rgba(26, 26, 26, 0.28);
+  color: var(--color-ink-28);
   font-weight: 400;
 }
 
@@ -300,7 +265,7 @@
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  color: rgba(26, 26, 26, 0.3);
+  color: var(--color-ink-30);
   pointer-events: none;
   transition: color 0.2s ease;
   z-index: 1;
