@@ -4,14 +4,8 @@
 }
 
 .label {
-  display: block;
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(26, 26, 26, 0.4);
+  color: var(--color-ink-40);
   margin-bottom: 0.5rem;
-  font-family: var(--font-sans, sans-serif);
 }
 
 .trigger {
@@ -21,14 +15,14 @@
   gap: 0.5rem;
   padding: 0.65rem 0.875rem;
   background: #fff;
-  border: 1px solid rgba(26, 26, 26, 0.1);
+  border: 1px solid var(--color-ink-10);
   border-radius: 0.875rem;
   cursor: pointer;
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
     box-shadow 0.2s ease;
-  font-family: var(--font-sans, sans-serif);
+  font-family: var(--font-primary);
   font-size: 0.875rem;
   color: var(--color-ink, #1a1a1a);
   text-align: left;
@@ -36,20 +30,20 @@
 }
 
 .trigger:hover {
-  border-color: rgba(26, 26, 26, 0.2);
-  box-shadow: 0 2px 8px rgba(26, 26, 26, 0.06);
+  border-color: var(--color-ink-20);
+  box-shadow: 0 2px 8px var(--color-ink-06);
 }
 
 .triggerOpen {
   border-color: var(--color-accent, #8c7851);
-  background: rgba(140, 120, 81, 0.02);
-  box-shadow: 0 0 0 3px rgba(140, 120, 81, 0.1);
+  background: var(--color-accent-02);
+  box-shadow: 0 0 0 3px var(--color-accent-10);
 }
 
 .triggerIcon {
   display: flex;
   align-items: center;
-  color: rgba(26, 26, 26, 0.3);
+  color: var(--color-ink-30);
   flex-shrink: 0;
   transition: color 0.2s ease;
 }
@@ -69,14 +63,14 @@
 }
 
 .placeholder {
-  color: rgba(26, 26, 26, 0.35);
+  color: var(--color-ink-35);
   font-weight: 400;
 }
 
 .chevron {
   width: 1rem;
   height: 1rem;
-  color: rgba(26, 26, 26, 0.3);
+  color: var(--color-ink-30);
   flex-shrink: 0;
   transition:
     transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -94,11 +88,11 @@
   left: 0;
   right: 0;
   background: #fff;
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  border: 1px solid var(--color-ink-08);
   border-radius: 1rem;
   box-shadow:
-    0 4px 6px -1px rgba(26, 26, 26, 0.06),
-    0 24px 48px -12px rgba(26, 26, 26, 0.14);
+    0 4px 6px -1px var(--color-ink-06),
+    0 24px 48px -12px var(--color-ink-14);
   overflow: hidden;
   z-index: 100;
   padding: 0.375rem;
@@ -109,7 +103,7 @@
   max-height: 260px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(26, 26, 26, 0.1) transparent;
+  scrollbar-color: var(--color-ink-10) transparent;
 }
 
 .panelScroll::-webkit-scrollbar {
@@ -117,13 +111,13 @@
 }
 
 .panelScroll::-webkit-scrollbar-thumb {
-  background: rgba(26, 26, 26, 0.1);
+  background: var(--color-ink-10);
   border-radius: 4px;
 }
 
 .divider {
   height: 1px;
-  background: rgba(26, 26, 26, 0.05);
+  background: var(--color-ink-05);
   margin: 0.25rem 0.375rem;
 }
 
@@ -134,7 +128,7 @@
   justify-content: space-between;
   padding: 0.6rem 0.875rem;
   font-size: 0.875rem;
-  font-family: var(--font-sans, sans-serif);
+  font-family: var(--font-primary);
   color: var(--color-ink, #1a1a1a);
   border-radius: 0.625rem;
   cursor: pointer;
@@ -148,17 +142,17 @@
 }
 
 .option:hover {
-  background: rgba(26, 26, 26, 0.04);
+  background: var(--color-ink-04);
 }
 
 .optionSelected {
-  background: rgba(140, 120, 81, 0.08) !important;
+  background: var(--color-accent-08) !important;
   color: var(--color-accent, #8c7851);
   font-weight: 600;
 }
 
 .optionSelected:hover {
-  background: rgba(140, 120, 81, 0.12) !important;
+  background: var(--color-accent-12) !important;
 }
 
 .optionLabel {
@@ -173,14 +167,13 @@
 }
 
 .clearOption {
-  color: rgba(26, 26, 26, 0.4);
-  font-size: 0.75rem;
+  color: var(--color-ink-40);
   font-style: italic;
 }
 
 .clearOption:hover {
-  background: rgba(239, 68, 68, 0.05);
-  color: rgb(239, 68, 68);
+  background: var(--color-error-05);
+  color: var(--color-error);
 }
 
 @keyframes dropdownIn {

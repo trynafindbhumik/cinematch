@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+
 export default function Home() {
-  return <section>Welcome to cineMatch</section>;
+  return redirect('/login');
 }
