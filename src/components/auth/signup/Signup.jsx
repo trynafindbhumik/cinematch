@@ -18,7 +18,6 @@ export default function Signup() {
 
   return (
     <div className={styles.tabWrapper}>
-      {/* Header */}
       <div className={styles.headerGroup}>
         <div className={styles.badge}>
           <Sparkles className={styles.badgeIcon} />
@@ -35,7 +34,6 @@ export default function Signup() {
         </p>
       </div>
 
-      {/* Form */}
       <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
         <Input
           variant="underline"
