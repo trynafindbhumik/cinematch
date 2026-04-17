@@ -9,9 +9,6 @@
   cursor: pointer;
   overflow: hidden;
   z-index: 1;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   transition:
     transform 0.1s ease,
     box-shadow 0.15s ease,
@@ -23,26 +20,21 @@
   width: 100%;
 }
 
-/* Sizes  */
 .size--lg {
   padding: 0.875rem 2rem;
   border-radius: 0.75rem;
-  font-size: 0.75rem;
 }
 
 .size--md {
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
-  font-size: 0.75rem;
 }
 
 .size--sm {
   padding: 0.5rem 1.125rem;
   border-radius: 0.625rem;
-  font-size: 0.6875rem;
 }
 
-/* Inner atoms */
 .label {
   position: relative;
   z-index: 1;
@@ -81,11 +73,10 @@
   transform: translateX(5px);
 }
 
-/*  Primary  */
 .primary {
   background-color: var(--color-ink, #1a1a1a);
   color: var(--color-bg-warm, #faf9f6);
-  box-shadow: 0 2px 8px rgba(26, 26, 26, 0.18);
+  box-shadow: 0 2px 8px var(--color-ink-18);
 }
 
 .primary:hover {
@@ -95,7 +86,6 @@
   box-shadow: 0px 4px 4px 0px #00000099 inset;
 }
 
-/*  Secondary  */
 .secondary {
   background-color: transparent;
   border: 1px solid var(--color-ink, #1a1a1a);
@@ -103,19 +93,18 @@
 }
 
 .secondary:hover {
-  background: rgba(26, 26, 26, 0.05);
+  background: var(--color-ink-05);
 }
 .secondary:active {
   box-shadow: 0px 2px 4px 0px #00000040 inset;
 }
 
-/* Cinema */
 .cinema {
   background: var(--color-ink, #1a1a1a);
   color: var(--color-bg-warm, #faf9f6);
   box-shadow:
-    0 20px 25px -5px rgba(26, 26, 26, 0.1),
-    0 8px 10px -6px rgba(26, 26, 26, 0.1);
+    0 20px 25px -5px var(--color-ink-10),
+    0 8px 10px -6px var(--color-ink-10);
   transition:
     transform 0.12s ease,
     box-shadow 0.15s ease;
@@ -143,28 +132,27 @@
   transform: translateX(0%);
 }
 
-/* Ghost */
 .ghost {
   background: transparent;
   border: none;
-  color: rgba(26, 26, 26, 0.4);
+  color: var(--color-ink-40);
   transition:
     color 0.2s ease,
     background 0.2s ease;
 }
 .ghost:hover {
   color: var(--color-ink, #1a1a1a);
-  background: rgba(26, 26, 26, 0.04);
+  background: var(--color-ink-04);
 }
 .ghost:active {
-  background: rgba(26, 26, 26, 0.08);
+  background: var(--color-ink-08);
 }
 
 /* Danger */
 .danger {
   background: #d33838;
   color: #fff;
-  box-shadow: 0 4px 14px rgba(211, 56, 56, 0.25);
+  box-shadow: 0 4px 14px var(--color-error-25);
   transition:
     background 0.2s ease,
     transform 0.1s ease;
@@ -176,7 +164,6 @@
   transform: scale(0.98);
 }
 
-/* Disabled */
 .disabled {
   opacity: 0.55;
   cursor: not-allowed;

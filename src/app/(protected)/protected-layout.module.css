@@ -1,0 +1,27 @@
+.appContainer {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-bg-warm, #faf9f6);
+}
+
+.contentWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.mainContent {
+  flex: 1;
+  overflow: auto;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .mainContent {
+    padding-bottom: 0;
+  }
+}

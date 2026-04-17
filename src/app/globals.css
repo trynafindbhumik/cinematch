@@ -49,12 +49,15 @@
 
   /* 2a. Core Palette */
 
-  --color-bg-warm: #faf9f6; /* warm off-white — primary background  */
-  --color-surface: #ffffff; /* pure white — cards, panels, inputs   */
-  --color-ink: #1a1a1a; /* near-black — primary text, dark fills*/
-  --color-ink-hover: #2a2a2a; /* ink on hover / pressed               */
-  --color-accent: #8c7851; /* gold — links, highlights, active CTAs*/
-  --color-accent-hover: #7a6844; /* gold — hover / pressed state         */
+  --color-bg-warm: #faf9f6;
+  --color-surface: #ffffff;
+  --color-bg-warm-20: rgba(250, 249, 246, 0.2);
+  --color-bg-warm-10: rgba(250, 249, 246, 0.1);
+  --color-bg-warm-05: rgba(250, 249, 246, 0.05);
+  --color-ink: #1a1a1a;
+  --color-ink-hover: #2a2a2a;
+  --color-accent: #8c7851;
+  --color-accent-hover: #7a6844;
 
   /* 2b. Ink Alpha Stack */
   /*
@@ -62,14 +65,33 @@
      Use these instead of inline rgba(26, 26, 26, 0.XX) values.
   */
 
-  --color-ink-72: rgba(26, 26, 26, 0.72); /* heavy body / synopsis text  */
-  --color-ink-60: rgba(26, 26, 26, 0.6); /* secondary body text         */
-  --color-ink-50: rgba(26, 26, 26, 0.5); /* tertiary text               */
-  --color-ink-40: rgba(26, 26, 26, 0.4); /* muted text, placeholders    */
-  --color-ink-28: rgba(26, 26, 26, 0.28); /* very muted / disabled label */
-  --color-ink-18: rgba(26, 26, 26, 0.18); /* visible borders, dividers   */
-  --color-ink-08: rgba(26, 26, 26, 0.08); /* subtle borders              */
-  --color-ink-05: rgba(26, 26, 26, 0.05); /* hairlines, section dividers */
+  --color-ink-72: rgba(26, 26, 26, 0.72);
+  --color-ink-80: rgba(26, 26, 26, 0.8);
+  --color-ink-60: rgba(26, 26, 26, 0.6);
+  --color-ink-50: rgba(26, 26, 26, 0.5);
+  --color-ink-45: rgba(26, 26, 26, 0.45);
+  --color-ink-40: rgba(26, 26, 26, 0.4);
+  --color-ink-35: rgba(26, 26, 26, 0.35);
+  --color-ink-30: rgba(26, 26, 26, 0.3);
+  --color-ink-28: rgba(26, 26, 26, 0.28);
+  --color-ink-25: rgba(26, 26, 26, 0.25);
+  --color-ink-20: rgba(26, 26, 26, 0.2);
+  --color-ink-14: rgba(26, 26, 26, 0.14);
+  --color-ink-18: rgba(26, 26, 26, 0.18);
+  --color-error-06: rgba(239, 68, 68, 0.06);
+  --color-error-18: rgba(239, 68, 68, 0.18);
+  --color-accent-15: rgba(140, 120, 81, 0.15);
+  --color-ink-65: rgba(26, 26, 26, 0.65);
+  --color-bg-white-95: rgba(255, 255, 255, 0.95);
+  --color-bg-white-92: rgba(255, 255, 255, 0.92);
+  --color-ink-12: rgba(26, 26, 26, 0.12);
+  --color-ink-10: rgba(26, 26, 26, 0.1);
+  --color-ink-08: rgba(26, 26, 26, 0.08);
+  --color-ink-07: rgba(26, 26, 26, 0.07);
+  --color-ink-06: rgba(26, 26, 26, 0.06);
+  --color-ink-05: rgba(26, 26, 26, 0.05);
+  --color-ink-04: rgba(26, 26, 26, 0.04);
+  --color-ink-02: rgba(26, 26, 26, 0.02);
 
   /* 2c. Accent Alpha Stack */
   /*
@@ -78,33 +100,46 @@
   */
 
   --color-accent-30: rgba(140, 120, 81, 0.3);
+  --color-accent-25: rgba(140, 120, 81, 0.25);
   --color-accent-20: rgba(140, 120, 81, 0.2);
   --color-accent-12: rgba(140, 120, 81, 0.12);
+  --color-accent-10: rgba(140, 120, 81, 0.1);
   --color-accent-08: rgba(140, 120, 81, 0.08);
+  --color-accent-06: rgba(140, 120, 81, 0.06);
+  --color-accent-05: rgba(140, 120, 81, 0.05);
+  --color-accent-04: rgba(140, 120, 81, 0.04);
+  --color-accent-02: rgba(140, 120, 81, 0.02);
 
   /* 2d. Status / Semantic Colors */
 
-  --color-star: #fbbf24; /* IMDb-style rating stars         */
-  --color-error: #d33838; /* error banners, danger buttons   */
-  --color-error-dark: rgb(185, 28, 28); /* error body copy (darker)        */
-  --color-error-hover: #b82f2f; /* danger button hover             */
-  --color-success: #22c55e; /* online dot, active-watched badge*/
+  --color-star: #fbbf24;
+  --color-error: #d33838;
+  --color-error-dark: rgb(185, 28, 28);
+  --color-error-hover: #b82f2f;
+  --color-error-08: rgba(239, 68, 68, 0.08);
+  --color-error-05: rgba(239, 68, 68, 0.05);
+  --color-error-25: rgba(211, 56, 56, 0.25);
+  --color-error-10: rgba(239, 68, 68, 0.1);
+  --color-error-50: rgba(239, 68, 68, 0.5);
+  --color-success: #22c55e;
+  --color-success-50: rgba(16, 185, 129, 0.5);
+  --color-success-10: rgba(16, 185, 129, 0.1);
 
   /* 2e. Reaction / Swipe Palette */
 
-  --color-reaction-love: #e11d48; /* ❤️  loved it / swipe up      */
-  --color-reaction-like: #059669; /* 👍  liked it / swipe right   */
-  --color-reaction-dislike: #d97706; /* 👎  didn't like / swipe left */
-  --color-reaction-hate: #374151; /* 🚫  hated it                 */
-  --color-reaction-watched: #3b82f6; /* ✅  already watched          */
+  --color-reaction-love: #e11d48;
+  --color-reaction-like: #059669;
+  --color-reaction-dislike: #d97706;
+  --color-reaction-hate: #374151;
+  --color-reaction-watched: #3b82f6;
 
   /* 2f. Form / Input UI Colors */
 
-  --color-input-border: #b0b0b0; /* default input border (standard variant) */
-  --color-input-placeholder: #a4a4a4; /* placeholder text                        */
-  --color-input-label: #4a4a4a; /* input label                             */
-  --color-input-icon: #6e6e6e; /* input prefix icon                       */
-  --color-input-disabled-bg: #e8ebec; /* disabled input background               */
+  --color-input-border: #b0b0b0;
+  --color-input-placeholder: #a4a4a4;
+  --color-input-label: #4a4a4a;
+  --color-input-icon: #6e6e6e;
+  --color-input-disabled-bg: #e8ebec;
 }
 
 /*

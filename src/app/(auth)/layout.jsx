@@ -1,5 +1,3 @@
-'use client';
-
 import clsx from 'clsx';
 import { Film, Sparkles, Heart, X } from 'lucide-react';
 import Image from 'next/image';
@@ -14,7 +12,7 @@ import styles from './auth-layout.module.css';
 
 export default function AuthLayout({ children }) {
   return (
-    <div className={`${styles.page} film-grain`}>
+    <div className={`${styles.page} ${styles.filmGrain}`}>
       <div className={styles.leftSection}>
         <div className={styles.bgImageWrap}>
           <Image

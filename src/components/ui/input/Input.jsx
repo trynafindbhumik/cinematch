@@ -59,19 +59,20 @@ export default function Input({
     if (!disabled) onChange?.('');
   };
 
-  /* ── Underline ── */
   if (variant === 'underline') {
     return (
       <div className={clsx(styles.inputWrapper, styles.underlineWrapper)}>
         {(label || actionLabel) && (
           <div className={styles.underlineLabelRow}>
             {label && (
-              <label htmlFor={inputId} className={styles.underlineLabel}>
+              <label htmlFor={inputId} className={clsx('text-xs', styles.underlineLabel)}>
                 {label}
                 {required && <span className={styles.required}> *</span>}
               </label>
             )}
-            {actionLabel && <span className={styles.actionLabel}>{actionLabel}</span>}
+            {actionLabel && (
+              <span className={clsx('text-xs', styles.actionLabel)}>{actionLabel}</span>
+            )}
           </div>
         )}
 
@@ -100,12 +101,11 @@ export default function Input({
     );
   }
 
-  /* ── Filled ── */
   if (variant === 'filled') {
     return (
       <div className={clsx(styles.inputWrapper, styles.filledWrapper)}>
         {label && (
-          <label htmlFor={inputId} className={styles.filledLabel}>
+          <label htmlFor={inputId} className={clsx('text-xs', styles.filledLabel)}>
             {label}
             {required && <span className={styles.required}> *</span>}
           </label>
@@ -140,7 +140,6 @@ export default function Input({
     );
   }
 
-  /* ── Default ── */
   return (
     <div className={styles.inputWrapper}>
       {label && (
