@@ -1,0 +1,65 @@
+.checkboxLabel {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-60);
+  line-height: 1.5;
+}
+
+.checkboxInput {
+  display: none;
+}
+
+.checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.35rem;
+  border: 1.5px solid var(--color-ink-20);
+  background: var(--color-surface);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+  margin-top: 0.1rem;
+}
+
+.checkboxRounded {
+  border-radius: 0.5rem;
+}
+
+.checkboxDanger.checkboxChecked {
+  background: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.checkboxChecked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.checkboxChecked svg {
+  color: #fff;
+}
+
+.checkboxLabel:has(.checkboxInput:disabled) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.checkboxLabel:has(.checkboxInput:disabled) .checkbox {
+  cursor: not-allowed;
+}
+
+.label {
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-60);
+  line-height: 1.5;
+}

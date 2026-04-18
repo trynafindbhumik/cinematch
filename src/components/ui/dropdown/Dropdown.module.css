@@ -167,6 +167,8 @@
 }
 
 .clearOption {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
   color: var(--color-ink-40);
   font-style: italic;
 }

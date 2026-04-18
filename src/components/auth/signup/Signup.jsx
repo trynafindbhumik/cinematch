@@ -10,11 +10,45 @@ import Input from '@/components/ui/input/Input';
 
 import styles from '../Auth.module.css';
 
+import OtpVerification from './OtpVerification';
+
 export default function Signup() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [step, setStep] = useState('form');
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    setIsLoading(false);
+    setStep('otp');
+  };
+
+  const handleOtpVerified = async (otp) => {
+    // eslint-disable-next-line no-console
+    console.log('OTP verified:', otp);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    router.push('/login');
+  };
+
+  const handleResend = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  };
+
+  if (step === 'otp') {
+    return (
+      <OtpVerification
+        email={formData.email}
+        onBack={() => setStep('form')}
+        onVerify={handleOtpVerified}
+        onResend={handleResend}
+      />
+    );
+  }
 
   return (
     <div className={styles.tabWrapper}>
@@ -34,13 +68,13 @@ export default function Signup() {
         </p>
       </div>
 
-      <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <Input
           variant="underline"
           type="text"
           label="Full Name"
-          value={name}
-          onChange={setName}
+          value={formData.name}
+          onChange={(val) => setFormData((prev) => ({ ...prev, name: val }))}
           placeholder="John Doe"
           prefixIcon={<User size={16} />}
         />
@@ -49,8 +83,8 @@ export default function Signup() {
           variant="underline"
           type="email"
           label="Email Address"
-          value={email}
-          onChange={setEmail}
+          value={formData.email}
+          onChange={(val) => setFormData((prev) => ({ ...prev, email: val }))}
           placeholder="name@example.com"
           prefixIcon={<Mail size={16} />}
         />
@@ -59,8 +93,8 @@ export default function Signup() {
           variant="underline"
           type="password"
           label="Password"
-          value={password}
-          onChange={setPassword}
+          value={formData.password}
+          onChange={(val) => setFormData((prev) => ({ ...prev, password: val }))}
           placeholder="••••••••"
           prefixIcon={<Lock size={16} />}
         />
@@ -68,10 +102,18 @@ export default function Signup() {
         <Button
           variant="cinema"
           type="submit"
-          rightIcon={<ArrowRight size={16} />}
+          disabled={!formData.name || !formData.email || !formData.password || isLoading}
+          rightIcon={isLoading ? null : <ArrowRight size={16} />}
           className={styles.ctaButton}
         >
-          <span className={clsx('text-sm', styles.ctaLabel)}>Create Account</span>
+          {isLoading ? (
+            <span className={clsx('text-sm', styles.ctaLabel, styles.loadingWrap)}>
+              <span className={styles.spinner} />
+              Sending code...
+            </span>
+          ) : (
+            <span className={clsx('text-sm', styles.ctaLabel)}>Create Account</span>
+          )}
         </Button>
       </form>
 
