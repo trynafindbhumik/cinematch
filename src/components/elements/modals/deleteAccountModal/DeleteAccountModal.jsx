@@ -1,11 +1,14 @@
 'use client';
 
 import clsx from 'clsx';
-import { AlertTriangle, Download, Lock, Check } from 'lucide-react';
+import { AlertTriangle, Download, Lock, Check, Moon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Button from '@/components/ui/button/Button';
+import Checkbox from '@/components/ui/checkbox/Checkbox';
+import Dropdown from '@/components/ui/dropdown/Dropdown';
 import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 
 import sharedStyles from '../Modals.module.css';
@@ -13,10 +16,13 @@ import sharedStyles from '../Modals.module.css';
 import styles from './DeleteAccountModal.module.css';
 
 export default function DeleteAccountModal({ isOpen, onClose }) {
-  const [step, setStep] = useState('warn'); // 'warn' | 'confirm'
+  const [step, setStep] = useState('warn');
   const [confirmText, setConfirmText] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [disableConfirmText, setDisableConfirmText] = useState('');
+  const [disableDuration, setDisableDuration] = useState('30');
 
+  const router = useRouter();
   const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
 
   useEffect(() => {
@@ -33,6 +39,8 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
         setStep('warn');
         setConfirmText('');
         setAgreed(false);
+        setDisableConfirmText('');
+        setDisableDuration('30');
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -54,6 +62,20 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
     handleClose();
   };
 
+  const canProceedToDisable = disableConfirmText === 'DISABLE';
+
+  const handleDisableAccount = () => {
+    if (!canProceedToDisable) return;
+    setStep('disabled');
+  };
+
+  const handleDoneDisable = () => {
+    handleClose();
+    setTimeout(() => {
+      router.push('/login');
+    }, 300);
+  };
+
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
       <div className={sharedStyles.sheet} style={{ maxWidth: '30rem' }} ref={sheetRef}>
@@ -61,7 +83,7 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
         {step === 'warn' && (
           <>
-            <div className={sharedStyles.header}>
+            <div className={styles.deleteHeader}>
               <div className={clsx(styles.dangerIconWrap, sharedStyles.headerIcon)}>
                 <AlertTriangle size={22} />
               </div>
@@ -105,7 +127,12 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
               <div className={styles.alternative}>
                 <p className={styles.alternativeLabel}>Instead of deleting, you could:</p>
-                <Button variant="secondary" size="sm" className={styles.disableBtn}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className={styles.disableBtn}
+                  onClick={() => setStep('disable-confirm')}
+                >
                   Temporarily Disable Account
                 </Button>
               </div>
@@ -126,7 +153,7 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
         {step === 'confirm' && (
           <>
-            <div className={sharedStyles.header}>
+            <div className={styles.deleteHeader}>
               <div className={clsx(styles.dangerIconWrap, sharedStyles.headerIcon)}>
                 <Lock size={22} />
               </div>
@@ -152,21 +179,21 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
                 />
               </div>
 
-              <label className={styles.checkboxLabel}>
-                <span className={clsx(styles.checkbox, agreed && styles.checkboxChecked)}>
-                  {agreed && <Check size={11} />}
-                </span>
-                <input
-                  type="checkbox"
-                  className={styles.checkboxInput}
+              <div className={styles.checkboxWrap}>
+                <Checkbox
                   checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
+                  onChange={setAgreed}
+                  variant="danger"
+                  alignItems="flex-start"
+                  labelClass={styles.checkboxLabel}
+                  label={
+                    <>
+                      I understand this will <strong>permanently delete</strong> all my data and
+                      this action cannot be undone.
+                    </>
+                  }
                 />
-                <span>
-                  I understand this will <strong>permanently delete</strong> all my data and this
-                  action cannot be undone.
-                </span>
-              </label>
+              </div>
             </div>
 
             <div className={sharedStyles.footer}>
@@ -181,6 +208,139 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
                   disabled={!canProceedToConfirm}
                 >
                   Delete My Account
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 'disable-confirm' && (
+          <>
+            <div className={styles.deleteHeader}>
+              <div className={clsx(styles.dangerIconWrap, sharedStyles.headerIcon)}>
+                <Moon size={22} />
+              </div>
+              <div className={sharedStyles.headerText}>
+                <h2 className={clsx('h-3xl', sharedStyles.title)}>Temporarily Disable</h2>
+                <p className={sharedStyles.subtitle}>Choose how long to hide your account.</p>
+              </div>
+            </div>
+
+            <div className={sharedStyles.body}>
+              <p className={styles.confirmIntro}>
+                Your account will be <strong>temporarily hidden</strong> and cannot be accessed. You
+                can reactivate it anytime by logging back in. After the selected period, your
+                account and all data will be permanently deleted.
+              </p>
+
+              <div className={styles.durationSelector}>
+                <Dropdown
+                  label="Disable for:"
+                  options={[
+                    { value: '7', label: '1 Week' },
+                    { value: '14', label: '2 Weeks' },
+                    { value: '30', label: '1 Month' },
+                    { value: '90', label: '3 Months' },
+                  ]}
+                  value={disableDuration}
+                  onChange={(val) => setDisableDuration(val || '30')}
+                  placeholder="Select duration"
+                />
+              </div>
+
+              <div className={styles.disableInfoBox}>
+                <ul className={styles.disableInfoList}>
+                  <li>
+                    <Check size={13} className={styles.checkIcon} />
+                    Your watchlist and history will be saved
+                  </li>
+                  <li>
+                    <Check size={13} className={styles.checkIcon} />
+                    No one can see your profile or ratings
+                  </li>
+                  <li>
+                    <Check size={13} className={styles.checkIcon} />
+                    You can reactivate by simply logging in
+                  </li>
+                </ul>
+              </div>
+
+              <div className={styles.confirmInputWrap}>
+                <p className={styles.confirmIntro}>
+                  To confirm account disabling, type <strong>DISABLE</strong> below and check the
+                  box:
+                </p>
+                <input
+                  type="text"
+                  className={styles.confirmInput}
+                  placeholder="Type DISABLE"
+                  value={disableConfirmText}
+                  onChange={(e) => setDisableConfirmText(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            <div className={sharedStyles.footer}>
+              <div className={styles.actionRow}>
+                <button type="button" className={styles.cancelBtn} onClick={() => setStep('warn')}>
+                  Back
+                </button>
+                <button
+                  type="button"
+                  className={styles.disableAccountBtn}
+                  onClick={handleDisableAccount}
+                  disabled={!canProceedToDisable}
+                >
+                  Disable Account
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === 'disabled' && (
+          <>
+            <div className={styles.deleteHeader}>
+              <div className={clsx(styles.dangerIconWrap, sharedStyles.headerIcon)}>
+                <Moon size={22} />
+              </div>
+              <div className={sharedStyles.headerText}>
+                <h2 className={clsx('h-3xl', sharedStyles.title)}>Account Disabled</h2>
+                <p className={sharedStyles.subtitle}>See you again soon!</p>
+              </div>
+            </div>
+
+            <div className={sharedStyles.body}>
+              <div className={styles.successBox}>
+                <p className={styles.successText}>
+                  Your account has been <strong>temporarily disabled</strong> for{' '}
+                  <strong>
+                    {disableDuration === '7'
+                      ? '1 week'
+                      : disableDuration === '14'
+                        ? '2 weeks'
+                        : disableDuration === '30'
+                          ? '1 month'
+                          : '3 months'}
+                  </strong>
+                  . Log back in anytime to reactivate. After this period, all data will be
+                  permanently deleted.
+                </p>
+              </div>
+
+              <div className={styles.reactivateBox}>
+                <p className={styles.reactivateText}>
+                  To reactivate, simply <strong>log in</strong> before the period ends. Your data
+                  will be restored automatically.
+                </p>
+              </div>
+            </div>
+
+            <div className={sharedStyles.footer}>
+              <div className={styles.actionRow}>
+                <button type="button" className={styles.doneBtn} onClick={handleDoneDisable}>
+                  Done
                 </button>
               </div>
             </div>
