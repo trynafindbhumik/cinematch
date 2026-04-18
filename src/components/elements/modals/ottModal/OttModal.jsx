@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 import { OTTS, OTT_COLORS } from '@/mocks/data';
 
 import sharedStyles from '../Modals.module.css';
@@ -13,9 +14,6 @@ import sharedStyles from '../Modals.module.css';
 import styles from './OttModal.module.css';
 
 /**
- * OttModal — streaming service selector
- * Rendered via React Portal so it always covers the full viewport.
- *
  * Props:
  *  - isOpen         : boolean
  *  - onClose        : () => void
@@ -25,13 +23,11 @@ import styles from './OttModal.module.css';
 export default function OttModal({ isOpen, onClose, selectedOtts = [], onToggleOtt }) {
   const [search, setSearch] = useState('');
 
+  const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
+
   useEffect(() => {
     const prev = document.body.style.overflow;
-
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    }
-
+    if (isOpen) document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
     };
@@ -48,8 +44,14 @@ export default function OttModal({ isOpen, onClose, selectedOtts = [], onToggleO
 
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
-      <div className={clsx(sharedStyles.mobileHandle, styles.mobileHandle)} />
-      <div className={clsx(sharedStyles.sheet, styles.ottSheet)}>
+
+      <div className={clsx(sharedStyles.sheet, styles.ottSheet)} ref={sheetRef}>
+        <div
+          className={sharedStyles.mobileHandle}
+          ref={dragHandleRef}
+          aria-hidden="true"
+        />
+
         <div className={sharedStyles.header}>
           <div className={sharedStyles.headerText}>
             <h2 className={clsx('h-3xl', sharedStyles.title)}>Streaming Services</h2>

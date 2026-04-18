@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Button from '@/components/ui/button/Button';
+import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 
 import sharedStyles from '../Modals.module.css';
 
@@ -15,6 +16,8 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
   const [step, setStep] = useState('warn'); // 'warn' | 'confirm'
   const [confirmText, setConfirmText] = useState('');
   const [agreed, setAgreed] = useState(false);
+
+  const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -38,9 +41,7 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleClose = () => {
-    onClose();
-  };
+  const handleClose = () => onClose();
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) handleClose();
@@ -50,14 +51,17 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
   const handleFinalDelete = () => {
     if (!canProceedToConfirm) return;
-    // TODO: wire up delete account API call here
     handleClose();
   };
 
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
-      <div className={sharedStyles.sheet} style={{ maxWidth: '30rem' }}>
-        <div className={clsx(sharedStyles.mobileHandle, styles.mobileHandle)} />
+      <div className={sharedStyles.sheet} style={{ maxWidth: '30rem' }} ref={sheetRef}>
+        <div
+          className={sharedStyles.mobileHandle}
+          ref={dragHandleRef}
+          aria-hidden="true"
+        />
 
         {step === 'warn' && (
           <>
@@ -73,8 +77,8 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
             <div className={sharedStyles.body}>
               <p className={styles.warningText}>
-                Your account and all associated data will be <strong>permanently deleted</strong>.
-                This includes:
+                Your account and all associated data will be{' '}
+                <strong>permanently deleted</strong>. This includes:
               </p>
 
               <ul className={styles.consequenceList}>
@@ -116,7 +120,11 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
                 <button type="button" className={styles.cancelBtn} onClick={handleClose}>
                   Cancel
                 </button>
-                <button type="button" className={styles.nextBtn} onClick={() => setStep('confirm')}>
+                <button
+                  type="button"
+                  className={styles.nextBtn}
+                  onClick={() => setStep('confirm')}
+                >
                   Continue
                 </button>
               </div>
@@ -138,7 +146,8 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
             <div className={sharedStyles.body}>
               <p className={styles.confirmIntro}>
-                To confirm account deletion, type <strong>DELETE</strong> below and check the box:
+                To confirm account deletion, type <strong>DELETE</strong> below and check the
+                box:
               </p>
 
               <div className={styles.confirmInputWrap}>
@@ -163,15 +172,19 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
                   onChange={(e) => setAgreed(e.target.checked)}
                 />
                 <span>
-                  I understand this will <strong>permanently delete</strong> all my data and this
-                  action cannot be undone.
+                  I understand this will <strong>permanently delete</strong> all my data and
+                  this action cannot be undone.
                 </span>
               </label>
             </div>
 
             <div className={sharedStyles.footer}>
               <div className={styles.actionRow}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setStep('warn')}>
+                <button
+                  type="button"
+                  className={styles.cancelBtn}
+                  onClick={() => setStep('warn')}
+                >
                   Back
                 </button>
                 <button

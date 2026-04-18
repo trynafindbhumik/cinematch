@@ -1,17 +1,15 @@
-.mobileHandle {
-  display: none;
-}
 
 @media (max-width: 639px) {
-  .mobileHandle {
-    display: block;
-    width: 3rem;
-    height: 0.375rem;
-    border-radius: 9999px;
-    background: var(--color-ink-20);
-    margin: 0.875rem auto 0;
-    box-shadow: 0 1px 3px var(--color-ink-10);
+  .sideOverlay {
+    justify-content: flex-end;
+    align-items: stretch;
+    padding: 0;
   }
+}
+
+.overlayClosing {
+  animation: overlayOut 0.28s ease-in both;
+  pointer-events: none;
 }
 
 .editSheet {
@@ -20,16 +18,26 @@
 
 @media (max-width: 639px) {
   .editSheet {
-    border-radius: 0;
-    max-height: 100dvh;
+    max-width: 100vw;
+    width: 100vw;
     height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    /* Entry animation: slide in from the right */
+    animation: sheetInFromRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+.editSheetClosing {
+  /* Desktop exit: scale down and fade */
+  animation: sheetOutScaleDown 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@media (max-width: 639px) {
+  .editSheetClosing {
+    /* Mobile exit: slide back to the right */
+    animation: sheetOutToRight 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+  }
 }
 
 .avatarUploadSection {
@@ -155,6 +163,12 @@
   margin-top: 0.1rem;
 }
 
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
 .actionRow {
   display: flex;
   gap: 0.75rem;
@@ -209,4 +223,42 @@
 
 .btnPrimary:active {
   transform: translateY(0);
+}
+
+@keyframes sheetInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheetOutToRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sheetOutScaleDown {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.93) translateY(20px);
+  }
+}
+
+@keyframes overlayOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
