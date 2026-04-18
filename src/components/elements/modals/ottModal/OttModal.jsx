@@ -44,13 +44,8 @@ export default function OttModal({ isOpen, onClose, selectedOtts = [], onToggleO
 
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
-
       <div className={clsx(sharedStyles.sheet, styles.ottSheet)} ref={sheetRef}>
-        <div
-          className={sharedStyles.mobileHandle}
-          ref={dragHandleRef}
-          aria-hidden="true"
-        />
+        <div className={sharedStyles.mobileHandle} ref={dragHandleRef} aria-hidden="true" />
 
         <div className={sharedStyles.header}>
           <div className={sharedStyles.headerText}>
