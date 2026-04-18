@@ -1,9 +1,9 @@
 'use client';
 
 import clsx from 'clsx';
-import { AlertTriangle, Download, Lock, Check, Moon } from 'lucide-react';
+import { AlertTriangle, Lock, Check, Moon, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 import Button from '@/components/ui/button/Button';
@@ -15,23 +15,39 @@ import sharedStyles from '../Modals.module.css';
 
 import styles from './DeleteAccountModal.module.css';
 
-export default function DeleteAccountModal({ isOpen, onClose }) {
+export default function DeleteAccountModal({ isOpen, onClose, profile }) {
   const [step, setStep] = useState('warn');
   const [confirmText, setConfirmText] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [disableConfirmText, setDisableConfirmText] = useState('');
   const [disableDuration, setDisableDuration] = useState('30');
+  const [downloadState, setDownloadState] = useState('idle'); // idle | requesting | sent
+  const [showExportPanel, setShowExportPanel] = useState(false);
+  const [selectedExportTypes, setSelectedExportTypes] = useState([
+    'profile',
+    'preferences',
+    'watchlist',
+    'watched',
+    'ratings',
+    'reviews',
+  ]);
+  const isMounted = useRef(true);
 
   const router = useRouter();
   const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
 
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    if (isOpen) document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen]);
+  const toggleExportType = (type) => {
+    setSelectedExportTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const handleRequestExport = async () => {
+    if (selectedExportTypes.length === 0) return;
+    setDownloadState('requesting');
+    await requestEmailExport(profile, selectedExportTypes);
+    if (isMounted.current) setDownloadState('sent');
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -41,11 +57,28 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
         setAgreed(false);
         setDisableConfirmText('');
         setDisableDuration('30');
+        setDownloadState('idle');
+        setShowExportPanel(false);
+        setSelectedExportTypes([
+          'profile',
+          'preferences',
+          'watchlist',
+          'watched',
+          'ratings',
+          'reviews',
+        ]);
       }, 300);
       return () => clearTimeout(timer);
     }
     return undefined;
   }, [isOpen]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -75,6 +108,19 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
       router.push('/login');
     }, 300);
   };
+
+  function requestEmailExport(profile, selectedTypes) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          email: profile?.email || 'user@example.com',
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          dataTypes: selectedTypes,
+        });
+      }, 800);
+    });
+  }
 
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
@@ -114,16 +160,103 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
                 ))}
               </ul>
 
-              <div className={styles.exportBanner}>
-                <Download size={16} className={styles.exportIcon} />
-                <p className={styles.exportText}>
-                  <strong>Tip:</strong> You can{' '}
-                  <button type="button" className={styles.exportLink}>
-                    download your data
-                  </button>{' '}
-                  before deleting your account.
-                </p>
-              </div>
+              {downloadState !== 'sent' && (
+                <div className={styles.exportBanner}>
+                  <Mail size={16} className={styles.exportIcon} />
+                  <div className={styles.exportBannerContent}>
+                    <p className={styles.exportText}>
+                      <strong>Tip:</strong> Get a copy of your data sent to your email before
+                      deleting.
+                    </p>
+                    {!showExportPanel && (
+                      <button
+                        type="button"
+                        className={styles.exportExpandBtn}
+                        onClick={() => setShowExportPanel(true)}
+                      >
+                        download your data
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {showExportPanel && downloadState !== 'sent' && (
+                <div className={styles.exportPanel}>
+                  <p className={styles.exportPanelTitle}>Choose what to include:</p>
+                  <div className={styles.exportTypesGrid}>
+                    {[
+                      { id: 'profile', label: 'Profile Info' },
+                      { id: 'preferences', label: 'Preferences' },
+                      { id: 'watchlist', label: 'Watchlist' },
+                      { id: 'watched', label: 'Watched' },
+                      { id: 'ratings', label: 'Ratings' },
+                      { id: 'reviews', label: 'Reviews' },
+                    ].map(({ id, label }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className={clsx(
+                          styles.exportTypeChip,
+                          selectedExportTypes.includes(id) && styles.exportTypeChipActive
+                        )}
+                        onClick={() => toggleExportType(id)}
+                      >
+                        <span
+                          className={clsx(
+                            styles.exportTypeCheck,
+                            selectedExportTypes.includes(id) && styles.exportTypeCheckActive
+                          )}
+                        >
+                          {selectedExportTypes.includes(id) && <Check size={10} />}
+                        </span>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className={styles.exportActions}>
+                    <button
+                      type="button"
+                      className={styles.exportCancelBtn}
+                      onClick={() => {
+                        setShowExportPanel(false);
+                        setDownloadState('idle');
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.exportRequestBtn}
+                      onClick={handleRequestExport}
+                      disabled={downloadState === 'requesting' || selectedExportTypes.length === 0}
+                    >
+                      {downloadState === 'requesting' ? 'Sending…' : 'Send to my email'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {downloadState === 'sent' && (
+                <div className={styles.exportSuccessBanner}>
+                  <Check size={14} className={styles.exportSuccessIcon} />
+                  <div className={styles.exportSuccessBody}>
+                    <p className={styles.exportSuccessText}>
+                      <strong>Check your email!</strong> A link to download your data has been sent.
+                    </p>
+                    <button
+                      type="button"
+                      className={styles.exportResendBtn}
+                      onClick={() => {
+                        setDownloadState('idle');
+                        setShowExportPanel(true);
+                      }}
+                    >
+                      Send again?
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className={styles.alternative}>
                 <p className={styles.alternativeLabel}>Instead of deleting, you could:</p>
@@ -245,6 +378,7 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
                   value={disableDuration}
                   onChange={(val) => setDisableDuration(val || '30')}
                   placeholder="Select duration"
+                  allowClear={false}
                 />
               </div>
 

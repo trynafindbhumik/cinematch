@@ -67,13 +67,20 @@
   background: var(--color-accent-06);
   border: 1px solid var(--color-accent-18);
   border-radius: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .exportIcon {
   color: var(--color-accent);
   flex-shrink: 0;
   margin-top: 0.1rem;
+}
+
+.exportBannerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
 }
 
 .exportText {
@@ -88,20 +95,204 @@
   color: var(--color-ink);
 }
 
-.exportLink {
+.exportExpandBtn {
   background: none;
   border: none;
   color: var(--color-accent);
   font-family: var(--font-primary);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
+  text-align: left;
   transition: color 0.15s ease;
 }
 
-.exportLink:hover {
+.exportExpandBtn:hover {
+  color: var(--color-accent-hover);
+}
+
+.exportPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem;
+  background: var(--color-bg-warm);
+  border: 1.5px solid var(--color-ink-10);
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.exportPanelTitle {
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--color-ink-60);
+}
+
+.exportTypesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.exportActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.exportTypeChip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1.5px solid var(--color-ink-18);
+  background: var(--color-bg-primary);
+  color: var(--color-ink-60);
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.exportTypeChip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+.exportTypeChipActive {
+  border-color: var(--color-accent);
+  background: var(--color-accent-06);
+  color: var(--color-accent);
+}
+
+.exportTypeCheck {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink-30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.exportTypeCheckActive {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.exportRequestBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.exportRequestBtn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.exportRequestBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.exportCancelBtn {
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid var(--color-ink-18);
+  background: transparent;
+  color: var(--color-ink-60);
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.exportCancelBtn:hover {
+  border-color: var(--color-ink-35);
+  color: var(--color-ink);
+}
+
+.exportSuccessBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-success-10);
+  border: 1px solid var(--color-success-25);
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+  animation: slideDown 0.2s ease;
+}
+
+.exportSuccessIcon {
+  color: var(--color-success);
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.exportSuccessBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1;
+}
+
+.exportSuccessText {
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  color: var(--color-ink-60);
+  line-height: 1.4;
+}
+
+.exportSuccessText strong {
+  color: var(--color-ink);
+}
+
+.exportResendBtn {
+  background: none;
+  border: none;
+  width: fit-content;
+  color: var(--color-accent);
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.exportResendBtn:hover {
   color: var(--color-accent-hover);
 }
 
