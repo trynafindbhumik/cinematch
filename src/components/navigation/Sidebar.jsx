@@ -10,7 +10,6 @@ import {
   Eye,
   User,
   Sparkles,
-  Star,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -35,7 +34,6 @@ const NAV_GROUPS = [
     items: [
       { href: '/watchlist', label: 'Watchlist', icon: Bookmark },
       { href: '/watched', label: 'Watched', icon: Eye },
-      { href: '/reviews', label: 'Reviews', icon: Star },
     ],
   },
 ];

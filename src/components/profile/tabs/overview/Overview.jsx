@@ -1,12 +1,12 @@
 'use client';
 
 import clsx from 'clsx';
-import { Plus, ArrowRight, Star, ExternalLink } from 'lucide-react';
-import Image from 'next/image';
+import { Plus, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
 import AddMovieModal from '@/components/elements/modals/addMovieModal/AddMovieModal';
 import MovieCard from '@/components/elements/movieCard/MovieCard';
+import ReviewCard from '@/components/elements/reviewcard/Reviewcard';
 import Button from '@/components/ui/button/Button';
 import { MOCK_MOVIES, MOCK_REVIEWS } from '@/mocks/data';
 
@@ -15,7 +15,7 @@ import styles from './Overview.module.css';
 export default function Overview({ onNavigateToReviews }) {
   const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [isAddFavOpen, setIsAddFavOpen] = useState(false);
-  const [favorites, setFavorites] = useState(MOCK_MOVIES.slice(0, 4));
+  const [favorites, setFavorites] = useState(MOCK_MOVIES);
 
   const handleAddFavorite = (incoming) => {
     const arr = Array.isArray(incoming) ? incoming : [incoming];
@@ -119,19 +119,9 @@ export default function Overview({ onNavigateToReviews }) {
         </div>
 
         <div className={styles.reviewsGrid}>
-          {MOCK_REVIEWS.length === 0 ? (
-            <div className={styles.emptyReviews}>
-              <div className={styles.emptyReviewsIcon}>
-                <Star size={24} />
-              </div>
-              <p className={clsx('text-base-tight', styles.emptyReviewsTitle)}>No reviews yet</p>
-              <p className={clsx('text-micro', styles.emptyReviewsSubtitle)}>
-                Start rating movies to see your reviews here.
-              </p>
-            </div>
-          ) : (
-            MOCK_REVIEWS.slice(0, 2).map((review) => <ReviewCard key={review.id} review={review} />)
-          )}
+          {MOCK_REVIEWS.slice(0, 2).map((review) => (
+            <ReviewCard key={review.id} review={review} showStars={false} />
+          ))}
         </div>
       </section>
 
@@ -142,43 +132,6 @@ export default function Overview({ onNavigateToReviews }) {
         title="Add to Favorites"
         subtitle="Pick a film that defines your taste."
       />
-    </div>
-  );
-}
-
-function ReviewCard({ review }) {
-  return (
-    <div className={styles.reviewCard}>
-      <div className={styles.reviewCardInner}>
-        <div className={styles.reviewPoster}>
-          <Image
-            src={review.moviePoster}
-            alt={review.movieTitle}
-            fill
-            sizes="72px"
-            style={{ objectFit: 'cover' }}
-          />
-        </div>
-        <div className={styles.reviewContent}>
-          <div className={styles.reviewHeader}>
-            <div>
-              <h4 className={clsx(styles.reviewTitle, 'h-lg')}>{review.movieTitle}</h4>
-              <p className={styles.reviewDate}>{review.date}</p>
-            </div>
-            <div className={styles.reviewRating}>
-              <Star className={styles.reviewRatingIcon} />
-              <span className={clsx(styles.reviewRatingText, 'text-sm')}>{review.rating}</span>
-            </div>
-          </div>
-
-          <p className={clsx(styles.reviewComment, 'italic')}>&ldquo;{review.comment}&rdquo;</p>
-
-          <button type="button" className={clsx(styles.reviewLink, 'text-xs')}>
-            Read Full Review
-            <ExternalLink size={10} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
