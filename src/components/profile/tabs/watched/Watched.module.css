@@ -1,0 +1,22 @@
+.tabWrap {
+  animation: tabIn 0.3s ease-out both;
+}
+
+@keyframes tabIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tabSubtitle {
+  font-size: var(--fs-sm);
+  font-family: var(--font-primary);
+  font-weight: var(--fw-light);
+  color: var(--color-ink-35);
+  margin-bottom: 1rem;
+}

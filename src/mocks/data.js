@@ -36,130 +36,151 @@ export const OTTS = [
   'Rakuten Viki',
 ];
 
-export const MOCK_MOVIES = [
-  {
-    id: 1,
-    title: 'Inception',
-    year: '2010',
-    genre: ['Sci-Fi', 'Action'],
-    rating: '8.8',
-    image: 'https://picsum.photos/seed/inception/400/600',
-    description:
-      'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea.',
-  },
-  {
-    id: 2,
-    title: 'The Godfather',
-    year: '1972',
-    genre: ['Drama', 'Crime'],
-    rating: '9.2',
-    image: 'https://picsum.photos/seed/godfather/400/600',
-    description:
-      'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
-  },
-  {
-    id: 3,
-    title: 'Parasite',
-    year: '2019',
-    genre: ['Thriller', 'Drama'],
-    rating: '8.5',
-    image: 'https://picsum.photos/seed/parasite/400/600',
-    description:
-      'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.',
-  },
-  {
-    id: 4,
-    title: 'Interstellar',
-    year: '2014',
-    genre: ['Sci-Fi', 'Drama'],
-    rating: '8.7',
-    image: 'https://picsum.photos/seed/interstellar/400/600',
-    description:
-      "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-  },
-  {
-    id: 5,
-    title: 'The Dark Knight',
-    year: '2008',
-    genre: ['Action', 'Drama'],
-    rating: '9.0',
-    image: 'https://picsum.photos/seed/darkknight/400/600',
-    description:
-      'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest tests of his ability to fight injustice.',
-  },
-  {
-    id: 6,
-    title: 'Pulp Fiction',
-    year: '1994',
-    genre: ['Crime', 'Drama'],
-    rating: '8.9',
-    image: 'https://picsum.photos/seed/pulpfiction/400/600',
-    description:
-      'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.',
-  },
-  {
-    id: 7,
-    title: 'Spirited Away',
-    year: '2001',
-    genre: ['Animation', 'Drama'],
-    rating: '9.3',
-    image: 'https://picsum.photos/seed/spiritedaway/400/600',
-    description:
-      "During her family's move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits.",
-  },
-  {
-    id: 8,
-    title: '2001: A Space Odyssey',
-    year: '1968',
-    genre: ['Sci-Fi', 'Drama'],
-    rating: '8.3',
-    image: 'https://picsum.photos/seed/odyssey2001/400/600',
-    description:
-      'After discovering a mysterious artifact, humanity sends a spacecraft to investigate its origins with the help of an AI.',
-  },
+const TITLES = [
+  'Inception',
+  'The Godfather',
+  'Parasite',
+  'Interstellar',
+  'The Dark Knight',
+  'Fight Club',
+  'Forrest Gump',
+  'The Matrix',
+  'Gladiator',
+  'Shawshank Redemption',
+  'Titanic',
+  'Avengers Endgame',
+  'Joker',
+  'Whiplash',
+  'The Lion King',
+  'Django Unchained',
+  'The Social Network',
+  'Mad Max Fury Road',
+  'The Prestige',
+  'Blade Runner 2049',
+  'La La Land',
+  'Wolf of Wall Street',
+  'Shutter Island',
+  'Grand Budapest Hotel',
+  'Her',
+  'No Country for Old Men',
+  'The Revenant',
+  'The Irishman',
+  'Black Swan',
+  'Inside Out',
 ];
 
-// export const MOCK_REVIEWS = [
-//   {
-//     id: 1,
-//     movieTitle: 'Inception',
-//     moviePoster: 'https://picsum.photos/seed/inception/400/600',
-//     rating: 5,
-//     comment:
-//       'Mind-bending masterpiece. The visual effects and storytelling are top-notch. Nolan at his absolute finest.',
-//     date: '2024-03-15',
-//   },
-//   {
-//     id: 2,
-//     movieTitle: 'Interstellar',
-//     moviePoster: 'https://picsum.photos/seed/interstellar/400/600',
-//     rating: 4,
-//     comment:
-//       "An emotional journey through space. Hans Zimmer's score is transcendent — I've never been so moved.",
-//     date: '2024-02-20',
-//   },
-// ];
-export const MOCK_REVIEWS = [
-  // {
-  //   id: 1,
-  //   movieTitle: 'Inception',
-  //   moviePoster: 'https://picsum.photos/seed/inception/400/600',
-  //   rating: 5,
-  //   comment:
-  //     'Mind-bending masterpiece. The visual effects and storytelling are top-notch. Nolan at his absolute finest.',
-  //   date: '2024-03-15',
-  // },
-  // {
-  //   id: 2,
-  //   movieTitle: 'Interstellar',
-  //   moviePoster: 'https://picsum.photos/seed/interstellar/400/600',
-  //   rating: 4,
-  //   comment:
-  //     "An emotional journey through space. Hans Zimmer's score is transcendent — I've never been so moved.",
-  //   date: '2024-02-20',
-  // },
+const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+export const MOCK_MOVIES = Array.from({ length: 120 }, (_, i) => {
+  const title = getRandom(TITLES);
+
+  return {
+    id: i + 1,
+    title: `${title} ${i + 1}`,
+    year: `${1980 + Math.floor(Math.random() * 45)}`, // 1980–2025
+    genre: [getRandom(GENRES), getRandom(GENRES)],
+    rating: (Math.random() * 3 + 7).toFixed(1), // 7.0–10.0
+    image: `https://picsum.photos/seed/movie${i + 1}/400/600`,
+    description: `A compelling story about ${getRandom([
+      'love',
+      'power',
+      'survival',
+      'betrayal',
+      'ambition',
+      'revenge',
+      'identity',
+    ])} and ${getRandom(['humanity', 'technology', 'dreams', 'war', 'family', 'justice'])}.`,
+  };
+});
+
+const MOVIE_SEEDS = [
+  'inception',
+  'interstellar',
+  'godfather',
+  'parasite',
+  'darkknight',
+  'fightclub',
+  'matrix',
+  'gladiator',
+  'shawshank',
+  'titanic',
+  'joker',
+  'whiplash',
+  'lalaland',
+  'prestige',
+  'revenant',
+  'irishman',
+  'blackswan',
+  'insideout',
+  'madmax',
+  'her',
 ];
 
+const MOVIE_TITLES = [
+  'Inception',
+  'Interstellar',
+  'The Godfather',
+  'Parasite',
+  'The Dark Knight',
+  'Fight Club',
+  'The Matrix',
+  'Gladiator',
+  'Shawshank Redemption',
+  'Titanic',
+  'Joker',
+  'Whiplash',
+  'La La Land',
+  'The Prestige',
+  'The Revenant',
+  'The Irishman',
+  'Black Swan',
+  'Inside Out',
+  'Mad Max Fury Road',
+  'Her',
+];
+
+const COMMENTS = [
+  'Absolutely loved it. One of the best films I have seen.',
+  'Great storytelling and performances throughout.',
+  'A bit slow in parts but overall very engaging.',
+  'Masterpiece. Would definitely watch again.',
+  'Not what I expected, but still quite good.',
+  'Visually stunning and emotionally powerful.',
+  'Decent film but could have been shorter.',
+  'Outstanding direction and screenplay.',
+  'Good movie with a strong ending.',
+  'Average experience, but worth a watch.',
+  'Incredible acting and cinematography.',
+  'The soundtrack really elevated the experience.',
+  'A bit overrated, but still enjoyable.',
+  'Fantastic plot and character development.',
+  'Couldn’t take my eyes off the screen.',
+  'Brilliant execution and pacing.',
+  'Some parts felt unnecessary, but still solid.',
+  'Loved the concept and how it was executed.',
+  'A cinematic experience like no other.',
+  'Would highly recommend to anyone.',
+];
+
+const randomDate = () => {
+  const start = new Date(2023, 0, 1);
+  const end = new Date();
+  const date = new Date(start.getTime() + Math.random() * (end - start));
+  return date.toISOString().split('T')[0];
+};
+
+export const MOCK_REVIEWS = Array.from({ length: 150 }, (_, i) => {
+  const index = Math.floor(Math.random() * MOVIE_TITLES.length);
+
+  return {
+    id: i + 1,
+    movieTitle: MOVIE_TITLES[index],
+    moviePoster: `https://picsum.photos/seed/${MOVIE_SEEDS[index]}${i}/400/600`,
+    rating: Math.floor(Math.random() * 5) + 1, // 1–5
+    comment: getRandom(COMMENTS),
+    date: randomDate(),
+  };
+});
 export const OTT_COLORS = {
   Netflix: '#E50914',
   'Prime Video': '#00A8E1',
