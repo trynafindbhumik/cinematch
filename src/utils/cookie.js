@@ -1,8 +1,3 @@
-/**
- * Cookie utility functions
- * Get, set, and remove cookies with a simple API
- */
-
 export function getCookie(name) {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   return match ? match[2] : null;

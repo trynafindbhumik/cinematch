@@ -1,0 +1,730 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem;
+  padding-bottom: 5rem;
+  margin: 0 auto;
+  animation: pageIn 0.4s ease-out both;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.infoCard {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: 2rem;
+  border: 1px solid var(--color-ink-05);
+  box-shadow: 0 4px 32px var(--color-ink-06);
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .infoCard {
+    padding: 2.5rem;
+  }
+}
+
+.infoCard::before {
+  content: '';
+  position: absolute;
+  top: -4rem;
+  right: -4rem;
+  width: 14rem;
+  height: 14rem;
+  background: radial-gradient(circle, var(--color-accent-08), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.avatarRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .avatarRow {
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 3px solid var(--color-ink-06);
+  box-shadow: 0 8px 24px var(--color-ink-12);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .avatar {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+}
+
+.editAvatarBtn {
+  position: absolute;
+  bottom: -0.375rem;
+  right: -0.375rem;
+  width: 2rem;
+  height: 2rem;
+  background: var(--color-accent);
+  color: var(--color-surface);
+  border: none;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--color-accent-15);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.editAvatarBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px var(--color-accent-20);
+}
+
+.profileMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .profileMeta {
+    text-align: left;
+  }
+}
+
+.nameRow {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .nameRow {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+}
+
+.profileName {
+  color: var(--color-ink);
+  line-height: 1.1;
+}
+
+.editProfileBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-ink-04);
+  border: 1px solid var(--color-ink-08);
+  border-radius: 0.625rem;
+  color: var(--color-ink-45);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.editProfileBtn:hover {
+  background: var(--color-accent-08);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.contactRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .contactRow {
+    justify-content: flex-start;
+  }
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--color-ink-45);
+  font-weight: var(--fw-bold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.contactIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-accent-50);
+  flex-shrink: 0;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .badgeRow {
+    justify-content: flex-start;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-ink-06);
+  border-radius: 9999px;
+  color: var(--color-ink-50);
+}
+
+.badgeDot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-success);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.badgeStar {
+  width: 0.7rem;
+  height: 0.7rem;
+  color: var(--color-accent);
+  fill: var(--color-accent);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-ink-05);
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 1024px) {
+  .settingsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.settingsSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.settingsSectionLabel {
+  color: var(--color-ink-28);
+}
+
+.settingsSectionCount {
+  color: var(--color-accent);
+  background: var(--color-accent-10);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.genreChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.genreChip {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-ink-08);
+  background: var(--color-bg-warm);
+  color: var(--color-ink-50);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.genreChip:hover {
+  border-color: var(--color-ink-20);
+  color: var(--color-ink);
+}
+
+.genreChipActive {
+  background: var(--color-ink);
+  color: var(--color-bg-warm);
+  border-color: var(--color-ink);
+  box-shadow: 0 2px 8px var(--color-ink-20);
+}
+
+.genreChipActive:hover {
+  background: var(--color-ink-hover);
+  border-color: var(--color-ink-hover);
+  color: var(--color-bg-warm);
+}
+
+.streamToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ottChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ottChip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.625rem 0.4rem 0.5rem;
+  background: var(--color-accent-06);
+  border: 1px solid var(--color-accent-18);
+  border-radius: 0.625rem;
+  color: var(--color-accent);
+}
+
+.ottDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 0.2rem;
+  flex-shrink: 0;
+}
+
+.removeOttBtn {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--color-accent-15);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-accent);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  padding: 0;
+  margin-left: 0.125rem;
+}
+
+.removeOttBtn:hover {
+  background: var(--color-error-15);
+  color: var(--color-error);
+}
+
+.addOttBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px dashed var(--color-ink-15);
+  border-radius: 0.625rem;
+  background: transparent;
+  color: var(--color-ink-35);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addOttBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-04);
+}
+
+.changePasswordCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--color-surface);
+  border-radius: 1.5rem;
+  border: 1px solid var(--color-ink-05);
+  box-shadow: 0 4px 20px var(--color-ink-06);
+  padding: 1.25rem 1.5rem;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (min-width: 640px) {
+  .changePasswordCard {
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.changePasswordInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .changePasswordInfo {
+    width: auto;
+    gap: 0.875rem;
+  }
+}
+
+.changePasswordIconWrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 1rem;
+  background: var(--color-accent-10);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.changePasswordText {
+  flex: 1;
+  min-width: 0;
+}
+
+.changePasswordTitle {
+  color: var(--color-ink);
+  margin-bottom: 0.2rem;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+}
+
+@media (min-width: 640px) {
+  .changePasswordTitle {
+    font-size: var(--fs-md);
+  }
+}
+
+.changePasswordSubtitle {
+  color: var(--color-ink-35);
+  font-size: var(--fs-xs);
+}
+
+.changePasswordBtn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-ink);
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-bg-warm);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px var(--color-ink-20);
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .changePasswordBtn {
+    width: auto;
+    padding: 0.6rem 1.25rem;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.1em;
+    margin-top: 0;
+  }
+}
+
+.changePasswordBtn:hover {
+  background: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.changePasswordBtn:active {
+  transform: translateY(0);
+}
+
+.dangerCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--color-error-05);
+  border: 1px solid var(--color-error-15);
+  border-radius: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (min-width: 640px) {
+  .dangerCard {
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.dangerInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .dangerInfo {
+    width: auto;
+    gap: 0.875rem;
+  }
+}
+
+.dangerIconWrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 1rem;
+  background: var(--color-error-10);
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dangerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.dangerTitle {
+  color: var(--color-error);
+  margin-bottom: 0.2rem;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+}
+
+.dangerSubtitle {
+  color: var(--color-ink-35);
+  font-size: var(--fs-xs);
+}
+
+.deleteBtn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-error);
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px var(--color-error-25);
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .deleteBtn {
+    width: auto;
+    padding: 0.6rem 1.25rem;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.1em;
+    margin-top: 0;
+  }
+}
+
+.deleteBtn:hover {
+  background: var(--color-error-hover);
+  transform: translateY(-1px);
+}
+
+.deleteBtn:active {
+  transform: translateY(0);
+}
+
+.dangerTitle {
+  color: var(--color-error);
+  margin-bottom: 0.2rem;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+}
+
+.dangerSubtitle {
+  color: var(--color-ink-35);
+  font-size: var(--fs-xs);
+}
+
+.deleteBtn {
+  padding: 0.6rem 1rem;
+  background: var(--color-error);
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px var(--color-error-25);
+}
+
+@media (min-width: 640px) {
+  .deleteBtn {
+    padding: 0.6rem 1.25rem;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.1em;
+  }
+}
+
+.deleteBtn:hover {
+  background: var(--color-error-hover);
+  transform: translateY(-1px);
+}
+
+.deleteBtn:active {
+  transform: translateY(0);
+}
+
+.tabsBar {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid var(--color-ink-07);
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tabsBar::-webkit-scrollbar {
+  display: none;
+}
+
+.tabSlider {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 9999px;
+  transition:
+    left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.tabBtn {
+  position: relative;
+  padding: 0.875rem 1.375rem;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-35);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tabBtn:hover {
+  color: var(--color-ink-60);
+}
+
+.tabBtnActive {
+  color: var(--color-ink);
+}
+
+.tabContent {
+  animation: tabIn 0.28s ease-out both;
+}
+
+@keyframes tabIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
