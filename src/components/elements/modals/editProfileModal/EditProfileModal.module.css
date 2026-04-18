@@ -1,0 +1,264 @@
+
+@media (max-width: 639px) {
+  .sideOverlay {
+    justify-content: flex-end;
+    align-items: stretch;
+    padding: 0;
+  }
+}
+
+.overlayClosing {
+  animation: overlayOut 0.28s ease-in both;
+  pointer-events: none;
+}
+
+.editSheet {
+  max-height: 90vh;
+}
+
+@media (max-width: 639px) {
+  .editSheet {
+    max-width: 100vw;
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    /* Entry animation: slide in from the right */
+    animation: sheetInFromRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+.editSheetClosing {
+  /* Desktop exit: scale down and fade */
+  animation: sheetOutScaleDown 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@media (max-width: 639px) {
+  .editSheetClosing {
+    /* Mobile exit: slide back to the right */
+    animation: sheetOutToRight 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+  }
+}
+
+.avatarUploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-ink-05);
+}
+
+@media (min-width: 480px) {
+  .avatarUploadSection {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.avatarPreviewImg {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  border: 3px solid var(--color-ink-06);
+  box-shadow: 0 4px 16px var(--color-ink-10);
+  flex-shrink: 0;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-ink-05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-20);
+}
+
+.dropZone {
+  flex: 1;
+  min-height: 5.5rem;
+  border: 2px dashed var(--color-ink-15);
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 1.25rem 1rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+  text-align: center;
+  width: 100%;
+}
+
+.dropZone:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-03);
+}
+
+.dropZoneDragging {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-08) !important;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.dropZoneIcon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  background: var(--color-accent-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dropZone:hover .dropZoneIcon,
+.dropZoneDragging .dropZoneIcon {
+  background: var(--color-accent-18);
+  transform: scale(1.08);
+}
+
+.dropZoneTitle {
+  color: var(--color-ink);
+}
+
+.dropZoneHint {
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+  color: var(--color-ink-35);
+  line-height: 1.4;
+}
+
+.fileErrorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--color-error-06);
+  border: 1px solid var(--color-error-18);
+  border-radius: 0.75rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-regular);
+  color: var(--color-error-dark);
+  line-height: 1.5;
+  margin-top: 0.75rem;
+}
+
+.fileErrorBanner svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.actionRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btnSecondary {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--color-ink-04);
+  border: 1px solid var(--color-ink-08);
+  border-radius: 1rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-50);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.btnSecondary:hover {
+  background: var(--color-ink-08);
+  color: var(--color-ink);
+}
+
+.btnPrimary {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--color-ink);
+  border: none;
+  border-radius: 1rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-bg-warm);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px var(--color-ink-20);
+}
+
+.btnPrimary:hover {
+  background: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.btnPrimary:active {
+  transform: translateY(0);
+}
+
+@keyframes sheetInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheetOutToRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sheetOutScaleDown {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.93) translateY(20px);
+  }
+}
+
+@keyframes overlayOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}

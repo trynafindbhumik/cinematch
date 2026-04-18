@@ -1,17 +1,17 @@
 .mobileTopBar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
   padding: 0.875rem 1.25rem;
   border-bottom: 1px solid var(--color-ink-06);
   background: #fff;
   flex-shrink: 0;
 }
 
-@media (min-width: 768px) {
-  .mobileTopBar {
-    display: none;
-  }
+.mobileTopBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .mobileLogoMark {
@@ -28,6 +28,39 @@
 
 .mobileLogoText {
   color: var(--color-ink, #1a1a1a);
+}
+
+.mobileLogoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-40);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mobileLogoutBtn:hover {
+  background: var(--color-ink-04);
+  color: var(--color-ink);
+}
+
+.mobileLogoutBtn:active {
+  background: var(--color-ink-08);
+}
+
+.mobileLogoutLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .mobileTopBar {
+    display: none;
+  }
 }
 
 .mobileNav {
