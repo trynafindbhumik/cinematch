@@ -12,6 +12,15 @@ import sharedStyles from '../Modals.module.css';
 
 import styles from './EditProfileModal.module.css';
 
+/**
+ *
+ * Props:
+ *  - isOpen      : boolean
+ *  - onClose     : () => void
+ *  - profile     : { name, email, avatar }
+ *  - onSave      : (updatedProfile) => void
+ */
+
 const MAX_FILE_SIZE_MB = 5;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
@@ -21,16 +30,26 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
   const [fileError, setFileError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
 
+  const [isClosing, setIsClosing] = useState(false);
+
   const fileInputRef = useRef(null);
   const objectUrlRef = useRef(null);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
 
-    if (isOpen) {
+    if (isOpen || isClosing) {
       document.body.style.overflow = 'hidden';
     }
 
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen, isClosing]);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    if (isOpen) document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
     };
@@ -38,78 +57,79 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
 
   useEffect(() => {
     return () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     };
   }, []);
 
-  if (!isOpen) return null;
+  if (typeof window === 'undefined') return null;
+  if (!isOpen && !isClosing) return null;
+
+  const handleClose = () => {
+    if (isClosing) return;
+    setIsClosing(true);
+  };
+
+  const handleSheetAnimationEnd = () => {
+    if (isClosing) {
+      setIsClosing(false);
+      onClose();
+    }
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) handleClose();
+  };
+
 
   const processFile = (file) => {
     setFileError('');
-
     if (!ACCEPTED_TYPES.includes(file.type)) {
       setFileError('Please upload a JPEG, PNG, WebP, or GIF image.');
       return;
     }
-
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
       setFileError(`File is too large. Maximum size is ${MAX_FILE_SIZE_MB} MB.`);
       return;
     }
-
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-    }
-
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     const url = URL.createObjectURL(file);
     objectUrlRef.current = url;
-
     setAvatarPreview(url);
-    setForm((prev) => ({
-      ...prev,
-      avatar: url,
-      avatarFile: file,
-    }));
+    setForm((prev) => ({ ...prev, avatar: url, avatarFile: file }));
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
+    const f = e.target.files?.[0];
+    if (f) processFile(f);
   };
-
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
   };
-
   const handleDragLeave = () => setIsDragging(false);
-
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-
-    const file = e.dataTransfer.files?.[0];
-    if (file) processFile(file);
+    const f = e.dataTransfer.files?.[0];
+    if (f) processFile(f);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave?.({ ...form, avatar: avatarPreview });
-    onClose();
+    handleClose();
   };
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
 
   const modal = (
-    <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
-      <div className={clsx(sharedStyles.mobileHandle, styles.mobileHandle)} />
-      <div className={clsx(sharedStyles.sheet, styles.editSheet)} style={{ maxWidth: '32rem' }}>
+    <div
+      className={clsx(sharedStyles.overlay, styles.sideOverlay, isClosing && styles.overlayClosing)}
+      onClick={handleOverlayClick}
+    >
+      <div
+        className={clsx(sharedStyles.sheet, styles.editSheet, isClosing && styles.editSheetClosing)}
+        onAnimationEnd={handleSheetAnimationEnd}
+      >
         <div className={sharedStyles.header}>
           <div className={sharedStyles.headerText}>
             <h2 className={clsx('h-3xl', sharedStyles.title)}>Edit Profile</h2>
@@ -118,7 +138,7 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
           <button
             type="button"
             className={sharedStyles.closeBtn}
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Close"
           >
             <X size={16} />
@@ -206,7 +226,7 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
 
         <div className={sharedStyles.footer}>
           <div className={styles.actionRow}>
-            <button type="button" className={styles.btnSecondary} onClick={onClose}>
+            <button type="button" className={styles.btnSecondary} onClick={handleClose}>
               Cancel
             </button>
             <button type="submit" form="edit-profile-form" className={styles.btnPrimary}>

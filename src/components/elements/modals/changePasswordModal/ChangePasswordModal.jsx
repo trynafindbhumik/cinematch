@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 
 import sharedStyles from '../Modals.module.css';
 
@@ -17,6 +18,8 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
   const [showNext, setShowNext] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -79,8 +82,12 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
 
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
-      <div className={sharedStyles.sheet}>
-        <div className={clsx(sharedStyles.mobileHandle, styles.mobileHandle)} />
+      <div className={sharedStyles.sheet} ref={sheetRef}>
+        <div
+          className={sharedStyles.mobileHandle}
+          ref={dragHandleRef}
+          aria-hidden="true"
+        />
 
         <div className={sharedStyles.header}>
           <div className={sharedStyles.headerText}>

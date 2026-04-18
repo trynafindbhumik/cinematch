@@ -13,62 +13,63 @@ import sharedStyles from '../Modals.module.css';
 
 import styles from './AddMovieModal.module.css';
 
-/**
- * AddMovieModal — rendered into document.body via React Portal
- * so the overlay always covers the full viewport, regardless of
- * where in the component tree this is rendered.
- *
- * Props:
- *  - isOpen    : boolean
- *  - onClose   : () => void
- *  - onAdd     : (movies: Movie[]) => void
- *  - title     : modal heading
- *  - subtitle  : optional subtitle
- */
-export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Movie', subtitle }) {
+export default function AddMovieModal({
+  isOpen,
+  onClose,
+  onAdd,
+  title = 'Add Movie',
+  subtitle,
+}) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(new Set());
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
-
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    }
-
+    if (isOpen || isClosing) document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
     };
-  }, [isOpen]);
+  }, [isOpen, isClosing]);
 
   if (typeof window === 'undefined') return null;
-  if (!isOpen) return null;
 
-  const filtered = MOCK_MOVIES.filter((m) => m.title.toLowerCase().includes(search.toLowerCase()));
+  if (!isOpen && !isClosing) return null;
 
-  const toggleSelect = (movie) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(movie.id) ? next.delete(movie.id) : next.add(movie.id);
-      return next;
-    });
-  };
+  const filtered = MOCK_MOVIES.filter((m) =>
+    m.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   const selectedMovies = MOCK_MOVIES.filter((m) => selected.has(m.id));
   const count = selected.size;
 
-  const handleSubmit = () => {
-    if (count === 0) return;
-    onAdd?.(selectedMovies);
-    setSelected(new Set());
-    setSearch('');
-    onClose();
+  const toggleSelect = (movie) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(movie.id)) next.delete(movie.id);
+      else next.add(movie.id);
+      return next;
+    });
   };
 
   const handleClose = () => {
-    setSelected(new Set());
-    setSearch('');
-    onClose();
+    if (isClosing) return;
+    setIsClosing(true);
+  };
+
+  const handleSheetAnimationEnd = () => {
+    if (isClosing) {
+      setSelected(new Set());
+      setSearch('');
+      setIsClosing(false);
+      onClose();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (count === 0) return;
+    onAdd?.(selectedMovies);
+    handleClose();
   };
 
   const handleOverlayClick = (e) => {
@@ -78,9 +79,21 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
   const FILM_DOTS = Array.from({ length: 14 }, (_, i) => `film-dot-${i}`);
 
   const modal = (
-    <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
-      <div className={clsx(sharedStyles.mobileHandle, styles.mobileHandle)} />
-      <div className={styles.cinematicSheet}>
+    <div
+      className={clsx(
+        sharedStyles.overlay,
+        styles.sideOverlay,
+        isClosing && styles.overlayClosing
+      )}
+      onClick={handleOverlayClick}
+    >
+      <div
+        className={clsx(
+          styles.cinematicSheet,
+          isClosing && styles.cinematicSheetClosing
+        )}
+        onAnimationEnd={handleSheetAnimationEnd}
+      >
         <div className={styles.cinematicHeader}>
           <div className={styles.filmStrip}>
             {FILM_DOTS.map((key) => (
@@ -93,9 +106,15 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
               <Clapperboard size={20} />
             </div>
             <div className={styles.cinematicTitleGroup}>
-              <p className={clsx('text-micro', styles.cinematicEyebrow)}>Your Collection</p>
-              <h2 className={clsx('h-2xl', 'italic', styles.cinematicTitle)}>{title}</h2>
-              {subtitle && <p className={styles.cinematicSubtitle}>{subtitle}</p>}
+              <p className={clsx('text-micro', styles.cinematicEyebrow)}>
+                Your Collection
+              </p>
+              <h2 className={clsx('h-2xl', 'italic', styles.cinematicTitle)}>
+                {title}
+              </h2>
+              {subtitle && (
+                <p className={styles.cinematicSubtitle}>{subtitle}</p>
+              )}
             </div>
           </div>
 
@@ -109,7 +128,6 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
             type="button"
             className={styles.cinematicClose}
             onClick={handleClose}
-            aria-label="Close modal"
           >
             <X size={14} />
           </button>
@@ -122,7 +140,6 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
             onChange={setSearch}
             placeholder="Search for a movie…"
             prefixIcon={<Search size={18} />}
-            autoFocus
           />
         </div>
 
@@ -131,17 +148,16 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
             <Film size={11} />
             {search ? (
               <span>
-                {filtered.length} result{filtered.length !== 1 ? 's' : ''} for &ldquo;{search}
-                &rdquo;
+                {filtered.length} result{filtered.length !== 1 ? 's' : ''} for “{search}”
               </span>
             ) : (
               <span>{MOCK_MOVIES.length} films available</span>
             )}
           </div>
+
           {count > 0 && (
             <button
-              type="button"
-              className={clsx('text-xs', styles.clearSelBtn)}
+              className={styles.clearSelBtn}
               onClick={() => setSelected(new Set())}
             >
               Clear selection
@@ -149,22 +165,21 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
           )}
         </div>
 
-        <div className={clsx(styles.cinematicBody, count > 0 && styles.cinematicBodyPadded)}>
+        <div className={styles.cinematicBody}>
           {filtered.length > 0 ? (
             <div className={styles.cinematicMovieList}>
               {filtered.map((movie, index) => {
                 const isSelected = selected.has(movie.id);
+
                 return (
                   <button
                     key={movie.id}
-                    type="button"
                     className={clsx(
                       styles.cinematicMovieRow,
                       isSelected && styles.cinematicMovieRowSelected
                     )}
                     onClick={() => toggleSelect(movie)}
-                    style={{ animationDelay: `${index * 0.035}s` }}
-                    aria-pressed={isSelected}
+                    style={{ animationDelay: `${index * 0.03}s` }}
                   >
                     <div className={styles.cinematicThumb}>
                       <Image
@@ -174,38 +189,28 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
                         style={{ objectFit: 'cover' }}
                         unoptimized
                       />
+
                       <div
                         className={clsx(
                           styles.selectedOverlay,
                           isSelected && styles.selectedOverlayActive
                         )}
                       >
-                        <div className={styles.selectedCheck}>
-                          <Check size={14} strokeWidth={3} />
-                        </div>
+                        <Check size={14} />
                       </div>
                     </div>
 
                     <div className={styles.cinematicMovieInfo}>
-                      <p className={clsx('h-md', styles.cinematicMovieTitle)}>{movie.title}</p>
+                      <p className={styles.cinematicMovieTitle}>
+                        {movie.title}
+                      </p>
                       <p className={styles.cinematicMovieMeta}>
-                        <span className={styles.cinematicYear}>{movie.year}</span>
-                        <span className={styles.metaDot}>·</span>
-                        <span>{movie.genre.join(', ')}</span>
+                        {movie.year} • {movie.genre.join(', ')}
                       </p>
                     </div>
 
-                    <div
-                      className={clsx(
-                        styles.toggleIndicator,
-                        isSelected && styles.toggleIndicatorSelected
-                      )}
-                    >
-                      {isSelected ? (
-                        <Check size={13} strokeWidth={2.5} />
-                      ) : (
-                        <span className={styles.togglePlus}>+</span>
-                      )}
+                    <div className={styles.toggleIndicator}>
+                      {isSelected ? <Check size={14} /> : '+'}
                     </div>
                   </button>
                 );
@@ -213,18 +218,13 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
             </div>
           ) : (
             <div className={styles.cinematicEmpty}>
-              <div className={styles.cinematicEmptyIcon}>
-                <Film size={30} />
-              </div>
-              <p className={clsx('h-xl', 'italic', styles.cinematicEmptyTitle)}>No films found</p>
-              <p className={clsx('text-base', styles.cinematicEmptyText)}>
-                Nothing matches &ldquo;{search}&rdquo; — try a different title.
-              </p>
+              <Film size={30} />
+              <p>No films found</p>
             </div>
           )}
         </div>
 
-        <div className={clsx(styles.selectionFooter, count > 0 && styles.selectionFooterVisible)}>
+       <div className={clsx(styles.selectionFooter, count > 0 && styles.selectionFooterVisible)}>
           <div className={styles.selectionPreviews}>
             {selectedMovies.slice(0, 5).map((m, i) => (
               <div
