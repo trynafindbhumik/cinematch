@@ -9,10 +9,10 @@ import ChangePasswordModal from '@/components/elements/modals/changePasswordModa
 import DeleteAccountModal from '@/components/elements/modals/deleteAccountModal/DeleteAccountModal';
 import EditProfileModal from '@/components/elements/modals/editProfileModal/EditProfileModal';
 import OttModal from '@/components/elements/modals/ottModal/OttModal';
-// import Reviews          from '@/components/profile/tabs/reviews/reviews';
-// import WatchedTab       from '@/components/profile/tabs/watched/watched';
-// import WatchlistTab     from '@/components/profile/tabs/watchlist/watchlist';
 import Overview from '@/components/profile/tabs/overview/Overview';
+import Reviews from '@/components/profile/tabs/reviews/Reviews';
+import WatchedTab from '@/components/profile/tabs/watched/Watched';
+import WatchlistTab from '@/components/profile/tabs/watchlist/Watchlist';
 import Toggle from '@/components/ui/toggle/Toggle';
 import { GENRES, OTT_COLORS, INITIAL_PROFILE } from '@/mocks/data';
 
@@ -280,9 +280,9 @@ export default function ProfileComponent() {
           {activeTab === 'overview' && (
             <Overview onNavigateToReviews={() => setActiveTab('reviews')} />
           )}
-          {/* {activeTab === 'watchlist' && <WatchlistTab />}
+          {activeTab === 'watchlist' && <WatchlistTab />}
           {activeTab === 'watched' && <WatchedTab />}
-          {activeTab === 'reviews' && <Reviews />} */}
+          {activeTab === 'reviews' && <Reviews />}
         </div>
       </div>
 
@@ -302,7 +302,11 @@ export default function ProfileComponent() {
 
       <ChangePasswordModal isOpen={isPasswordOpen} onClose={() => setIsPasswordOpen(false)} />
 
-      <DeleteAccountModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} />
+      <DeleteAccountModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        profile={profile}
+      />
     </>
   );
 }
