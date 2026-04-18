@@ -169,7 +169,10 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-regular);
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .exportTypeChip:hover {
@@ -192,7 +195,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .exportTypeCheckActive {
@@ -211,7 +216,9 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .exportRequestBtn:hover:not(:disabled) {
@@ -233,7 +240,9 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-regular);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .exportCancelBtn:hover {
