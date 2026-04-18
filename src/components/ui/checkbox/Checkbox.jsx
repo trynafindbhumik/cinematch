@@ -33,10 +33,7 @@ export default function Checkbox({
   ...props
 }) {
   return (
-    <label
-      className={clsx(styles.checkboxLabel, className)}
-      style={{ alignItems }}
-    >
+    <label className={clsx(styles.checkboxLabel, className)} style={{ alignItems }}>
       <span
         className={clsx(
           styles.checkbox,
@@ -46,7 +43,7 @@ export default function Checkbox({
         )}
         aria-hidden="true"
       >
-        {checked && <Check size={12}/>}
+        {checked && <Check size={12} />}
       </span>
       <input
         type="checkbox"
@@ -56,9 +53,7 @@ export default function Checkbox({
         disabled={disabled}
         {...props}
       />
-      {label && (
-        <span className={clsx(styles.label, labelClass)}>{label}</span>
-      )}
+      {label && <span className={clsx(styles.label, labelClass)}>{label}</span>}
     </label>
   );
 }

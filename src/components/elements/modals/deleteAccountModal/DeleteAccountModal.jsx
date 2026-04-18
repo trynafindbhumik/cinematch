@@ -267,7 +267,8 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
 
               <div className={styles.confirmInputWrap}>
                 <p className={styles.confirmIntro}>
-                  To confirm account disabling, type <strong>DISABLE</strong> below and check the box:
+                  To confirm account disabling, type <strong>DISABLE</strong> below and check the
+                  box:
                 </p>
                 <input
                   type="text"
