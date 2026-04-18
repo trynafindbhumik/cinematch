@@ -83,11 +83,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
       <div className={sharedStyles.sheet} ref={sheetRef}>
-        <div
-          className={sharedStyles.mobileHandle}
-          ref={dragHandleRef}
-          aria-hidden="true"
-        />
+        <div className={sharedStyles.mobileHandle} ref={dragHandleRef} aria-hidden="true" />
 
         <div className={sharedStyles.header}>
           <div className={sharedStyles.headerText}>

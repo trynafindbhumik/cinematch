@@ -80,7 +80,6 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
     if (e.target === e.currentTarget) handleClose();
   };
 
-
   const processFile = (file) => {
     setFileError('');
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -119,7 +118,6 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
     onSave?.({ ...form, avatar: avatarPreview });
     handleClose();
   };
-
 
   const modal = (
     <div

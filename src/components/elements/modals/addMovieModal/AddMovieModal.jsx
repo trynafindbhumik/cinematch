@@ -13,13 +13,7 @@ import sharedStyles from '../Modals.module.css';
 
 import styles from './AddMovieModal.module.css';
 
-export default function AddMovieModal({
-  isOpen,
-  onClose,
-  onAdd,
-  title = 'Add Movie',
-  subtitle,
-}) {
+export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Movie', subtitle }) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [isClosing, setIsClosing] = useState(false);
@@ -36,9 +30,7 @@ export default function AddMovieModal({
 
   if (!isOpen && !isClosing) return null;
 
-  const filtered = MOCK_MOVIES.filter((m) =>
-    m.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = MOCK_MOVIES.filter((m) => m.title.toLowerCase().includes(search.toLowerCase()));
 
   const selectedMovies = MOCK_MOVIES.filter((m) => selected.has(m.id));
   const count = selected.size;
@@ -80,18 +72,11 @@ export default function AddMovieModal({
 
   const modal = (
     <div
-      className={clsx(
-        sharedStyles.overlay,
-        styles.sideOverlay,
-        isClosing && styles.overlayClosing
-      )}
+      className={clsx(sharedStyles.overlay, styles.sideOverlay, isClosing && styles.overlayClosing)}
       onClick={handleOverlayClick}
     >
       <div
-        className={clsx(
-          styles.cinematicSheet,
-          isClosing && styles.cinematicSheetClosing
-        )}
+        className={clsx(styles.cinematicSheet, isClosing && styles.cinematicSheetClosing)}
         onAnimationEnd={handleSheetAnimationEnd}
       >
         <div className={styles.cinematicHeader}>
@@ -106,15 +91,9 @@ export default function AddMovieModal({
               <Clapperboard size={20} />
             </div>
             <div className={styles.cinematicTitleGroup}>
-              <p className={clsx('text-micro', styles.cinematicEyebrow)}>
-                Your Collection
-              </p>
-              <h2 className={clsx('h-2xl', 'italic', styles.cinematicTitle)}>
-                {title}
-              </h2>
-              {subtitle && (
-                <p className={styles.cinematicSubtitle}>{subtitle}</p>
-              )}
+              <p className={clsx('text-micro', styles.cinematicEyebrow)}>Your Collection</p>
+              <h2 className={clsx('h-2xl', 'italic', styles.cinematicTitle)}>{title}</h2>
+              {subtitle && <p className={styles.cinematicSubtitle}>{subtitle}</p>}
             </div>
           </div>
 
@@ -124,11 +103,7 @@ export default function AddMovieModal({
             ))}
           </div>
 
-          <button
-            type="button"
-            className={styles.cinematicClose}
-            onClick={handleClose}
-          >
+          <button type="button" className={styles.cinematicClose} onClick={handleClose}>
             <X size={14} />
           </button>
         </div>
@@ -156,10 +131,7 @@ export default function AddMovieModal({
           </div>
 
           {count > 0 && (
-            <button
-              className={styles.clearSelBtn}
-              onClick={() => setSelected(new Set())}
-            >
+            <button className={styles.clearSelBtn} onClick={() => setSelected(new Set())}>
               Clear selection
             </button>
           )}
@@ -201,9 +173,7 @@ export default function AddMovieModal({
                     </div>
 
                     <div className={styles.cinematicMovieInfo}>
-                      <p className={styles.cinematicMovieTitle}>
-                        {movie.title}
-                      </p>
+                      <p className={styles.cinematicMovieTitle}>{movie.title}</p>
                       <p className={styles.cinematicMovieMeta}>
                         {movie.year} • {movie.genre.join(', ')}
                       </p>
@@ -224,7 +194,7 @@ export default function AddMovieModal({
           )}
         </div>
 
-       <div className={clsx(styles.selectionFooter, count > 0 && styles.selectionFooterVisible)}>
+        <div className={clsx(styles.selectionFooter, count > 0 && styles.selectionFooterVisible)}>
           <div className={styles.selectionPreviews}>
             {selectedMovies.slice(0, 5).map((m, i) => (
               <div
