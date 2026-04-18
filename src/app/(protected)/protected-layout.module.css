@@ -17,11 +17,11 @@
 .mainContent {
   flex: 1;
   overflow: auto;
-  padding-bottom: 5rem;
+  padding: 1.5rem;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .mainContent {
-    padding-bottom: 0;
+    padding-bottom: 5rem;
   }
 }
