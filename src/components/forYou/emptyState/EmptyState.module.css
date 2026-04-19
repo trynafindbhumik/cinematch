@@ -1,0 +1,119 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.emptyReel {
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyReelOuter {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-ink-07);
+  background: var(--color-ink-025);
+  animation: reelSpin 12s linear infinite;
+}
+
+@keyframes reelSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyReelSpoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 45%;
+  height: 1.5px;
+  background: var(--color-ink-08);
+  transform-origin: 0 50%;
+  margin-top: -0.75px;
+}
+
+.emptyReelInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink-06);
+  background: var(--color-ink-02);
+}
+
+.emptyReelHub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  background: var(--color-ink-08);
+}
+
+.emptyTitle {
+  font-family: var(--font-display, serif);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-bold);
+  font-style: italic;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+.emptyText {
+  font-size: var(--fs-base);
+  color: var(--color-ink-40);
+  font-family: var(--font-primary, sans-serif);
+  max-width: 22rem;
+  line-height: 1.65;
+}
+
+.emptyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: var(--color-ink);
+  color: var(--color-bg-warm);
+  border: none;
+  border-radius: 1rem;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  font-family: var(--font-primary, sans-serif);
+  box-shadow: 0 4px 16px var(--color-ink-18);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+  margin-top: 0.5rem;
+}
+
+.emptyBtn:hover {
+  background: var(--color-accent);
+  color: var(--color-surface);
+  transform: translateY(-1px);
+}
+
+.emptyBtn:active {
+  transform: translateY(0);
+}

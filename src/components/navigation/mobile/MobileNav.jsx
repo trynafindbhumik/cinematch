@@ -9,8 +9,8 @@ import styles from './MobileNavigation.module.css';
 
 const MOBILE_NAV = [
   { href: '/home', label: 'Home', icon: Home },
+  { href: '/for-you', label: 'For You', icon: Sparkles },
   { href: '/watchlist', label: 'Watchlist', icon: Bookmark },
-  { href: '/discover', label: 'Discover', icon: Sparkles },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
