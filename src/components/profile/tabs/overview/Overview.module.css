@@ -57,6 +57,7 @@
 
 .carouselWrap {
   position: relative;
+  margin: -1rem -1.5rem -3rem;
 }
 
 .carousel {
@@ -64,10 +65,10 @@
   align-items: stretch;
   gap: 1rem;
   overflow-x: auto;
-  overflow-y: visible;
-  padding: 1.5rem 0.5rem 2rem;
+  overflow-y: visible; 
+  padding: 2.5rem 3.25rem 3rem;
   scroll-snap-type: x mandatory;
-  scroll-padding-left: 0.5rem;
+  scroll-padding-left: 3.25rem;
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -94,7 +95,7 @@
 
 .carouselArrow {
   position: absolute;
-  top: 9rem;
+  top: 50%;
   transform: translateY(-50%);
   z-index: 10;
   width: 2.25rem;
@@ -105,7 +106,7 @@
   box-shadow:
     0 2px 8px var(--color-ink-10),
     0 4px 16px var(--color-ink-08);
-  display: none;
+  display: none; /* mobile: hidden */
   align-items: center;
   justify-content: center;
   color: var(--color-ink);
@@ -114,13 +115,13 @@
     background 0.2s ease,
     color 0.2s ease,
     box-shadow 0.2s ease,
+    opacity 0.2s ease,
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @media (min-width: 768px) {
   .carouselArrow {
-    top: 10.5rem;
-    display: flex;
+    display: flex; 
   }
 }
 
@@ -138,11 +139,16 @@
 }
 
 .carouselArrowLeft {
-  left: 0;
+  left: 1.5rem;
 }
 
 .carouselArrowRight {
-  right: 0;
+  right: 1.5rem;
+}
+
+.carouselArrowDisabled {
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 .addCardPlaceholder {
