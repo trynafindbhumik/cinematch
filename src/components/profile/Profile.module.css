@@ -4,7 +4,6 @@
   gap: 2rem;
   margin: 0 auto;
   animation: pageIn 0.4s ease-out both;
-  overflow-x: hidden;
   min-width: 0;
 }
 

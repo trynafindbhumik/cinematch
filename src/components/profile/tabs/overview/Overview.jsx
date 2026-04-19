@@ -1,8 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
-import { Plus, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 import AddMovieModal from '@/components/elements/modals/addMovieModal/AddMovieModal';
 import MovieCard from '@/components/elements/movieCard/MovieCard';
@@ -16,6 +16,38 @@ export default function Overview({ onNavigateToReviews }) {
   const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [isAddFavOpen, setIsAddFavOpen] = useState(false);
   const [favorites, setFavorites] = useState(MOCK_MOVIES);
+
+  const carouselRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateArrows = useCallback(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return undefined;
+
+    updateArrows();
+    el.addEventListener('scroll', updateArrows, { passive: true });
+    window.addEventListener('resize', updateArrows);
+
+    return () => {
+      el.removeEventListener('scroll', updateArrows);
+      window.removeEventListener('resize', updateArrows);
+    };
+  }, [updateArrows, favorites]);
+
+  const scrollCarousel = useCallback((direction) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.8;
+    el.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
+  }, []);
 
   const handleAddFavorite = (incoming) => {
     const arr = Array.isArray(incoming) ? incoming : [incoming];
@@ -73,7 +105,21 @@ export default function Overview({ onNavigateToReviews }) {
           </div>
         ) : (
           <div className={styles.carouselWrap}>
-            <div className={styles.carousel}>
+            <button
+              type="button"
+              aria-label="Scroll left"
+              className={clsx(
+                styles.carouselArrow,
+                styles.carouselArrowLeft,
+                !canScrollLeft && styles.carouselArrowDisabled
+              )}
+              onClick={() => scrollCarousel('left')}
+              tabIndex={canScrollLeft ? 0 : -1}
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            <div className={styles.carousel} ref={carouselRef}>
               {favorites.map((movie) => (
                 <div key={movie.id} className={styles.carouselItem}>
                   <MovieCard
@@ -95,6 +141,20 @@ export default function Overview({ onNavigateToReviews }) {
                 <span className={clsx(styles.addCardText, 'text-xs')}>Add Favorite</span>
               </button>
             </div>
+
+            <button
+              type="button"
+              aria-label="Scroll right"
+              className={clsx(
+                styles.carouselArrow,
+                styles.carouselArrowRight,
+                !canScrollRight && styles.carouselArrowDisabled
+              )}
+              onClick={() => scrollCarousel('right')}
+              tabIndex={canScrollRight ? 0 : -1}
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
         )}
       </section>
