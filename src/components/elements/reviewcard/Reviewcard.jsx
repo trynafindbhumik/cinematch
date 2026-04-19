@@ -3,12 +3,28 @@
 import clsx from 'clsx';
 import { Star, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import styles from './Reviewcard.module.css';
 
-export default function ReviewCard({ review, showStars = false }) {
+export default function ReviewCard({ review, showStars = false, onClick }) {
+  const router = useRouter();
+
+  const handleGoToMovie = (e) => {
+    e.stopPropagation();
+    if (review.movieId) {
+      router.push(`/movie/${review.movieId}`);
+    }
+  };
+
   return (
-    <article className={styles.reviewCard}>
+    <article
+      className={styles.reviewCard}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+    >
       <div className={styles.reviewCardInner}>
         <div className={styles.reviewPoster}>
           <Image
@@ -55,6 +71,18 @@ export default function ReviewCard({ review, showStars = false }) {
             Read Full Review
             <ExternalLink size={10} aria-hidden="true" />
           </button>
+
+          {review.movieId && (
+            <button
+              type="button"
+              className={clsx('text-micro', styles.movieLink)}
+              onClick={handleGoToMovie}
+              aria-label={`Go to movie page for ${review.movieTitle}`}
+            >
+              Go to Movie
+              <ExternalLink size={10} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
     </article>

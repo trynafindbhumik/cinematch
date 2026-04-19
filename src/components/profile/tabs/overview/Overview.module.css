@@ -65,7 +65,7 @@
   align-items: stretch;
   gap: 1rem;
   overflow-x: auto;
-  overflow-y: visible; 
+  overflow-y: visible;
   padding: 2.5rem 3.25rem 3rem;
   scroll-snap-type: x mandatory;
   scroll-padding-left: 3.25rem;
@@ -121,7 +121,7 @@
 
 @media (min-width: 768px) {
   .carouselArrow {
-    display: flex; 
+    display: flex;
   }
 }
 
