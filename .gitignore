@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ignore any folder literally named public OR (public)
+**/public/
+**/(public)/
+
+# ignore Next.js not-found files
+**/not-found.*

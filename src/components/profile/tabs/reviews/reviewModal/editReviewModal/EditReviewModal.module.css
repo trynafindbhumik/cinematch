@@ -1,0 +1,239 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(10, 9, 7, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: backdropIn 0.22s ease-out both;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: 2rem;
+  border: 1px solid var(--color-ink-06);
+  box-shadow:
+    0 8px 32px var(--color-ink-20),
+    0 2px 8px var(--color-ink-12);
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: modalIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
+  background: var(--color-ink-05);
+  border: 1px solid var(--color-ink-07);
+  color: var(--color-ink-45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.closeBtn:hover {
+  background: var(--color-ink-10);
+  color: var(--color-ink);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.editIconWrap {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--color-accent-08);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  color: var(--color-ink);
+}
+
+.subtitle {
+  color: var(--color-ink-45);
+  font-weight: 300;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  color: var(--color-ink-35);
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-ink-10);
+  background: var(--color-bg-warm);
+  color: var(--color-ink);
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  resize: none;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.charCount {
+  color: var(--color-ink-28);
+  text-align: right;
+}
+
+.starPicker {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: transform 0.15s ease;
+}
+
+.starBtn:hover {
+  transform: scale(1.15);
+}
+
+.starFilled {
+  color: var(--color-star, #fbbf24);
+  fill: var(--color-star, #fbbf24);
+}
+
+.starEmpty {
+  color: var(--color-ink-18);
+  fill: var(--color-ink-18);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.cancelBtn {
+  padding: 0.625rem 1.25rem;
+  background: var(--color-ink-06);
+  color: var(--color-ink-72);
+  border: 1px solid var(--color-ink-10);
+  border-radius: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background: var(--color-ink-10);
+  color: var(--color-ink);
+}
+
+.saveBtn {
+  padding: 0.625rem 1.5rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px var(--color-accent-20);
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Closing animations */
+.backdropClosing {
+  animation: backdropOut 0.22s ease-in both;
+}
+
+@keyframes backdropOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.modalClosing {
+  animation: modalOut 0.28s ease-in both;
+}
+
+@keyframes modalOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}

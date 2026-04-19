@@ -83,6 +83,26 @@
   animation-delay: calc(var(--item-index, 0) * 50ms);
 }
 
+.reviewItemClickable {
+  cursor: pointer;
+  border-radius: 1.25rem;
+  outline: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reviewItemClickable:hover {
+  transform: translateY(-3px);
+}
+
+.reviewItemClickable:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.reviewItemClickable:active {
+  transform: scale(0.98);
+}
+
 @keyframes cardIn {
   from {
     opacity: 0;
@@ -124,7 +144,6 @@
   display: flex;
   justify-content: center;
   margin-top: 2.5rem;
-  padding-top: 2rem;
   border-top: 1px solid var(--color-ink-05);
 }
 

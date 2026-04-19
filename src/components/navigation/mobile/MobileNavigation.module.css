@@ -30,6 +30,38 @@
   color: var(--color-ink, #1a1a1a);
 }
 
+.mobileTopBarRight {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mobileSearchBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-40);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  text-decoration: none;
+}
+
+.mobileSearchBtn:hover {
+  background: var(--color-ink-04);
+  color: var(--color-ink);
+}
+
+.mobileSearchBtn:active {
+  background: var(--color-ink-08);
+}
+
 .mobileLogoutBtn {
   display: flex;
   align-items: center;

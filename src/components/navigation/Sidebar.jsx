@@ -12,12 +12,14 @@ import {
   Sparkles,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { useSidebar } from '@/context/SidebarContext';
+import { removeCookie } from '@/utils/cookie';
 
 import styles from './SideBar.module.css';
 
@@ -26,7 +28,8 @@ const NAV_GROUPS = [
     section: 'Discover',
     items: [
       { href: '/home', label: 'Home', icon: Home },
-      { href: '/discover', label: 'Discover', icon: Sparkles },
+      { href: '/for-you', label: 'For You', icon: Sparkles },
+      { href: '/search', label: 'Search', icon: Search },
     ],
   },
   {
@@ -40,16 +43,15 @@ const NAV_GROUPS = [
 
 export default function Sidebar({ profile }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isCollapsed, toggleSidebar } = useSidebar();
 
   const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
 
   const handleLogout = () => {
-    document.cookie.split(';').forEach((c) => {
-      const name = c.indexOf('=') > -1 ? c.substr(0, c.indexOf('=')).trim() : c.trim();
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-    });
-    window.location.href = '/';
+    removeCookie('auth_token');
+    removeCookie('user_session');
+    router.push('/');
   };
 
   if (isCollapsed === null) {

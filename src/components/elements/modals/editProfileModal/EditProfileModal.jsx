@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import { useModal } from '@/context/ModalContext';
 
 import sharedStyles from '../Modals.module.css';
 
@@ -31,37 +32,19 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
   const [isDragging, setIsDragging] = useState(false);
 
   const [isClosing, setIsClosing] = useState(false);
+  const { openModal, closeModal } = useModal();
 
   const fileInputRef = useRef(null);
   const objectUrlRef = useRef(null);
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-
-    if (isOpen || isClosing) {
-      document.body.style.overflow = 'hidden';
-    }
-
+    if (isOpen) openModal();
     return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen, isClosing]);
-
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    if (isOpen) document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    return () => {
+      closeModal();
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     };
-  }, []);
+  }, [isOpen, openModal, closeModal]);
 
-  if (typeof window === 'undefined') return null;
   if (!isOpen && !isClosing) return null;
 
   const handleClose = () => {

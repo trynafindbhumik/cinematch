@@ -41,11 +41,14 @@ export default function MovieCard({
       <div className={styles.imageWrap}>
         <Image
           src={movie.image}
-          alt={movie.title}
+          alt={movie.description ? movie.title : `Poster for ${movie.title}`}
           className={styles.image}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           referrerPolicy="no-referrer"
+          loading="lazy"
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKT8tKSr/2wBDAQICAgQEBAcFBgYGBgYGCggICAgKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBRIhBhMiMUFR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAaEQACAgMAAAAAAAAAAAAAAAABAgADESEi/9oADAMBAAIRAxEAPwCte3uu3F5cW1rfSxxRSMqqqL0iQegPmopqWq6nqF5NcXV1LLJIzMxdier5J/qqqKJj6pXRN0z/2Q=="
         />
         <div className={styles.imageGradient} />
 

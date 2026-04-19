@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import { useModal } from '@/context/ModalContext';
 import { MOCK_MOVIES } from '@/mocks/data';
 
 import sharedStyles from '../Modals.module.css';
@@ -17,16 +18,12 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [isClosing, setIsClosing] = useState(false);
+  const { openModal, closeModal } = useModal();
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    if (isOpen || isClosing) document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen, isClosing]);
-
-  if (typeof window === 'undefined') return null;
+    if (isOpen) openModal();
+    return () => closeModal();
+  }, [isOpen, openModal, closeModal]);
 
   if (!isOpen && !isClosing) return null;
 

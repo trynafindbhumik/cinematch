@@ -65,11 +65,21 @@ export default function MovieListPage({
 
           <h1 className={styles.heading}>{heading}</h1>
 
-          <p className={styles.count}>{count}</p>
+          <p className={styles.count}>
+            {count}
+            <span aria-live="polite" className="sr-only">
+              {count}
+            </span>
+          </p>
         </div>
 
-        <button type="button" className={clsx(styles.addBtn, 'text-xs')} onClick={onAdd}>
-          <Plus size={16} />
+        <button
+          type="button"
+          className={clsx(styles.addBtn, 'text-xs')}
+          onClick={onAdd}
+          aria-label={addLabel}
+        >
+          <Plus size={16} aria-hidden="true" />
           {addLabel}
         </button>
       </div>

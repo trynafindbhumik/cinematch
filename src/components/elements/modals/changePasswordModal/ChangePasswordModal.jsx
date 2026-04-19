@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import { useModal } from '@/context/ModalContext';
 import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 
 import sharedStyles from '../Modals.module.css';
@@ -18,16 +19,14 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
   const [showNext, setShowNext] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
+  const { openModal, closeModal } = useModal();
 
   const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    if (isOpen) document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen]);
+    if (isOpen) openModal();
+    return () => closeModal();
+  }, [isOpen, openModal, closeModal]);
 
   if (!isOpen) return null;
 

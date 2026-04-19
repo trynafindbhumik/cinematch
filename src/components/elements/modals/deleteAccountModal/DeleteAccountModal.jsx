@@ -3,12 +3,13 @@
 import clsx from 'clsx';
 import { AlertTriangle, Lock, Check, Moon, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Button from '@/components/ui/button/Button';
 import Checkbox from '@/components/ui/checkbox/Checkbox';
 import Dropdown from '@/components/ui/dropdown/Dropdown';
+import { useModal } from '@/context/ModalContext';
 import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 
 import sharedStyles from '../Modals.module.css';
@@ -31,7 +32,7 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
     'ratings',
     'reviews',
   ]);
-  const isMounted = useRef(true);
+  const { openModal, closeModal } = useModal();
 
   const router = useRouter();
   const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
@@ -46,7 +47,7 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
     if (selectedExportTypes.length === 0) return;
     setDownloadState('requesting');
     await requestEmailExport(profile, selectedExportTypes);
-    if (isMounted.current) setDownloadState('sent');
+    setDownloadState('sent');
   };
 
   useEffect(() => {
@@ -74,11 +75,9 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
   }, [isOpen]);
 
   useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+    if (isOpen) openModal();
+    return () => closeModal();
+  }, [isOpen, openModal, closeModal]);
 
   if (!isOpen) return null;
 
