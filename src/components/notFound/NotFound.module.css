@@ -1,0 +1,439 @@
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grainDrift {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2%, -1%);
+  }
+  40% {
+    transform: translate(1.5%, 2%);
+  }
+  60% {
+    transform: translate(-1%, 1.5%);
+  }
+  80% {
+    transform: translate(2%, -1.5%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes frameFlicker {
+  0% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.85;
+  }
+  94% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 1;
+  }
+  98% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes reelSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-warm);
+  color: var(--color-ink);
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.grain {
+  position: fixed;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: grainDrift 10s steps(1) infinite;
+}
+
+/* Ambient glow */
+.glowLeft {
+  position: absolute;
+  top: 10%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-accent-06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.glowRight {
+  position: absolute;
+  bottom: 5%;
+  right: -8%;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-accent-05) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.filmFrame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 580px;
+  width: 100%;
+  animation: frameFlicker 8s ease-in-out infinite;
+}
+
+/* Sprocket strip top */
+.sprocketStrip {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--color-ink);
+  border-radius: 6px 6px 0 0;
+  padding: 0.6rem 1.25rem;
+  overflow: hidden;
+}
+
+.sprocketHoles {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.sprocketHole {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--color-bg-warm);
+  opacity: 0.15;
+  flex-shrink: 0;
+}
+
+.sprocketCode {
+  font-family: var(--font-primary);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.35em;
+  color: rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.filmCell {
+  width: 100%;
+  background: var(--color-surface);
+  border-left: 20px solid var(--color-ink);
+  border-right: 20px solid var(--color-ink);
+  padding: 3.5rem 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  position: relative;
+}
+
+.filmCell::before,
+.filmCell::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.filmCell::before {
+  left: -20px;
+}
+.filmCell::after {
+  right: -20px;
+}
+
+/* Sprocket strip bottom */
+.sprocketStripBottom {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--color-ink);
+  border-radius: 0 0 6px 6px;
+  padding: 0.6rem 1.25rem;
+  flex-direction: row-reverse;
+}
+
+.reelWrap {
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+.reelOuter {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--color-ink-12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.reelInner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 6px solid var(--color-ink-08);
+  border-top-color: var(--color-accent);
+  animation: reelSpin 3s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reelHub {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-ink-14);
+}
+
+.errorCode {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 16vw, 9rem);
+  font-weight: var(--fw-bold);
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  color: var(--color-ink);
+  margin-bottom: 0.25rem;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+.errorCode span {
+  color: var(--color-accent);
+}
+
+.sceneLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.875rem;
+  background: var(--color-accent-08);
+  border: 1px solid var(--color-accent-20);
+  border-radius: 9999px;
+  font-family: var(--font-primary);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+  margin-top: 1.25rem;
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards;
+}
+
+.sceneLabelDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--fs-3xl), 4vw, var(--fs-5xl));
+  font-weight: var(--fw-bold);
+  color: var(--color-ink);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+.description {
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  color: var(--color-ink-45);
+  line-height: 1.72;
+  max-width: 340px;
+  margin-bottom: 2.25rem;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+}
+
+.actions {
+  display: flex;
+  gap: 0.875rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.75rem;
+  background: var(--color-ink);
+  color: var(--color-bg-warm);
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  border-radius: 9999px;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+  white-space: nowrap;
+}
+
+.primaryBtn:hover {
+  background: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.75rem;
+  background: transparent;
+  color: var(--color-ink-55);
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  border: 1px solid var(--color-ink-14);
+  border-radius: 9999px;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+  white-space: nowrap;
+}
+
+.secondaryBtn:hover {
+  border-color: var(--color-accent-30);
+  color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.sceneFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-ink-06);
+  width: 100%;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+}
+
+.sceneMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: center;
+}
+
+.sceneMetaLabel {
+  font-family: var(--font-primary);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-ink-25);
+}
+
+.sceneMetaValue {
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--color-ink-45);
+  letter-spacing: -0.01em;
+}
+
+.sceneMetaDivider {
+  width: 1px;
+  height: 28px;
+  background: var(--color-ink-08);
+}
+
+@media (max-width: 640px) {
+  .filmCell {
+    padding: 2.75rem 1.5rem 2.5rem;
+  }
+
+  .filmFrame {
+    max-width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sceneFooter {
+    gap: 0.5rem;
+  }
+}
