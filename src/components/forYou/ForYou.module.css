@@ -115,8 +115,8 @@
   scrollbar-width: none;
   padding: 0.75rem 1rem 1rem;
   margin: -1rem -1.5rem -3rem -1.5rem;
-    scroll-padding-left: 3.25rem;
-    overflow: auto visible;
+  scroll-padding-left: 3.25rem;
+  overflow: auto visible;
 
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;

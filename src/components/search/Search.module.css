@@ -1,8 +1,3 @@
-/* ─────────────────────────────────────────────
-   Search Page Styles
-   Path: @/components/search/Search.module.css
-───────────────────────────────────────────── */
-
 .searchPage {
   padding: 2rem;
   max-width: 1200px;
@@ -16,8 +11,6 @@
     min-height: calc(100vh - 100px);
   }
 }
-
-/* ── Header ───────────────────────────────── */
 
 .searchHeader {
   margin-bottom: 2rem;
@@ -46,8 +39,6 @@
     font-size: var(--fs-sm);
   }
 }
-
-/* ── Search Input Container ───────────────── */
 
 .searchContainer {
   position: relative;
@@ -127,8 +118,6 @@
     left: 0.875rem;
   }
 }
-
-/* ── Dropdown ─────────────────────────────── */
 
 .dropdown {
   position: absolute;
@@ -217,8 +206,6 @@
   background: var(--color-accent-10);
 }
 
-/* ── Suggestion Item ──────────────────────── */
-
 .suggestionPoster {
   position: relative;
   width: 40px;
@@ -262,8 +249,6 @@
   flex-shrink: 0;
 }
 
-/* ── Recent Search Item ──────────────────── */
-
 .recentIcon {
   color: var(--color-ink-30);
   flex-shrink: 0;
@@ -295,8 +280,6 @@
   background: var(--color-ink-10);
   color: var(--color-ink-60);
 }
-
-/* ── Results ─────────────────────────────── */
 
 .resultsContainer {
   animation: fadeIn 0.3s ease;
@@ -347,8 +330,6 @@
   }
 }
 
-/* ── No Results ──────────────────────────── */
-
 .noResults {
   display: flex;
   flex-direction: column;
@@ -375,8 +356,6 @@
   color: var(--color-ink-40);
   margin: 0;
 }
-
-/* ── Recent Searches Section ─────────────── */
 
 .recentContainer,
 .popularContainer {

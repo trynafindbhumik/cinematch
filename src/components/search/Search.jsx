@@ -29,7 +29,6 @@ export default function SearchComponent() {
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  // Load recent searches from localStorage
   useEffect(() => {
     const loadRecentSearches = () => {
       try {
@@ -43,9 +42,7 @@ export default function SearchComponent() {
             });
           });
         }
-      } catch {
-        // silently ignore localStorage errors
-      }
+      } catch {}
     };
     loadRecentSearches();
   }, []);
