@@ -5,9 +5,6 @@ import { SlidersHorizontal } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 import ReviewCard from '@/components/elements/reviewcard/Reviewcard';
-import DeleteConfirmModal from '@/components/profile/tabs/reviews/reviewModal/deleteConfirmModal/DeleteConfirmModal';
-import EditReviewModal from '@/components/profile/tabs/reviews/reviewModal/editReviewModal/EditReviewModal';
-import ReviewModal from '@/components/profile/tabs/reviews/reviewModal/ReviewModal';
 import DateRangePicker from '@/components/ui/dateRangePicker/DateRangePicker';
 import { MOCK_REVIEWS } from '@/mocks/data';
 
@@ -27,9 +24,6 @@ export default function Reviews() {
   const [isLoading, setIsLoading] = useState(false);
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
-  const [selectedReview, setSelectedReview] = useState(null);
-  const [editingReview, setEditingReview] = useState(null);
-  const [deletingReview, setDeletingReview] = useState(null);
   const [reviews, setReviews] = useState(MOCK_REVIEWS);
 
   const filteredReviews = useMemo(() => {
@@ -69,144 +63,101 @@ export default function Reviews() {
     setIsLoading(false);
   };
 
+  const handleSave = (updated) => {
+    setReviews((prev) => prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)));
+  };
+
+  const handleDelete = (id) => {
+    setReviews((prev) => prev.filter((r) => r.id !== id));
+  };
+
   return (
-    <>
-      <div className={styles.tabWrap}>
-        <h1 className={styles.heading}>Reviews</h1>
-        <p className={clsx(styles.tabSubtitle, 'italic')}>Your personal film journal.</p>
+    <div className={styles.tabWrap}>
+      <h1 className={styles.heading}>Reviews</h1>
+      <p className={clsx(styles.tabSubtitle, 'italic')}>Your personal film journal.</p>
 
-        <div className={styles.filterBar}>
-          <span className={clsx(styles.filterLabel, 'text-micro')}>
-            <SlidersHorizontal size={10} aria-hidden="true" />
-            Filter by date
+      <div className={styles.filterBar}>
+        <span className={clsx(styles.filterLabel, 'text-micro')}>
+          <SlidersHorizontal size={10} aria-hidden="true" />
+          Filter by date
+        </span>
+
+        <DateRangePicker
+          from={dateFrom}
+          to={dateTo}
+          onChange={({ from, to }) => {
+            setDateFrom(from ?? null);
+            setDateTo(to ?? null);
+            setVisibleCount(PAGE_SIZE);
+          }}
+          onClear={() => {
+            setDateFrom(null);
+            setDateTo(null);
+            setVisibleCount(PAGE_SIZE);
+          }}
+        />
+
+        {hasFilter && (
+          <span className={clsx(styles.filterCount, 'text-micro')}>
+            {filteredReviews.length} of {reviews.length}
           </span>
+        )}
+      </div>
 
-          <DateRangePicker
-            from={dateFrom}
-            to={dateTo}
-            onChange={({ from, to }) => {
-              setDateFrom(from ?? null);
-              setDateTo(to ?? null);
-              setVisibleCount(PAGE_SIZE);
-            }}
-            onClear={() => {
-              setDateFrom(null);
-              setDateTo(null);
-              setVisibleCount(PAGE_SIZE);
-            }}
-          />
-
-          {hasFilter && (
-            <span className={clsx(styles.filterCount, 'text-micro')}>
-              {filteredReviews.length} of {reviews.length}
-            </span>
-          )}
-        </div>
-
-        <div className={styles.reviewsGrid}>
-          {visibleReviews.length > 0 ? (
-            visibleReviews.map((review, index) => (
-              <div
-                key={review.id}
-                role="button"
-                tabIndex={0}
-                className={clsx(styles.reviewItem, styles.reviewItemClickable)}
-                style={{ '--item-index': index % PAGE_SIZE }}
-                onClick={() => setSelectedReview(review)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setSelectedReview(review);
-                  }
-                }}
-                aria-label={`View full review for ${review.movieTitle}`}
-              >
-                <ReviewCard review={review} showStars />
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptyState}>
-              <span className={styles.emptyIcon} aria-hidden="true">
-                ✦
-              </span>
-              <p className={clsx(styles.emptyTitle, 'text-sm')}>No reviews found</p>
-              <p className={clsx(styles.emptySubtitle, 'text-xs')}>
-                Try adjusting your date range.
-              </p>
+      <div className={styles.reviewsGrid}>
+        {visibleReviews.length > 0 ? (
+          visibleReviews.map((review, index) => (
+            <div
+              key={review.id}
+              className={styles.reviewItem}
+              style={{ '--item-index': index % PAGE_SIZE }}
+            >
+              <ReviewCard review={review} showStars onSave={handleSave} onDelete={handleDelete} />
             </div>
-          )}
-        </div>
-
-        {filteredReviews.length > 0 && (
-          <div className={styles.footer}>
-            {hasMore ? (
-              <button
-                type="button"
-                className={styles.loadMoreBtn}
-                onClick={handleLoadMore}
-                disabled={isLoading}
-                aria-busy={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <span className={styles.spinner} aria-hidden="true" />
-                    Loading…
-                  </>
-                ) : (
-                  <>
-                    Load {Math.min(remaining, PAGE_SIZE)} more
-                    <span className={styles.loadMoreCount}>{remaining} remaining</span>
-                  </>
-                )}
-              </button>
-            ) : (
-              <p className={styles.endMessage}>
-                <span className={styles.endIcon}>✦</span>
-                You&apos;ve seen all {filteredReviews.length} review
-                {filteredReviews.length !== 1 ? 's' : ''}
-                {hasFilter ? ' matching this range' : ''}
-              </p>
-            )}
+          ))
+        ) : (
+          <div className={styles.emptyState}>
+            <span className={styles.emptyIcon} aria-hidden="true">
+              ✦
+            </span>
+            <p className={clsx(styles.emptyTitle, 'text-sm')}>No reviews found</p>
+            <p className={clsx(styles.emptySubtitle, 'text-xs')}>Try adjusting your date range.</p>
           </div>
         )}
       </div>
 
-      {selectedReview && (
-        <ReviewModal
-          review={selectedReview}
-          onClose={() => setSelectedReview(null)}
-          onEdit={(review) => {
-            setSelectedReview(null);
-            setEditingReview(review);
-          }}
-          onDelete={(review) => {
-            setSelectedReview(null);
-            setDeletingReview(review);
-          }}
-        />
+      {filteredReviews.length > 0 && (
+        <div className={styles.footer}>
+          {hasMore ? (
+            <button
+              type="button"
+              className={styles.loadMoreBtn}
+              onClick={handleLoadMore}
+              disabled={isLoading}
+              aria-busy={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span className={styles.spinner} aria-hidden="true" />
+                  Loading…
+                </>
+              ) : (
+                <>
+                  Load {Math.min(remaining, PAGE_SIZE)} more
+                  <span className={styles.loadMoreCount}>{remaining} remaining</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <p className={styles.endMessage}>
+              <span className={styles.endIcon}>✦</span>
+              You&apos;ve seen all {filteredReviews.length} review
+              {filteredReviews.length !== 1 ? 's' : ''}
+              {hasFilter ? ' matching this range' : ''}
+            </p>
+          )}
+        </div>
       )}
-
-      {editingReview && (
-        <EditReviewModal
-          review={editingReview}
-          onClose={() => setEditingReview(null)}
-          onSave={(updated) => {
-            setReviews((prev) => prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)));
-            setEditingReview(null);
-          }}
-        />
-      )}
-
-      {deletingReview && (
-        <DeleteConfirmModal
-          review={deletingReview}
-          onClose={() => setDeletingReview(null)}
-          onConfirm={() => {
-            setReviews((prev) => prev.filter((r) => r.id !== deletingReview.id));
-            setDeletingReview(null);
-          }}
-        />
-      )}
-    </>
+    </div>
   );
 }

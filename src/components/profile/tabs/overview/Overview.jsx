@@ -16,6 +16,7 @@ export default function Overview({ onNavigateToReviews }) {
   const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [isAddFavOpen, setIsAddFavOpen] = useState(false);
   const [favorites, setFavorites] = useState(MOCK_MOVIES);
+  const [reviews, setReviews] = useState(MOCK_REVIEWS);
 
   const carouselRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -59,6 +60,14 @@ export default function Overview({ onNavigateToReviews }) {
 
   const handleRemoveFavorite = (id) => {
     setFavorites((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const handleDeleteReview = (id) => {
+    setReviews((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleSaveReview = (updated) => {
+    setReviews((prev) => prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)));
   };
 
   return (
@@ -179,8 +188,14 @@ export default function Overview({ onNavigateToReviews }) {
         </div>
 
         <div className={styles.reviewsGrid}>
-          {MOCK_REVIEWS.slice(0, 2).map((review) => (
-            <ReviewCard key={review.id} review={review} showStars={false} />
+          {reviews.slice(0, 2).map((review) => (
+            <ReviewCard
+              key={review.id}
+              review={review}
+              showStars={false}
+              onDelete={handleDeleteReview}
+              onSave={handleSaveReview}
+            />
           ))}
         </div>
       </section>
