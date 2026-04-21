@@ -1,18 +1,11 @@
 'use client';
 
-import {
-  Heart,
-  Compass,
-  Users,
-  Zap,
-  Shield,
-  Film,
-} from 'lucide-react';
+import { Heart, Compass, Users, Zap, Shield, Film } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 
-import aboutbanner from "@/assets/about/about-banner.jpg"
-import aboutbanner1 from "@/assets/about/about-banner2.jpg"
+import aboutbanner from '@/assets/about/about-banner.jpg';
+import aboutbanner1 from '@/assets/about/about-banner2.jpg';
 
 import styles from './About.module.css';
 
@@ -44,7 +37,7 @@ const VALUES = [
     number: '01',
     Icon: Heart,
     title: 'Curator over aggregator',
-    desc: 'We don\'t list every film ever made. We curate experiences we believe will genuinely resonate with each viewer\'s unique cinematic sensibility.',
+    desc: "We don't list every film ever made. We curate experiences we believe will genuinely resonate with each viewer's unique cinematic sensibility.",
   },
   {
     number: '02',
@@ -62,7 +55,7 @@ const VALUES = [
     number: '04',
     Icon: Users,
     title: 'Community, not crowd',
-    desc: 'CineMatch is built by cinephiles, for cinephiles. Every feature starts with a real person\'s frustration with how movies are discovered today.',
+    desc: "CineMatch is built by cinephiles, for cinephiles. Every feature starts with a real person's frustration with how movies are discovered today.",
   },
   {
     number: '05',
@@ -98,7 +91,8 @@ export default function AboutComponent() {
         <div className={styles.heroContent}>
           <span className={styles.heroEyebrow}>Our Story</span>
           <h1 className={styles.heroTitle}>
-            Built by People<br />
+            Built by People
+            <br />
             Who Love <em>Cinema</em>
           </h1>
           <p className={styles.heroQuote}>
@@ -130,7 +124,11 @@ export default function AboutComponent() {
           <div className={styles.storyLeft}>
             <span className={styles.sectionLabel}>Who We Are</span>
             <h2 className={styles.storyHeading}>
-              Rethinking how<br />the world<br /><em>finds films</em>
+              Rethinking how
+              <br />
+              the world
+              <br />
+              <em>finds films</em>
             </h2>
             <div className={styles.storyImageWrap}>
               <Image
@@ -147,8 +145,8 @@ export default function AboutComponent() {
             <p className={styles.storyText}>
               CineMatch was born out of a simple, recurring frustration:{' '}
               <strong>great films exist everywhere, but finding them feels impossible.</strong>{' '}
-              Streaming platforms are built to keep you watching anything, not the right thing.
-              The algorithm optimises for engagement, not taste.
+              Streaming platforms are built to keep you watching anything, not the right thing. The
+              algorithm optimises for engagement, not taste.
             </p>
             <p className={styles.storyText}>
               We started with a question: what if discovery felt as good as watching? What if

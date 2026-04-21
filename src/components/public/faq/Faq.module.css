@@ -1,20 +1,44 @@
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes accordionOpen {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes grainShift {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2%, -1%); }
-  40%  { transform: translate(1%, 2%); }
-  60%  { transform: translate(-1%, 1%); }
-  80%  { transform: translate(2%, -2%); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2%, -1%);
+  }
+  40% {
+    transform: translate(1%, 2%);
+  }
+  60% {
+    transform: translate(-1%, 1%);
+  }
+  80% {
+    transform: translate(2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 .page {
@@ -72,10 +96,18 @@
   opacity: 0;
   animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.heroInner > *:nth-child(1) { animation-delay: 0.06s; }
-.heroInner > *:nth-child(2) { animation-delay: 0.16s; }
-.heroInner > *:nth-child(3) { animation-delay: 0.26s; }
-.heroInner > *:nth-child(4) { animation-delay: 0.36s; }
+.heroInner > *:nth-child(1) {
+  animation-delay: 0.06s;
+}
+.heroInner > *:nth-child(2) {
+  animation-delay: 0.16s;
+}
+.heroInner > *:nth-child(3) {
+  animation-delay: 0.26s;
+}
+.heroInner > *:nth-child(4) {
+  animation-delay: 0.36s;
+}
 
 .backButton {
   display: inline-flex;
@@ -91,9 +123,15 @@
   transition: color 0.25s ease;
 }
 
-.backButton:hover { color: var(--color-accent); }
-.backButton svg { transition: transform 0.3s ease; }
-.backButton:hover svg { transform: translateX(-4px); }
+.backButton:hover {
+  color: var(--color-accent);
+}
+.backButton svg {
+  transition: transform 0.3s ease;
+}
+.backButton:hover svg {
+  transform: translateX(-4px);
+}
 
 .badge {
   display: inline-flex;
@@ -164,7 +202,9 @@
   font-family: var(--font-primary);
   font-size: var(--fs-base);
   color: var(--color-ink);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .searchInput:focus {
@@ -173,7 +213,9 @@
   box-shadow: 0 0 0 3px var(--color-accent-08);
 }
 
-.searchInput::placeholder { color: var(--color-ink-28); }
+.searchInput::placeholder {
+  color: var(--color-ink-28);
+}
 
 .tabsWrap {
   max-width: 900px;
@@ -286,7 +328,11 @@
   justify-content: center;
   color: var(--color-ink-35);
   flex-shrink: 0;
-  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .accordionOpen .accordionIcon {
@@ -377,7 +423,10 @@
   letter-spacing: 0.12em;
   text-decoration: none;
   border-radius: 9999px;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .helpBtn:hover {
@@ -387,8 +436,16 @@
 }
 
 @media (max-width: 640px) {
-  .hero { padding: 7.5rem 1.25rem 4rem; }
-  .faqWrap { padding: 2rem 1.25rem 4rem; }
-  .accordionQ { font-size: var(--fs-lg); }
-  .tabsWrap { padding: 0 1.25rem 0.5rem; }
+  .hero {
+    padding: 7.5rem 1.25rem 4rem;
+  }
+  .faqWrap {
+    padding: 2rem 1.25rem 4rem;
+  }
+  .accordionQ {
+    font-size: var(--fs-lg);
+  }
+  .tabsWrap {
+    padding: 0 1.25rem 0.5rem;
+  }
 }
