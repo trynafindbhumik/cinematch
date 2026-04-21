@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useCallback, useSyncExternalStore } from 'react';
+import { createContext, useContext, useCallback, useState } from 'react';
 
 import { getCookie, setCookie } from '@/utils/cookie';
 
@@ -8,29 +8,26 @@ const SidebarContext = createContext(undefined);
 
 const COOKIE_NAME = 'cinematch:sidebar-collapsed';
 
-function subscribe(callback) {
-  const interval = setInterval(callback, 500);
-  return () => clearInterval(interval);
-}
-
 export function SidebarProvider({ children, initialCollapsed }) {
-  const stored = useSyncExternalStore(
-    subscribe,
-    () => getCookie(COOKIE_NAME),
-    () => initialCollapsed
-  );
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window === 'undefined') {
+      return initialCollapsed ?? false;
+    }
 
-  const isCollapsed =
-    typeof stored === 'boolean'
-      ? stored
-      : stored === null
-        ? (initialCollapsed ?? false)
-        : stored === 'true';
+    const stored = getCookie(COOKIE_NAME);
+    if (stored !== null) {
+      return stored === 'true';
+    }
+
+    return initialCollapsed ?? false;
+  });
 
   const toggleSidebar = useCallback(() => {
-    const current = getCookie(COOKIE_NAME);
-    const next = current !== 'true';
-    setCookie(COOKIE_NAME, String(next));
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      setCookie(COOKIE_NAME, String(next));
+      return next;
+    });
   }, []);
 
   return (

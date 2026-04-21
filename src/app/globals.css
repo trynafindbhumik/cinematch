@@ -89,6 +89,13 @@
   --color-ink-04: rgba(26, 26, 26, 0.04);
   --color-ink-02: rgba(26, 26, 26, 0.02);
   --color-ink-01: rgba(26, 26, 26, 0.01);
+  /* Used by ForYou and EmptyState components */
+  --color-ink-024: rgba(26, 26, 26, 0.024);
+  --color-ink-025: rgba(26, 26, 26, 0.25);
+  --color-ink-24: rgba(26, 26, 26, 0.24);
+  --color-ink-38: rgba(26, 26, 26, 0.38);
+  --color-ink-24: rgba(26, 26, 26, 0.24);
+  --color-ink-025: rgba(26, 26, 26, 0.025);
   --color-error-06: rgba(239, 68, 68, 0.06);
   --color-error-18: rgba(239, 68, 68, 0.18);
 
@@ -112,8 +119,28 @@
   --color-accent-03: rgba(140, 120, 81, 0.03);
   --color-accent-02: rgba(140, 120, 81, 0.02);
   --color-accent-50: rgba(140, 120, 81, 0.5);
+  --color-accent-07: rgba(140, 120, 81, 0.07);
+  --color-accent-35: rgba(140, 120, 81, 0.35);
+  --color-accent-40: rgba(140, 120, 81, 0.4);
+  --color-accent-60: rgba(140, 120, 81, 0.6);
   --color-bg-white-95: rgba(255, 255, 255, 0.95);
   --color-bg-white-92: rgba(255, 255, 255, 0.92);
+
+  /* 2d-ext. White Alpha Stack */
+  /*
+     All alpha variants are derived from pure white (#ffffff).
+     Use these for overlays on dark surfaces (loaders, modals, film strips).
+  */
+
+  --color-white-03: rgba(255, 255, 255, 0.03);
+  --color-white-04: rgba(255, 255, 255, 0.04);
+  --color-white-07: rgba(255, 255, 255, 0.07);
+  --color-white-10: rgba(255, 255, 255, 0.1);
+  --color-white-15: rgba(255, 255, 255, 0.15);
+  --color-white-20: rgba(255, 255, 255, 0.2);
+  --color-white-30: rgba(255, 255, 255, 0.3);
+  --color-white-38: rgba(255, 255, 255, 0.38);
+  --color-white-50: rgba(255, 255, 255, 0.5);
 
   /* 2d. Status / Semantic Colors */
 
@@ -121,8 +148,12 @@
   --color-error: #d33838;
   --color-error-dark: rgb(185, 28, 28);
   --color-error-hover: #b82f2f;
-  --color-error-08: rgba(239, 68, 68, 0.08);
   --color-error-05: rgba(239, 68, 68, 0.05);
+  --color-error-06: rgba(239, 68, 68, 0.06);
+  --color-error-08: rgba(239, 68, 68, 0.08);
+  --color-error-10: rgba(239, 68, 68, 0.1);
+  --color-error-15: rgba(239, 68, 68, 0.15);
+  --color-error-18: rgba(239, 68, 68, 0.18);
   --color-error-25: rgba(211, 56, 56, 0.25);
   --color-error-10: rgba(239, 68, 68, 0.1);
   --color-error-50: rgba(239, 68, 68, 0.5);
@@ -140,6 +171,12 @@
   --color-error-red-45: rgba(220, 38, 38, 0.45);
   --color-error-red-85: rgba(220, 38, 38, 0.85);
   --color-error-red-95: rgba(220, 38, 38, 0.95);
+  --color-success: #22c55e;
+  --color-success-50: rgba(16, 185, 129, 0.5);
+  --color-success-10: rgba(16, 185, 129, 0.1);
+  --color-like-green: #10b981;
+  --color-like-green-25: rgba(16, 185, 129, 0.25);
+  --color-like-green-50: rgba(16, 185, 129, 0.5);
   --color-rating-yellow: #fbbf24;
 
   /* 2e. Reaction / Swipe Palette */
@@ -255,7 +292,7 @@
   line-height: 1.2;
 }
 
-.text-base {
+.text-base-bold {
   font-family: var(--font-primary);
   font-size: var(--fs-sm); /* 12px */
   font-weight: var(--fw-bold);
@@ -379,6 +416,7 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  cursor: default;
 }
 
 a {
@@ -397,4 +435,21 @@ button {
 img {
   display: block;
   max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

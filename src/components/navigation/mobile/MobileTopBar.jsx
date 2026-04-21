@@ -1,7 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
-import { Film, LogOut } from 'lucide-react';
+import { Film, LogOut, Search } from 'lucide-react';
+import Link from 'next/link';
 
 import styles from './MobileNavigation.module.css';
 
@@ -22,15 +23,19 @@ export default function MobileTopBar() {
         </div>
         <span className={clsx('text-2xl', styles.mobileLogoText)}>CineMatch</span>
       </div>
-      <button
-        type="button"
-        className={styles.mobileLogoutBtn}
-        onClick={handleLogout}
-        aria-label="Logout"
-      >
-        <LogOut size={16} aria-hidden="true" />
-        <span className={styles.mobileLogoutLabel}>Logout</span>
-      </button>
+      <div className={styles.mobileTopBarRight}>
+        <Link href="/search" className={styles.mobileSearchBtn} aria-label="Search movies">
+          <Search size={18} aria-hidden="true" />
+        </Link>
+        <button
+          type="button"
+          className={styles.mobileLogoutBtn}
+          onClick={handleLogout}
+          aria-label="Logout"
+        >
+          <LogOut size={16} aria-hidden="true" />
+        </button>
+      </div>
     </header>
   );
 }

@@ -26,7 +26,38 @@
   font-family: var(--font-primary);
   font-weight: var(--fw-light);
   color: var(--color-ink-35);
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1.125rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-ink-06);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px var(--color-ink-04);
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--color-ink-35);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filterCount {
+  margin-left: auto;
+  color: var(--color-accent);
+  background: var(--color-accent-08);
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  white-space: nowrap;
 }
 
 .reviewsGrid {
@@ -52,6 +83,26 @@
   animation-delay: calc(var(--item-index, 0) * 50ms);
 }
 
+.reviewItemClickable {
+  cursor: pointer;
+  border-radius: 1.25rem;
+  outline: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reviewItemClickable:hover {
+  transform: translateY(-3px);
+}
+
+.reviewItemClickable:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.reviewItemClickable:active {
+  transform: scale(0.98);
+}
+
 @keyframes cardIn {
   from {
     opacity: 0;
@@ -63,11 +114,36 @@
   }
 }
 
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: var(--fs-2xl);
+  color: var(--color-ink-15);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.emptyTitle {
+  color: var(--color-ink);
+}
+
+.emptySubtitle {
+  color: var(--color-ink-35);
+}
+
 .footer {
   display: flex;
   justify-content: center;
   margin-top: 2.5rem;
-  padding-top: 2rem;
   border-top: 1px solid var(--color-ink-05);
 }
 
@@ -81,7 +157,7 @@
   border: 1px solid var(--color-ink-10);
   border-radius: 1rem;
   font-family: var(--font-primary);
-  font-size: var(--fs-xs); /* 10px */
+  font-size: var(--fs-xs);
   font-weight: var(--fw-extrabold);
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -113,7 +189,7 @@
 }
 
 .loadMoreCount {
-  font-size: var(--fs-2xs); /* 8px */
+  font-size: var(--fs-2xs);
   font-weight: var(--fw-regular);
   text-transform: none;
   letter-spacing: 0;
@@ -144,7 +220,7 @@
   align-items: center;
   gap: 0.625rem;
   font-family: var(--font-primary);
-  font-size: var(--fs-xs); /* 10px */
+  font-size: var(--fs-xs);
   font-weight: var(--fw-extrabold);
   text-transform: uppercase;
   letter-spacing: 0.16em;

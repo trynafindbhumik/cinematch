@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import MobileNav from '@/components/navigation/mobile/MobileNav';
 import MobileTopBar from '@/components/navigation/mobile/MobileTopBar';
 import Sidebar from '@/components/navigation/Sidebar';
+import { ModalProvider } from '@/context/ModalContext';
 import { SidebarProvider } from '@/context/SidebarContext';
 
 import styles from './protected-layout.module.css';
@@ -14,17 +15,19 @@ export default async function ProtectedLayout({ children }) {
 
   return (
     <SidebarProvider initialCollapsed={initialCollapsed}>
-      <div className={styles.appContainer}>
-        <Sidebar />
+      <ModalProvider>
+        <div className={styles.appContainer}>
+          <Sidebar />
 
-        <div className={styles.contentWrap}>
-          <MobileTopBar />
+          <div className={styles.contentWrap}>
+            <MobileTopBar />
 
-          <main className={styles.mainContent}>{children}</main>
+            <main className={styles.mainContent}>{children}</main>
 
-          <MobileNav />
+            <MobileNav />
+          </div>
         </div>
-      </div>
+      </ModalProvider>
     </SidebarProvider>
   );
 }

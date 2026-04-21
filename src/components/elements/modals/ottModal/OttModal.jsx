@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import { useModal } from '@/context/ModalContext';
 import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 import { OTTS, OTT_COLORS } from '@/mocks/data';
 
@@ -22,18 +23,15 @@ import styles from './OttModal.module.css';
  */
 export default function OttModal({ isOpen, onClose, selectedOtts = [], onToggleOtt }) {
   const [search, setSearch] = useState('');
+  const { openModal, closeModal } = useModal();
 
   const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    if (isOpen) document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen]);
+    if (isOpen) openModal();
+    return () => closeModal();
+  }, [isOpen, openModal, closeModal]);
 
-  if (typeof window === 'undefined') return null;
   if (!isOpen) return null;
 
   const filtered = OTTS.filter((o) => o.toLowerCase().includes(search.toLowerCase()));
