@@ -228,19 +228,24 @@ const SECTIONS = [
     title: 'Governing Law & Dispute Resolution',
     content: (
       <>
-        <p>
-          These Terms shall be governed by and construed in accordance with the laws of the State of
-          California, United States, without regard to its conflict of law provisions.
-        </p>
+        <p>These Terms shall be governed by and construed in accordance with the laws of India.</p>
         <p>
           Any dispute, claim, or controversy arising out of or relating to these Terms or the
-          Platform shall be resolved through binding arbitration administered by the American
-          Arbitration Association (AAA) under its Consumer Arbitration Rules. Class action lawsuits
-          and class-wide arbitration are waived to the maximum extent permitted by law.
+          Platform shall be resolved through arbitration in accordance with the Arbitration and
+          Conciliation Act, 1996. The seat and venue of arbitration shall be New Delhi, India, and
+          the proceedings shall be conducted in English.
         </p>
         <p>
-          Nothing in this section prevents either party from seeking injunctive or other equitable
-          relief from a court of competent jurisdiction to prevent irreparable harm.
+          The arbitration shall be conducted by a sole arbitrator appointed by CineMatch, and the
+          decision of the arbitrator shall be final and binding on the parties.
+        </p>
+        <p>
+          The parties agree that disputes shall be resolved on an individual basis and not as part
+          of any class or representative action, to the extent permitted by applicable law.
+        </p>
+        <p>
+          Nothing in this section shall prevent either party from seeking interim or injunctive
+          relief from a court of competent jurisdiction in India.
         </p>
       </>
     ),
@@ -254,10 +259,10 @@ const SECTIONS = [
         <p>If you have questions or concerns about these Terms, please contact us at:</p>
         <ul>
           <li>
-            <strong>Email:</strong> legal@cinematch.app
+            <strong>Email:</strong> admincinematch@gmail.com
           </li>
           <li>
-            <strong>General Inquiries:</strong> hello@cinematch.app
+            <strong>General Inquiries:</strong> admincinematch@gmail.com
           </li>
           <li>
             <strong>Company:</strong> CineMatch AI — Remote-first company
