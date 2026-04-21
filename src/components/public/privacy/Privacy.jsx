@@ -45,7 +45,15 @@ const SECTIONS = [
       'When you create an account, we collect your name, email address, and chosen preferences. If you sign up via a social login, we receive only the basic profile information you permit.',
       'As you use the Platform, we gather usage data including: film swipe history and reactions (Love, Like, Dislike, etc.), watchlist and watched entries, reviews and star ratings you submit, and device information such as browser type, operating system, and anonymised IP address.',
     ],
-    tags: ['Name', 'Email', 'Swipe history', 'Watchlist', 'Reviews', 'Device info', 'IP (anonymised)'],
+    tags: [
+      'Name',
+      'Email',
+      'Swipe history',
+      'Watchlist',
+      'Reviews',
+      'Device info',
+      'IP (anonymised)',
+    ],
   },
   {
     id: 'use',
@@ -69,7 +77,8 @@ const SECTIONS = [
       'Payment processors, if you subscribe to a premium plan',
       'Law enforcement, only when required by applicable law',
     ],
-    body2: 'All third-party providers are bound by strict data processing agreements and may not use your data for their own purposes.',
+    body2:
+      'All third-party providers are bound by strict data processing agreements and may not use your data for their own purposes.',
   },
   {
     id: 'security',
@@ -138,10 +147,13 @@ export default function PrivacyComponent() {
         <div className={styles.heroInner}>
           <span className={styles.badge}>Legal</span>
           <h1 className={styles.heroTitle}>
-            Your Privacy,<br />Our <em>Responsibility</em>
+            Your Privacy,
+            <br />
+            Our <em>Responsibility</em>
           </h1>
           <p className={styles.heroSubtitle}>
-            This policy explains exactly what we collect, why we collect it, and — critically — what we never do with it.
+            This policy explains exactly what we collect, why we collect it, and — critically — what
+            we never do with it.
           </p>
           <div className={styles.heroCommitments} role="list">
             {COMMITMENTS.map(({ Icon, title, desc }) => (
@@ -169,15 +181,23 @@ export default function PrivacyComponent() {
                 <h2 className={styles.sectionTitle}>{title}</h2>
               </div>
               <div className={styles.sectionBody}>
-                {body.map((p) => <p key={p}>{p}</p>)}
+                {body.map((p) => (
+                  <p key={p}>{p}</p>
+                ))}
                 {list && (
-                  <ul>{list.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>
+                    {list.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
                 )}
                 {body2 && <p style={{ marginTop: '0.875rem' }}>{body2}</p>}
                 {tags && (
                   <div className={styles.dataTagsWrap} aria-label="Data types collected">
                     {tags.map((t) => (
-                      <span key={t} className={styles.dataTag}>{t}</span>
+                      <span key={t} className={styles.dataTag}>
+                        {t}
+                      </span>
                     ))}
                   </div>
                 )}
@@ -241,7 +261,6 @@ export default function PrivacyComponent() {
           </div>
         </aside>
       </div>
-
     </div>
   );
 }

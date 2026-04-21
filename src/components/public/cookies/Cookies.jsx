@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Cookie,
-  Settings,
-  BarChart3,
-  Clock,
-  Shield,
-  RefreshCw,
-  Mail,
-  Globe,
-} from 'lucide-react';
+import { Cookie, Settings, BarChart3, Clock, Shield, RefreshCw, Mail, Globe } from 'lucide-react';
 import React from 'react';
 
 import styles from './Cookies.module.css';
@@ -124,13 +115,13 @@ export default function CookieComponent() {
         <div className={styles.heroPattern} aria-hidden="true" />
         <div className={styles.heroInner}>
           <div className={styles.heroLeft}>
-
             <span className={styles.badge}>Legal</span>
             <h1 className={styles.heroTitle}>
               Cookie <em>Policy</em>
             </h1>
             <p className={styles.heroDesc}>
-              We use cookies to make CineMatch work reliably and to understand how we can improve it. Here is exactly what we use and why.
+              We use cookies to make CineMatch work reliably and to understand how we can improve
+              it. Here is exactly what we use and why.
             </p>
             <div className={styles.heroMeta}>
               <div className={styles.metaItem}>
@@ -181,13 +172,12 @@ export default function CookieComponent() {
             </div>
             <div className={styles.sectionBody}>
               {body.map((p) => (
-  <p key={p}>{p}</p>
-))}
+                <p key={p}>{p}</p>
+              ))}
             </div>
           </section>
         ))}
       </main>
-
     </div>
   );
 }

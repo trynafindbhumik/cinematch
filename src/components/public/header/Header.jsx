@@ -22,12 +22,14 @@ export function Header() {
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 24);
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); 
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''} ${isLightPage ? styles.light : ''}`}>
+    <header
+      className={`${styles.header} ${isScrolled ? styles.scrolled : ''} ${isLightPage ? styles.light : ''}`}
+    >
       <div className={styles.container}>
         <Link href="/" className={styles.logo} aria-label="CineMatch home">
           <Film size={20} className={styles.logoIcon} aria-hidden="true" />

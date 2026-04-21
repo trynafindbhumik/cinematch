@@ -1,15 +1,33 @@
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes grainShift {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2%, -1%); }
-  40%  { transform: translate(1%, 2%); }
-  60%  { transform: translate(-1%, 1%); }
-  80%  { transform: translate(2%, -2%); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2%, -1%);
+  }
+  40% {
+    transform: translate(1%, 2%);
+  }
+  60% {
+    transform: translate(-1%, 1%);
+  }
+  80% {
+    transform: translate(2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 .page {
@@ -47,7 +65,7 @@
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(140,120,81,0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(140, 120, 81, 0.14) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -58,7 +76,7 @@
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(140,120,81,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(140, 120, 81, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -73,11 +91,21 @@
   opacity: 0;
   animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.heroInner > *:nth-child(1) { animation-delay: 0.08s; }
-.heroInner > *:nth-child(2) { animation-delay: 0.2s; }
-.heroInner > *:nth-child(3) { animation-delay: 0.32s; }
-.heroInner > *:nth-child(4) { animation-delay: 0.44s; }
-.heroInner > *:nth-child(5) { animation-delay: 0.56s; }
+.heroInner > *:nth-child(1) {
+  animation-delay: 0.08s;
+}
+.heroInner > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.heroInner > *:nth-child(3) {
+  animation-delay: 0.32s;
+}
+.heroInner > *:nth-child(4) {
+  animation-delay: 0.44s;
+}
+.heroInner > *:nth-child(5) {
+  animation-delay: 0.56s;
+}
 
 .backButton {
   display: inline-flex;
@@ -88,16 +116,22 @@
   font-weight: var(--fw-extrabold);
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255, 255, 255, 0.35);
   text-decoration: none;
   margin-bottom: 0.5rem;
   transition: color 0.25s ease;
 }
 
-.backButton:hover { color: var(--color-accent); }
+.backButton:hover {
+  color: var(--color-accent);
+}
 
-.backButton svg { transition: transform 0.3s ease; }
-.backButton:hover svg { transform: translateX(-4px); }
+.backButton svg {
+  transition: transform 0.3s ease;
+}
+.backButton:hover svg {
+  transform: translateX(-4px);
+}
 
 .badge {
   display: inline-flex;
@@ -131,7 +165,7 @@
 .heroSubtitle {
   font-family: var(--font-primary);
   font-size: var(--fs-lg);
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   line-height: 1.65;
   max-width: 500px;
   margin-top: 1.25rem;
@@ -146,17 +180,19 @@
 
 .commitmentCard {
   padding: 1.5rem;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .commitmentCard:hover {
-  background: rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.07);
   border-color: var(--color-accent-30);
 }
 
@@ -182,7 +218,7 @@
 .commitmentDesc {
   font-family: var(--font-primary);
   font-size: var(--fs-sm);
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   line-height: 1.6;
 }
 
@@ -263,7 +299,9 @@
   gap: 0.375rem;
 }
 
-.sectionBody li { color: var(--color-ink-50); }
+.sectionBody li {
+  color: var(--color-ink-50);
+}
 
 .dataTagsWrap {
   display: flex;
@@ -377,15 +415,17 @@
   transition: opacity 0.2s ease;
 }
 
-.sideContactLink:hover { opacity: 0.75; }
+.sideContactLink:hover {
+  opacity: 0.75;
+}
 
 .gdprBadge {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  background: rgba(5,150,105,0.06);
-  border: 1px solid rgba(5,150,105,0.2);
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.2);
   border-radius: 10px;
 }
 
@@ -424,7 +464,14 @@
 }
 
 @media (max-width: 640px) {
-  .hero { padding: 7.5rem 1.25rem 4rem; }
-  .main { padding: 3.5rem 1.25rem 4rem; }
-  .heroCommitments { grid-template-columns: 1fr; gap: 0.75rem; }
+  .hero {
+    padding: 7.5rem 1.25rem 4rem;
+  }
+  .main {
+    padding: 3.5rem 1.25rem 4rem;
+  }
+  .heroCommitments {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
 }

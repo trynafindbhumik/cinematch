@@ -15,11 +15,11 @@ const SECTIONS = [
     content: (
       <>
         <p>
-          By accessing or using CineMatch (&quot;the Platform&quot;), you agree to be bound by
-          these Terms of Service (&quot;Terms&quot;). If you do not agree to all of these Terms,
-          you may not access or use the Platform. These Terms constitute a legally binding
-          agreement between you and CineMatch AI (&quot;CineMatch,&quot; &quot;we,&quot;
-          &quot;our,&quot; or &quot;us&quot;).
+          By accessing or using CineMatch (&quot;the Platform&quot;), you agree to be bound by these
+          Terms of Service (&quot;Terms&quot;). If you do not agree to all of these Terms, you may
+          not access or use the Platform. These Terms constitute a legally binding agreement between
+          you and CineMatch AI (&quot;CineMatch,&quot; &quot;we,&quot; &quot;our,&quot; or
+          &quot;us&quot;).
         </p>
         <p>
           We reserve the right to update these Terms at any time. We will notify you of material
@@ -62,7 +62,9 @@ const SECTIONS = [
           information to keep it accurate, current, and complete.
         </p>
         <ul>
-          <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
+          <li>
+            You are responsible for maintaining the confidentiality of your account credentials.
+          </li>
           <li>You are responsible for all activity that occurs under your account.</li>
           <li>You must notify us immediately of any unauthorised use of your account.</li>
           <li>You may not share your account with any other person.</li>
@@ -131,15 +133,18 @@ const SECTIONS = [
       <>
         <p>
           Your use of the Platform is also governed by our{' '}
-          <Link href="/privacy" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
+          <Link
+            href="/privacy"
+            style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}
+          >
             Privacy Policy
           </Link>
           , which is incorporated into these Terms by reference. By using the Platform, you consent
           to the collection and use of your information as described in the Privacy Policy.
         </p>
         <div className={styles.highlight}>
-          We take your privacy seriously. We do not sell your personal data to third parties.
-          Your Taste Profile data is used solely to improve your experience on CineMatch.
+          We take your privacy seriously. We do not sell your personal data to third parties. Your
+          Taste Profile data is used solely to improve your experience on CineMatch.
         </div>
       </>
     ),
@@ -191,10 +196,10 @@ const SECTIONS = [
     content: (
       <p>
         You agree to indemnify, defend, and hold harmless CineMatch and its officers, directors,
-        employees, agents, and affiliates from and against any claims, liabilities, damages,
-        losses, costs, and expenses — including reasonable legal fees — arising out of or in any
-        way connected with your access to or use of the Platform, your violation of these Terms,
-        or your infringement of any rights of another person or entity.
+        employees, agents, and affiliates from and against any claims, liabilities, damages, losses,
+        costs, and expenses — including reasonable legal fees — arising out of or in any way
+        connected with your access to or use of the Platform, your violation of these Terms, or your
+        infringement of any rights of another person or entity.
       </p>
     ),
   },
@@ -224,14 +229,14 @@ const SECTIONS = [
     content: (
       <>
         <p>
-          These Terms shall be governed by and construed in accordance with the laws of the State
-          of California, United States, without regard to its conflict of law provisions.
+          These Terms shall be governed by and construed in accordance with the laws of the State of
+          California, United States, without regard to its conflict of law provisions.
         </p>
         <p>
           Any dispute, claim, or controversy arising out of or relating to these Terms or the
           Platform shall be resolved through binding arbitration administered by the American
-          Arbitration Association (AAA) under its Consumer Arbitration Rules. Class action
-          lawsuits and class-wide arbitration are waived to the maximum extent permitted by law.
+          Arbitration Association (AAA) under its Consumer Arbitration Rules. Class action lawsuits
+          and class-wide arbitration are waived to the maximum extent permitted by law.
         </p>
         <p>
           Nothing in this section prevents either party from seeking injunctive or other equitable
@@ -246,9 +251,7 @@ const SECTIONS = [
     title: 'Contact Information',
     content: (
       <>
-        <p>
-          If you have questions or concerns about these Terms, please contact us at:
-        </p>
+        <p>If you have questions or concerns about these Terms, please contact us at:</p>
         <ul>
           <li>
             <strong>Email:</strong> legal@cinematch.app
@@ -278,7 +281,6 @@ export default function TermsOfServiceComponent() {
   }, []);
   return (
     <div className={sharedStyles.page}>
-
       <div className={sharedStyles.pagePadding}>
         <div className={sharedStyles.grain} aria-hidden="true" />
 
@@ -333,7 +335,6 @@ export default function TermsOfServiceComponent() {
           </div>
         </div>
       </div>
-
     </div>
   );
 }

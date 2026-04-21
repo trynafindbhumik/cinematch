@@ -1,15 +1,33 @@
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes grainShift {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2%, -1%); }
-  40%  { transform: translate(1%, 2%); }
-  60%  { transform: translate(-1%, 1%); }
-  80%  { transform: translate(2%, -2%); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2%, -1%);
+  }
+  40% {
+    transform: translate(1%, 2%);
+  }
+  60% {
+    transform: translate(-1%, 1%);
+  }
+  80% {
+    transform: translate(2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 .page {
@@ -46,8 +64,7 @@
   inset: 0;
   pointer-events: none;
   opacity: 0.035;
-  background-image:
-    radial-gradient(circle at 1px 1px, var(--color-ink) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, var(--color-ink) 1px, transparent 0);
   background-size: 28px 28px;
 }
 
@@ -72,11 +89,21 @@
   opacity: 0;
   animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.heroLeft > *:nth-child(1) { animation-delay: 0.08s; }
-.heroLeft > *:nth-child(2) { animation-delay: 0.18s; }
-.heroLeft > *:nth-child(3) { animation-delay: 0.28s; }
-.heroLeft > *:nth-child(4) { animation-delay: 0.38s; }
-.heroLeft > *:nth-child(5) { animation-delay: 0.48s; }
+.heroLeft > *:nth-child(1) {
+  animation-delay: 0.08s;
+}
+.heroLeft > *:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.heroLeft > *:nth-child(3) {
+  animation-delay: 0.28s;
+}
+.heroLeft > *:nth-child(4) {
+  animation-delay: 0.38s;
+}
+.heroLeft > *:nth-child(5) {
+  animation-delay: 0.48s;
+}
 
 .backButton {
   display: inline-flex;
@@ -92,9 +119,15 @@
   transition: color 0.25s ease;
 }
 
-.backButton:hover { color: var(--color-accent); }
-.backButton svg { transition: transform 0.3s ease; }
-.backButton:hover svg { transform: translateX(-4px); }
+.backButton:hover {
+  color: var(--color-accent);
+}
+.backButton svg {
+  transition: transform 0.3s ease;
+}
+.backButton:hover svg {
+  transform: translateX(-4px);
+}
 
 .badge {
   display: inline-flex;
@@ -120,7 +153,10 @@
   line-height: 0.95;
 }
 
-.heroTitle em { font-style: italic; color: var(--color-accent); }
+.heroTitle em {
+  font-style: italic;
+  color: var(--color-accent);
+}
 
 .heroDesc {
   font-family: var(--font-primary);
@@ -150,7 +186,10 @@
   letter-spacing: 0.12em;
   text-decoration: none;
   border-radius: 9999px;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .primaryBtn:hover {
@@ -173,7 +212,9 @@
   letter-spacing: 0.12em;
   text-decoration: none;
   border-radius: 9999px;
-  transition: border-color 0.25s ease, color 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease;
 }
 
 .ghostBtn:hover {
@@ -196,8 +237,8 @@
 
 .codeHeader {
   padding: 0.875rem 1.25rem;
-  background: rgba(255,255,255,0.04);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -212,7 +253,7 @@
 .codeHeaderTitle {
   font-family: var(--font-primary);
   font-size: var(--fs-xs);
-  color: rgba(255,255,255,0.3);
+  color: rgba(255, 255, 255, 0.3);
   margin-left: 0.5rem;
   letter-spacing: 0.06em;
 }
@@ -227,14 +268,22 @@
   font-family: 'Courier New', Courier, monospace;
   font-size: var(--fs-sm);
   line-height: 1.75;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
   white-space: pre;
 }
 
-.codeComment { color: rgba(255,255,255,0.28); }
-.codeKeyword { color: #c084fc; }
-.codeString  { color: #86efac; }
-.codeCmd     { color: var(--color-accent); }
+.codeComment {
+  color: rgba(255, 255, 255, 0.28);
+}
+.codeKeyword {
+  color: #c084fc;
+}
+.codeString {
+  color: #86efac;
+}
+.codeCmd {
+  color: var(--color-accent);
+}
 
 .stepsSection {
   padding: 7rem 2rem;
@@ -266,7 +315,10 @@
   margin-bottom: 4rem;
 }
 
-.sectionTitle em { font-style: italic; color: var(--color-accent); }
+.sectionTitle em {
+  font-style: italic;
+  color: var(--color-accent);
+}
 
 .stepsGrid {
   display: grid;
@@ -284,7 +336,10 @@
   gap: 1.25rem;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    border-color 0.35s ease,
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .stepCard:hover {
@@ -318,7 +373,9 @@
   transition: background 0.3s ease;
 }
 
-.stepCard:hover .stepIconWrap { background: var(--color-accent-15); }
+.stepCard:hover .stepIconWrap {
+  background: var(--color-accent-15);
+}
 
 .stepTitle {
   font-family: var(--font-display);
@@ -359,7 +416,9 @@
   border-radius: 18px;
   display: flex;
   gap: 1.25rem;
-  transition: border-color 0.3s ease, background 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease;
 }
 
 .wayCard:hover {
@@ -379,7 +438,11 @@
   flex-shrink: 0;
 }
 
-.wayContent { display: flex; flex-direction: column; gap: 0.35rem; }
+.wayContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
 
 .wayTitle {
   font-family: var(--font-display);
@@ -397,12 +460,25 @@
 }
 
 @media (max-width: 1024px) {
-  .heroInner { grid-template-columns: 1fr; gap: 3rem; }
-  .stepsGrid { grid-template-columns: 1fr; max-width: 520px; }
-  .waysGrid { grid-template-columns: 1fr; }
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .stepsGrid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+  .waysGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
-  .hero { padding: 7.5rem 1.25rem 5rem; }
-  .stepsSection, .waysSection { padding: 5rem 1.25rem; }
+  .hero {
+    padding: 7.5rem 1.25rem 5rem;
+  }
+  .stepsSection,
+  .waysSection {
+    padding: 5rem 1.25rem;
+  }
 }
