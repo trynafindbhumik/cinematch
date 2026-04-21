@@ -407,7 +407,7 @@
   line-height: 1.72;
 }
 
-.timelineSection {
+/* .timelineSection {
   padding: 7rem 2rem;
   background: var(--color-surface);
   border-top: 1px solid var(--color-ink-08);
@@ -510,7 +510,7 @@
   .timelineItem::before {
     display: none;
   }
-}
+} */
 
 @media (max-width: 768px) {
   .storySectionInner {
