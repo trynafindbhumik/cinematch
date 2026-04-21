@@ -58,7 +58,6 @@ const ENFORCEMENT = [
 export default function CodeOfConductComponent() {
   return (
     <div className={sharedStyles.page}>
-
       <div className={sharedStyles.pagePadding}>
         <div className={sharedStyles.grain} aria-hidden="true" />
         <div className={sharedStyles.glowLeft} aria-hidden="true" />
@@ -157,7 +156,6 @@ export default function CodeOfConductComponent() {
           </section>
         </div>
       </div>
-
     </div>
   );
 }

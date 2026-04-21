@@ -75,7 +75,9 @@ export default function ContactComponent() {
         <div className={styles.heroInner}>
           <span className={styles.badge}>Get in Touch</span>
           <h1 className={styles.heroTitle}>
-            Let&apos;s talk<br /><em>cinema.</em>
+            Let&apos;s talk
+            <br />
+            <em>cinema.</em>
           </h1>
           <div className={styles.heroRule} aria-hidden="true" />
         </div>
@@ -92,16 +94,19 @@ export default function ContactComponent() {
               <p className={styles.infoCardTitle}>{title}</p>
             </div>
             {href ? (
-              <a href={href} className={styles.infoCardValue}>{value}</a>
+              <a href={href} className={styles.infoCardValue}>
+                {value}
+              </a>
             ) : (
-              <p className={styles.infoCardPlain} style={{ whiteSpace: 'pre-line' }}>{plain}</p>
+              <p className={styles.infoCardPlain} style={{ whiteSpace: 'pre-line' }}>
+                {plain}
+              </p>
             )}
           </div>
         ))}
       </div>
 
       <div className={styles.main}>
-
         {/* Form */}
         <div className={styles.formWrap}>
           {sent ? (
@@ -128,7 +133,9 @@ export default function ContactComponent() {
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label htmlFor="name" className={styles.formLabel}>Your Name</label>
+                    <label htmlFor="name" className={styles.formLabel}>
+                      Your Name
+                    </label>
                     <input
                       type="text"
                       id="name"
@@ -141,7 +148,9 @@ export default function ContactComponent() {
                     />
                   </div>
                   <div className={styles.formGroup}>
-                    <label htmlFor="email" className={styles.formLabel}>Email Address</label>
+                    <label htmlFor="email" className={styles.formLabel}>
+                      Email Address
+                    </label>
                     <input
                       type="email"
                       id="email"
@@ -173,11 +182,13 @@ export default function ContactComponent() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="message" className={styles.formLabel}>Message</label>
+                  <label htmlFor="message" className={styles.formLabel}>
+                    Message
+                  </label>
                   <textarea
                     id="message"
                     name="message"
-                    placeholder="Tell us what&apos;s on your mind…"
+                    placeholder="Tell us what's on your mind…"
                     required
                     rows={5}
                     value={formData.message}
@@ -192,7 +203,9 @@ export default function ContactComponent() {
                     Send Message
                   </button>
                   <p className={styles.submitNote}>
-                    We reply within<br />48 hours on weekdays.
+                    We reply within
+                    <br />
+                    48 hours on weekdays.
                   </p>
                 </div>
               </form>

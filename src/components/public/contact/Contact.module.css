@@ -1,21 +1,47 @@
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes grainShift {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2%, -1%); }
-  40%  { transform: translate(1%, 2%); }
-  60%  { transform: translate(-1%, 1%); }
-  80%  { transform: translate(2%, -2%); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2%, -1%);
+  }
+  40% {
+    transform: translate(1%, 2%);
+  }
+  60% {
+    transform: translate(-1%, 1%);
+  }
+  80% {
+    transform: translate(2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes checkIn {
-  0%   { opacity: 0; transform: scale(0.6); }
-  70%  { transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .page {
@@ -53,9 +79,15 @@
   opacity: 0;
   animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.heroInner > *:nth-child(1) { animation-delay: 0.08s; }
-.heroInner > *:nth-child(2) { animation-delay: 0.2s; }
-.heroInner > *:nth-child(3) { animation-delay: 0.32s; }
+.heroInner > *:nth-child(1) {
+  animation-delay: 0.08s;
+}
+.heroInner > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.heroInner > *:nth-child(3) {
+  animation-delay: 0.32s;
+}
 
 .badge {
   display: inline-flex;
@@ -112,7 +144,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .infoCard:hover {
@@ -159,7 +194,9 @@
   transition: opacity 0.2s ease;
 }
 
-.infoCardValue:hover { opacity: 0.7; }
+.infoCardValue:hover {
+  opacity: 0.7;
+}
 
 .infoCardPlain {
   font-family: var(--font-primary);
@@ -237,7 +274,9 @@
   font-family: var(--font-primary);
   font-size: var(--fs-base);
   color: var(--color-ink);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   appearance: none;
 }
 
@@ -319,7 +358,10 @@
   border: none;
   border-radius: 9999px;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .submitBtn:hover {
@@ -396,8 +438,8 @@
 
 .responseCard {
   padding: 1.25rem 1.5rem;
-  background: rgba(5,150,105,0.04);
-  border: 1px solid rgba(5,150,105,0.14);
+  background: rgba(5, 150, 105, 0.04);
+  border: 1px solid rgba(5, 150, 105, 0.14);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -437,8 +479,8 @@
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: rgba(5,150,105,0.08);
-  border: 2px solid rgba(5,150,105,0.22);
+  background: rgba(5, 150, 105, 0.08);
+  border: 2px solid rgba(5, 150, 105, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,7 +519,9 @@
   text-decoration: none;
   border-radius: 9999px;
   margin-top: 0.5rem;
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
 }
 
 .successBackBtn:hover {
@@ -501,10 +545,25 @@
 }
 
 @media (max-width: 640px) {
-  .hero { padding: 7.5rem 1.25rem 3rem; }
-  .infoRail { padding: 0 1.25rem 3rem; grid-template-columns: 1fr; }
-  .main { padding: 0 1.25rem 5rem; }
-  .formRow { grid-template-columns: 1fr; }
-  .submitRow { flex-direction: column; align-items: flex-start; }
-  .submitBtn { width: 100%; justify-content: center; }
+  .hero {
+    padding: 7.5rem 1.25rem 3rem;
+  }
+  .infoRail {
+    padding: 0 1.25rem 3rem;
+    grid-template-columns: 1fr;
+  }
+  .main {
+    padding: 0 1.25rem 5rem;
+  }
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  .submitRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .submitBtn {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -198,7 +198,6 @@ export default function ContributeComponent() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

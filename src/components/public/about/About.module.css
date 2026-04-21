@@ -1,25 +1,53 @@
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(32px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes grainShift {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-2%, -1%); }
-  40%  { transform: translate(1%, 2%); }
-  60%  { transform: translate(-1%, 1%); }
-  80%  { transform: translate(2%, -2%); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2%, -1%);
+  }
+  40% {
+    transform: translate(1%, 2%);
+  }
+  60% {
+    transform: translate(-1%, 1%);
+  }
+  80% {
+    transform: translate(2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes lineGrow {
-  from { transform: scaleY(0); }
-  to   { transform: scaleY(1); }
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }
 
 @keyframes counterUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page {
@@ -95,10 +123,18 @@
   opacity: 0;
   animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.heroContent > *:nth-child(1) { animation-delay: 0.1s; }
-.heroContent > *:nth-child(2) { animation-delay: 0.25s; }
-.heroContent > *:nth-child(3) { animation-delay: 0.4s; }
-.heroContent > *:nth-child(4) { animation-delay: 0.55s; }
+.heroContent > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.heroContent > *:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.heroContent > *:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.heroContent > *:nth-child(4) {
+  animation-delay: 0.55s;
+}
 
 .heroEyebrow {
   font-family: var(--font-primary);
@@ -129,7 +165,7 @@
   font-size: clamp(var(--fs-xl), 2.2vw, var(--fs-3xl));
   font-style: italic;
   font-weight: var(--fw-regular);
-  color: rgba(255,255,255,0.72);
+  color: rgba(255, 255, 255, 0.72);
   max-width: 600px;
   line-height: 1.4;
   border-left: 2px solid var(--color-accent);
@@ -309,7 +345,10 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  transition: border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    border-color 0.35s ease,
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .valueCard:hover {
@@ -488,7 +527,12 @@
     grid-template-columns: 1fr;
     gap: 3rem;
   }
-  .storySection, .teamSection, .timelineSection, .valuesSection { padding: 5rem 1.25rem; }
+  .storySection,
+  .teamSection,
+  .timelineSection,
+  .valuesSection {
+    padding: 5rem 1.25rem;
+  }
 }
 
 @media (max-width: 640px) {
