@@ -148,9 +148,9 @@ export default function CodeOfConductComponent() {
                   All reports are handled confidentially. We take every report seriously.
                 </p>
               </div>
-              <a href="mailto:conduct@cinematch.app" className={styles.reportBtn}>
+              <a href="mailto:admincinematch@gmail.com" className={styles.reportBtn}>
                 <Mail size={14} />
-                conduct@cinematch.app
+                admincinematch@gmail.com
               </a>
             </div>
           </section>
