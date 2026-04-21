@@ -9,28 +9,28 @@ import aboutbanner1 from '@/assets/about/about-banner2.jpg';
 
 import styles from './About.module.css';
 
-const TIMELINE = [
-  {
-    year: '2024',
-    title: 'The Idea',
-    desc: 'Frustrated with endless scrolling on streaming platforms, our founders sketch the first version of CineMatch on a napkin at a Mumbai film festival.',
-  },
-  {
-    year: '2025',
-    title: 'First Lines of Code',
-    desc: 'A team of three ships the beta product. 500 early adopters generate over 80,000 swipes in the first week.',
-  },
-  {
-    year: '2025',
-    title: 'Seed Round',
-    desc: 'We raise $2.4M to expand the team and build the AI taste engine, onboarding talent from Google, Netflix, and Criterion.',
-  },
-  {
-    year: '2026',
-    title: 'Going Public',
-    desc: 'CineMatch opens to the world with 22 streaming integrations, a 2,000+ data-point AI engine, and 50,000 passionate cinephiles.',
-  },
-];
+// const TIMELINE = [
+//   {
+//     year: '2024',
+//     title: 'The Idea',
+//     desc: 'Frustrated with endless scrolling on streaming platforms, our founders sketch the first version of CineMatch on a napkin at a Mumbai film festival.',
+//   },
+//   {
+//     year: '2025',
+//     title: 'First Lines of Code',
+//     desc: 'A team of three ships the beta product. 500 early adopters generate over 80,000 swipes in the first week.',
+//   },
+//   {
+//     year: '2025',
+//     title: 'Seed Round',
+//     desc: 'We raise $2.4M to expand the team and build the AI taste engine, onboarding talent from Google, Netflix, and Criterion.',
+//   },
+//   {
+//     year: '2026',
+//     title: 'Going Public',
+//     desc: 'CineMatch opens to the world with 22 streaming integrations, a 2,000+ data-point AI engine, and 50,000 passionate cinephiles.',
+//   },
+// ];
 
 const VALUES = [
   {
@@ -188,7 +188,7 @@ export default function AboutComponent() {
           </div>
         </div>
       </section>
-
+      {/* 
       <section className={styles.timelineSection} aria-labelledby="timeline-heading">
         <div className={styles.timelineInner}>
           <div className={styles.timelineHeader}>
@@ -210,7 +210,7 @@ export default function AboutComponent() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
