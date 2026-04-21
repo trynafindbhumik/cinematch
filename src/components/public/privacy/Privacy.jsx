@@ -131,7 +131,7 @@ const SECTIONS = [
     Icon: Mail,
     title: 'Contact for Privacy',
     body: [
-      'For any privacy-related requests or questions, contact our Data Protection team at privacy@cinematch.app. We aim to respond to all requests within 72 hours.',
+      'For any privacy-related requests or questions, contact our Data Protection team at admincinematch@gmail.com. We aim to respond to all requests within 72 hours.',
     ],
   },
 ];
