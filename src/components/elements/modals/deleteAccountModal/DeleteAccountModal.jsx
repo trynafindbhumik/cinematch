@@ -10,13 +10,17 @@ import Button from '@/components/ui/button/Button';
 import Checkbox from '@/components/ui/checkbox/Checkbox';
 import Dropdown from '@/components/ui/dropdown/Dropdown';
 import { useModal } from '@/context/ModalContext';
+import { useDisableAccount } from '@/hooks/useDisableAccount';
+import { useExport } from '@/hooks/useExport';
+import { useDeleteAccount } from '@/hooks/useProfile';
 import { useSwipeToClose } from '@/hooks/useSwipeToClose';
+import { useToast } from '@/lib/toast/useToast';
 
 import sharedStyles from '../Modals.module.css';
 
 import styles from './DeleteAccountModal.module.css';
 
-export default function DeleteAccountModal({ isOpen, onClose, profile }) {
+export default function DeleteAccountModal({ isOpen, onClose }) {
   const [step, setStep] = useState('warn');
   const [confirmText, setConfirmText] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -33,9 +37,15 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
     'reviews',
   ]);
   const { openModal, closeModal } = useModal();
+  const { success, error: showError } = useToast();
 
   const router = useRouter();
   const { sheetRef, dragHandleRef } = useSwipeToClose(onClose, isOpen);
+
+  // API hooks
+  const [, exportLoading, , exportTrigger] = useExport();
+  const [, disableLoading, , disableTrigger] = useDisableAccount();
+  const [, deleteLoading, , deleteTrigger] = useDeleteAccount();
 
   const toggleExportType = (type) => {
     setSelectedExportTypes((prev) =>
@@ -46,8 +56,22 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
   const handleRequestExport = async () => {
     if (selectedExportTypes.length === 0) return;
     setDownloadState('requesting');
-    await requestEmailExport(profile, selectedExportTypes);
-    setDownloadState('sent');
+    try {
+      const payload = {
+        profile_info: selectedExportTypes.includes('profile'),
+        preferences: selectedExportTypes.includes('preferences'),
+        watchlist: selectedExportTypes.includes('watchlist'),
+        watched: selectedExportTypes.includes('watched'),
+        favorites: selectedExportTypes.includes('ratings'),
+        reviews: selectedExportTypes.includes('reviews'),
+      };
+      await exportTrigger('/v1/export', payload);
+      setDownloadState('sent');
+      success('Export sent', 'Check your email for the data export');
+    } catch {
+      setDownloadState('idle');
+      showError('Export failed', 'Could not create data export. Please try again');
+    }
   };
 
   useEffect(() => {
@@ -89,16 +113,35 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
 
   const canProceedToConfirm = agreed && confirmText === 'DELETE';
 
-  const handleFinalDelete = () => {
+  const handleFinalDelete = async () => {
     if (!canProceedToConfirm) return;
-    handleClose();
+    try {
+      await deleteTrigger('/v1/profile/me', { confirmText: 'DELETE' });
+      success('Account deleted', 'Sorry to see you go');
+      handleClose();
+      setTimeout(() => {
+        router.push('/login');
+      }, 300);
+    } catch (err) {
+      showError('Failed', err?.message || 'Could not delete account. Please try again');
+    }
   };
 
   const canProceedToDisable = disableConfirmText === 'DISABLE';
 
-  const handleDisableAccount = () => {
+  const handleDisableAccount = async () => {
     if (!canProceedToDisable) return;
-    setStep('disabled');
+    try {
+      const durationDays = parseInt(disableDuration, 10);
+      await disableTrigger('/v1/profile/disable', {
+        confirmText: 'DISABLE',
+        durationDays,
+      });
+      setStep('disabled');
+      success('Account disabled', 'You can recover your account by logging in');
+    } catch (err) {
+      showError('Failed', err?.message || 'Could not disable account. Please try again');
+    }
   };
 
   const handleDoneDisable = () => {
@@ -107,19 +150,6 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
       router.push('/login');
     }, 300);
   };
-
-  function requestEmailExport(profile, selectedTypes) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          email: profile?.email || 'user@example.com',
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          dataTypes: selectedTypes,
-        });
-      }, 800);
-    });
-  }
 
   const modal = (
     <div className={sharedStyles.overlay} onClick={handleOverlayClick}>
@@ -228,9 +258,9 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
                       type="button"
                       className={styles.exportRequestBtn}
                       onClick={handleRequestExport}
-                      disabled={downloadState === 'requesting' || selectedExportTypes.length === 0}
+                      disabled={exportLoading || selectedExportTypes.length === 0}
                     >
-                      {downloadState === 'requesting' ? 'Sending…' : 'Send to my email'}
+                      {exportLoading ? 'Sending...' : 'Send to my email'}
                     </button>
                   </div>
                 </div>
@@ -337,9 +367,9 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
                   type="button"
                   className={styles.deleteBtn}
                   onClick={handleFinalDelete}
-                  disabled={!canProceedToConfirm}
+                  disabled={!canProceedToConfirm || deleteLoading}
                 >
-                  Delete My Account
+                  {deleteLoading ? 'Deleting...' : 'Delete My Account'}
                 </button>
               </div>
             </div>
@@ -423,9 +453,9 @@ export default function DeleteAccountModal({ isOpen, onClose, profile }) {
                   type="button"
                   className={styles.disableAccountBtn}
                   onClick={handleDisableAccount}
-                  disabled={!canProceedToDisable}
+                  disabled={!canProceedToDisable || disableLoading}
                 >
-                  Disable Account
+                  {disableLoading ? 'Disabling...' : 'Disable Account'}
                 </button>
               </div>
             </div>

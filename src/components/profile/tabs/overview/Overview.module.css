@@ -283,6 +283,12 @@
   min-width: 0;
 }
 
+@media (max-width: 768px) {
+  .reviewsGrid {
+    padding-bottom: 5rem;
+  }
+}
+
 @media (min-width: 768px) {
   .reviewsGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -388,6 +394,7 @@
   color: var(--color-ink-55);
   line-height: 1.6;
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -494,4 +501,100 @@
 
 .emptyReviewsSubtitle {
   color: var(--color-ink-35);
+}
+
+/**** Empty Favorites State ****/
+.emptyFavorites {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--color-ink-40);
+  font-size: var(--fs-sm);
+  background: var(--color-bg-warm);
+  border-radius: 1rem;
+  border: 1px dashed var(--color-ink-12);
+}
+
+/**** Skeleton Card for Loading ****/
+.skeletonCard {
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(
+    90deg,
+    var(--color-ink-04) 0%,
+    var(--color-ink-08) 50%,
+    var(--color-ink-04) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 1rem;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/**** Infinite Scroll Loading ****/
+.loadMoreTrigger {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+  min-height: 60px;
+}
+
+.loadingMoreIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-ink-55);
+  font-size: var(--fs-sm);
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: var(--color-accent);
+}
+
+.carouselLoader {
+  width: 10rem;
+  min-height: 20rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  border-radius: 1rem;
+  border: 1px dashed var(--color-ink-12);
+  color: var(--color-ink-40);
+}
+
+@media (min-width: 768px) {
+  .carouselLoader {
+    width: 12rem;
+    min-height: 24rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.endMessage {
+  color: var(--color-ink-40);
+  font-size: var(--fs-sm);
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-ink-08);
+  margin-top: 1rem;
+  width: 100%;
+  text-align: center;
 }

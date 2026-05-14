@@ -1,9 +1,12 @@
 'use client';
 
 import clsx from 'clsx';
-import { Home, Bookmark, Sparkles, User } from 'lucide-react';
+import { Home, Bookmark, Sparkles, User, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { useTour } from '@/context/TourContext';
+import { setCookie } from '@/lib/cookie';
 
 import styles from './MobileNavigation.module.css';
 
@@ -16,7 +19,14 @@ const MOBILE_NAV = [
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const { restartTour } = useTour();
   const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
+
+  const handleRestartTour = () => {
+    setCookie('tour_completed', '', -1);
+    setCookie('tour_step', '0', 30);
+    restartTour();
+  };
 
   return (
     <nav className={styles.mobileNav} aria-label="Mobile navigation">
@@ -35,6 +45,15 @@ export default function MobileNav() {
           </Link>
         );
       })}
+      <button
+        type="button"
+        className={styles.mobileNavItem}
+        onClick={handleRestartTour}
+        aria-label="Restart tour"
+      >
+        <HelpCircle className={styles.mobileNavIcon} aria-hidden="true" />
+        <span className={clsx('text-micro', styles.mobileNavLabel)}>Tour</span>
+      </button>
     </nav>
   );
 }

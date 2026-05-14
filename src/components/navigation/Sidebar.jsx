@@ -13,13 +13,16 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Search,
+  HelpCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useSidebar } from '@/context/SidebarContext';
-import { removeCookie } from '@/utils/cookie';
+import { useTour } from '@/context/TourContext';
+import { useLogout } from '@/hooks/useLogout';
+import { setCookie } from '@/lib/cookie';
 
 import styles from './SideBar.module.css';
 
@@ -45,12 +48,13 @@ export default function Sidebar({ profile }) {
   const pathname = usePathname();
   const router = useRouter();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const [, logout] = useLogout();
+  const { restartTour } = useTour();
 
   const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
 
-  const handleLogout = () => {
-    removeCookie('auth_token');
-    removeCookie('user_session');
+  const handleLogout = async () => {
+    await logout();
     router.push('/');
   };
 
@@ -62,8 +66,8 @@ export default function Sidebar({ profile }) {
     <aside
       className={clsx(styles.sidebar, isCollapsed && styles.sidebarCollapsed)}
       aria-label="Application sidebar"
+      data-tour="sidebar"
     >
-      {/* ── Brand ── */}
       <div className={styles.brand}>
         <div className={styles.logoMark} aria-hidden="true">
           <Film className={styles.logoIcon} />
@@ -103,6 +107,11 @@ export default function Sidebar({ profile }) {
 
             {group.items.map((item) => {
               const active = isActive(item.href);
+              const tourId = {
+                '/for-you': 'nav-for-you',
+                '/watchlist': 'nav-watchlist',
+                '/search': 'nav-search',
+              }[item.href];
               return (
                 <Link
                   key={item.href}
@@ -110,6 +119,7 @@ export default function Sidebar({ profile }) {
                   className={clsx(styles.navLink, active && styles.navLinkActive)}
                   aria-current={active ? 'page' : undefined}
                   title={isCollapsed ? item.label : undefined}
+                  data-tour={tourId}
                 >
                   <item.icon className={styles.navIcon} aria-hidden="true" />
                   {!isCollapsed && (
@@ -168,6 +178,21 @@ export default function Sidebar({ profile }) {
         >
           <LogOut className={styles.logoutIcon} aria-hidden="true" />
           {!isCollapsed && <span>Logout</span>}
+        </button>
+
+        <button
+          type="button"
+          className={styles.logoutBtn}
+          onClick={() => {
+            setCookie('tour_completed', '', -1);
+            setCookie('tour_step', '0', 30);
+            restartTour();
+          }}
+          aria-label="Restart tour"
+          title={isCollapsed ? 'Restart Tour' : undefined}
+        >
+          <HelpCircle className={styles.logoutIcon} aria-hidden="true" />
+          {!isCollapsed && <span>App Tour</span>}
         </button>
       </div>
     </aside>

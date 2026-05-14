@@ -158,9 +158,20 @@
   --color-error-10: rgba(239, 68, 68, 0.1);
   --color-error-50: rgba(239, 68, 68, 0.5);
   --color-error-15: rgba(239, 68, 68, 0.15);
+
+  /* 2c. Success Palette */
   --color-success: #22c55e;
   --color-success-50: rgba(16, 185, 129, 0.5);
   --color-success-10: rgba(16, 185, 129, 0.1);
+  --color-success-05: rgba(16, 185, 129, 0.05);
+  --color-success-15: rgba(16, 185, 129, 0.15);
+
+  /* 2d. Warning Palette */
+  --color-warning: #d97706;
+  --color-warning-05: rgba(217, 119, 6, 0.05);
+  --color-warning-10: rgba(217, 119, 6, 0.1);
+  --color-warning-15: rgba(217, 119, 6, 0.15);
+
   --color-like-green: #10b981;
   --color-like-green-25: rgba(16, 185, 129, 0.25);
   --color-like-green-50: rgba(16, 185, 129, 0.5);
@@ -171,12 +182,6 @@
   --color-error-red-45: rgba(220, 38, 38, 0.45);
   --color-error-red-85: rgba(220, 38, 38, 0.85);
   --color-error-red-95: rgba(220, 38, 38, 0.95);
-  --color-success: #22c55e;
-  --color-success-50: rgba(16, 185, 129, 0.5);
-  --color-success-10: rgba(16, 185, 129, 0.1);
-  --color-like-green: #10b981;
-  --color-like-green-25: rgba(16, 185, 129, 0.25);
-  --color-like-green-50: rgba(16, 185, 129, 0.5);
   --color-rating-yellow: #fbbf24;
 
   /* 2e. Reaction / Swipe Palette */

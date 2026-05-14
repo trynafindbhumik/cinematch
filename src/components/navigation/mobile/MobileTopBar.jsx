@@ -3,16 +3,19 @@
 import clsx from 'clsx';
 import { Film, LogOut, Search } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import { useLogout } from '@/hooks/useLogout';
 
 import styles from './MobileNavigation.module.css';
 
 export default function MobileTopBar() {
-  const handleLogout = () => {
-    document.cookie.split(';').forEach((c) => {
-      const name = c.indexOf('=') > -1 ? c.substr(0, c.indexOf('=')).trim() : c.trim();
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-    });
-    window.location.href = '/';
+  const router = useRouter();
+  const [, logout] = useLogout();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
   };
 
   return (

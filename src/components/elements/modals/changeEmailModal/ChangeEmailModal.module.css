@@ -1,0 +1,168 @@
+.emailSheet {
+  max-width: 28rem;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inputWrapper {
+  margin-top: 0.5rem;
+}
+
+.otpInstructions {
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  color: var(--color-ink-40);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.otpInstructions strong {
+  color: var(--color-ink);
+  font-weight: var(--fw-bold);
+}
+
+.otpInputWrapper {
+  margin-top: 0.5rem;
+}
+
+.resendBtn {
+  align-self: flex-start;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.resendBtn:hover:not(:disabled) {
+  color: var(--color-accent-hover);
+}
+
+.resendBtn:disabled {
+  color: var(--color-ink-35);
+  cursor: not-allowed;
+}
+
+.errorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--color-error-06);
+  border: 1px solid var(--color-error-18);
+  border-radius: 0.75rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  color: var(--color-error-dark);
+  line-height: 1.4;
+}
+
+.errorBanner svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.successContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.successIcon {
+  color: var(--color-success);
+  animation: successPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes successPop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.successMessage {
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  color: var(--color-ink-60);
+  line-height: 1.5;
+}
+
+.actionRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btnSecondary {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--color-ink-04);
+  border: 1px solid var(--color-ink-08);
+  border-radius: 1rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-50);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.btnSecondary:hover {
+  background: var(--color-ink-08);
+  color: var(--color-ink);
+}
+
+.btnPrimary {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--color-ink);
+  border: none;
+  border-radius: 1rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-bg-warm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px var(--color-ink-20);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.btnPrimary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

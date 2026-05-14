@@ -22,19 +22,16 @@
     height: 100dvh;
     max-height: 100dvh;
     border-radius: 0;
-    /* Entry animation: slide in from the right */
     animation: sheetInFromRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 
 .editSheetClosing {
-  /* Desktop exit: scale down and fade */
   animation: sheetOutScaleDown 0.22s cubic-bezier(0.4, 0, 1, 1) both;
 }
 
 @media (max-width: 639px) {
   .editSheetClosing {
-    /* Mobile exit: slide back to the right */
     animation: sheetOutToRight 0.28s cubic-bezier(0.4, 0, 1, 1) both;
   }
 }
@@ -139,6 +136,33 @@
   font-weight: var(--fw-regular);
   color: var(--color-ink-35);
   line-height: 1.4;
+}
+
+.removeAvatarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-error-06);
+  border: 1px solid var(--color-error-18);
+  border-radius: 0.75rem;
+  color: var(--color-error-dark);
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.removeAvatarBtn:hover {
+  background: var(--color-error-10);
+  border-color: var(--color-error-30);
+}
+
+.removeAvatarBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .fileErrorBanner {
@@ -264,4 +288,112 @@
   to {
     opacity: 0;
   }
+}
+
+/* Email Display Section */
+.emailDisplaySection {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-ink-06);
+  border-radius: 1rem;
+}
+
+.emailDisplayRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.emailValueWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.emailIcon {
+  color: var(--color-ink-40);
+  flex-shrink: 0;
+}
+
+.emailValue {
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-regular);
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.changeEmailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--color-ink-10);
+  border-radius: 0.625rem;
+  color: var(--color-accent);
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.changeEmailBtn:hover {
+  background: var(--color-accent-06);
+  border-color: var(--color-accent);
+}
+
+.emailHint {
+  margin-top: 0.5rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  color: var(--color-ink-35);
+  line-height: 1.4;
+}
+
+/* Smart Suggest Section */
+.smartSuggestSection {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: var(--color-accent-04);
+  border: 1px solid var(--color-accent-12);
+  border-radius: 1rem;
+}
+
+.smartSuggestHint {
+  margin-top: 0.5rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-sm);
+  color: var(--color-ink-40);
+  line-height: 1.4;
+}
+
+/* Submit Error Banner */
+.submitErrorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--color-error-06);
+  border: 1px solid var(--color-error-18);
+  border-radius: 0.75rem;
+  font-family: var(--font-primary);
+  font-size: var(--fs-base);
+  color: var(--color-error-dark);
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.submitErrorBanner svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }

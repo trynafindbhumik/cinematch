@@ -92,7 +92,7 @@ export default function ForYouComponent() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.hero}>
+      <section className={styles.hero} data-tour="foryou-hero">
         <div className={styles.heroLabel}>
           <span className={styles.heroDot} />
           <span className={clsx(styles.heroEyebrow, 'text-micro')}>Editor&apos;s Selection</span>
@@ -121,7 +121,7 @@ export default function ForYouComponent() {
         </div>
       </section>
 
-      <section className={styles.suggestSection}>
+      <section className={styles.suggestSection} data-tour="foryou-suggest">
         <div className={styles.suggestHeader}>
           <div className={styles.suggestHeaderLeft}>
             <span className={clsx(styles.suggestEyebrow, 'text-micro')}>

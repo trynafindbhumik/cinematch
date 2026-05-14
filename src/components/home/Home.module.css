@@ -3,10 +3,10 @@
   flex-direction: column;
   align-items: center;
   gap: 0.875rem;
-  min-height: 100vh;
+  height: 100%;
   background: var(--color-bg-warm, #faf9f6);
   animation: pageIn 0.35s ease-out both;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 @keyframes pageIn {
@@ -182,8 +182,17 @@
 .overlayLike {
   background: rgba(5, 150, 105, 0.55);
 }
+.overlayLove {
+  background: rgba(225, 29, 72, 0.55);
+}
 .overlaySkip {
   background: rgba(220, 38, 38, 0.55);
+}
+.overlayDislike {
+  background: rgba(217, 119, 6, 0.55);
+}
+.overlayHate {
+  background: rgba(55, 65, 81, 0.55);
 }
 .overlayWatched {
   background: rgba(37, 99, 235, 0.55);
@@ -353,6 +362,7 @@
   line-height: 1.05;
   letter-spacing: -0.01em;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -396,6 +406,7 @@
   color: rgba(255, 255, 255, 0.6);
   line-height: 1.55;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -404,6 +415,7 @@
 
 @media (min-height: 780px) {
   .cardDesc {
+    line-clamp: 3;
     -webkit-line-clamp: 3;
   }
 }
@@ -458,7 +470,7 @@
 
 @media (min-width: 480px) {
   .actionBar {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     max-width: 440px;
   }
 }
@@ -553,17 +565,6 @@
 }
 .ab_skip:hover {
   border-color: rgba(107, 114, 128, 0.35);
-}
-
-.ab_watched .actionIconWrap {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-.ab_watched .actionLabel {
-  color: rgba(59, 130, 246, 0.95);
-}
-.ab_watched:hover {
-  border-color: rgba(59, 130, 246, 0.4);
 }
 
 .ab_like .actionIconWrap {

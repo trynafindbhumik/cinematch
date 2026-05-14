@@ -7,40 +7,63 @@ import { useState } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import Input from '@/components/ui/input/Input';
+import { useLogin } from '@/hooks/useLogin';
+import { getErrorMessage, AUTH_ERROR_MESSAGES } from '@/lib/api/errorCodes';
+import { useToast } from '@/lib/toast/useToast';
+import { LoginSchema, validateSchema } from '@/lib/validations/auth';
 
 import styles from '../Auth.module.css';
 
-const DEMO_EMAIL = 'demo@cinematch.app';
-const DEMO_PASSWORD = 'cinema123';
-
 export default function Login() {
   const router = useRouter();
+  const [{ loading, error }, login] = useLogin();
+  const { success, error: showError, warning } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setFieldErrors({});
 
-    if (!email || !password) {
-      setError('Please fill in all fields.');
+    const formData = { email, password };
+    const validation = validateSchema(LoginSchema, formData);
+
+    if (!validation.success) {
+      const errors = {};
+      validation.errors.forEach((err) => {
+        errors[err.field] = err.message;
+      });
+      setFieldErrors(errors);
       return;
     }
 
-    setLoading(true);
-
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 700));
-
-    if (email.toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD) {
+    try {
+      await login(formData);
+      success('Welcome back!', 'Redirecting...');
+      // Tour auto-starts on /home if needs_onboarding cookie is true (handled by TourTrigger)
       router.push('/home');
-    } else {
-      setLoading(false);
-      setError(`Invalid credentials. Use: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
+    } catch (err) {
+      const errorStatus = err?.status;
+      if (errorStatus === 429) {
+        warning('Too many attempts', 'Please wait before trying again');
+      } else if (errorStatus === 500) {
+        showError('Something went wrong', 'Please try again later');
+      } else {
+        showError('Login failed', 'Invalid email or password');
+      }
     }
   };
+
+  const getError = () => {
+    if (error?.status) {
+      const { message } = getErrorMessage(error.status, AUTH_ERROR_MESSAGES, error.message);
+      return message;
+    }
+    return error?.message || null;
+  };
+
+  const displayError = getError();
 
   return (
     <div className={styles.tabWrapper}>
@@ -61,15 +84,8 @@ export default function Login() {
         </p>
       </div>
 
-      <div className={styles.demoHint}>
-        <span className={clsx('text-micro', styles.demoHintLabel)}>Demo credentials</span>
-        <code className={clsx('text-sm', styles.demoHintCode)}>
-          {DEMO_EMAIL} / {DEMO_PASSWORD}
-        </code>
-      </div>
-
       {/* Form */}
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <Input
           variant="underline"
           type="email"
@@ -78,6 +94,7 @@ export default function Login() {
           onChange={setEmail}
           placeholder="name@example.com"
           prefixIcon={<Mail size={16} />}
+          errorMessage={fieldErrors.email}
         />
 
         <Input
@@ -89,6 +106,7 @@ export default function Login() {
           placeholder="••••••••"
           prefixIcon={<Lock size={16} />}
           required
+          errorMessage={fieldErrors.password}
           actionLabel={
             <button
               type="button"
@@ -100,10 +118,10 @@ export default function Login() {
           }
         />
 
-        {error && (
+        {displayError && (
           <div className={styles.errorBanner}>
             <AlertCircle size={14} />
-            <span>{error}</span>
+            <span>{displayError}</span>
           </div>
         )}
 
