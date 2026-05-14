@@ -188,7 +188,8 @@ export default function ToastItem({ toast }) {
   // Derived styles
   // When the CSS animation owns the transform (entry or exit), we must not set
   // an inline transform at all — undefined lets the animation run uncontested.
-  const inlineTransform = !hasEntered || (isExiting && !isExitAnimating) ? undefined : `translateX(${translateX}px)`;
+  const inlineTransform =
+    !hasEntered || (isExiting && !isExitAnimating) ? undefined : `translateX(${translateX}px)`;
 
   // Only apply the spring transition during snap-back: not during drag (direct
   // 1:1 follow), not during CSS-controlled entry/exit phases, not during JS exit animation.
