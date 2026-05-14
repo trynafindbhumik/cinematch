@@ -85,18 +85,22 @@ export default function Overview({ onNavigateToReviews }) {
     // Check stale response
     const cursorWeAreWaitingFor = cursorInFlightRef.current;
 
+    nextCursorRef.current = next;
+
     if (cursorWeAreWaitingFor !== null && cursorWeAreWaitingFor !== cursor) {
-      nextCursorRef.current = next;
-      setHasMore(next !== null);
+      queueMicrotask(() => {
+        setHasMore(next !== null);
+      });
 
       return;
     }
 
-    nextCursorRef.current = next;
     cursorInFlightRef.current = null;
 
-    setHasMore(next !== null);
-    setTotalCount(total);
+    queueMicrotask(() => {
+      setHasMore(next !== null);
+      setTotalCount(total);
+    });
 
     if (next === null) {
       observerFiredRef.current = false;
@@ -111,18 +115,20 @@ export default function Overview({ onNavigateToReviews }) {
       }, 500);
     }
 
-    setMovies((prev) => {
-      // Initial load
-      if (cursor === null) {
-        return apiMovies;
-      }
+    queueMicrotask(() => {
+      setMovies((prev) => {
+        // Initial load
+        if (cursor === null) {
+          return apiMovies;
+        }
 
-      // Append + dedupe
-      const existingIds = new Set(prev.map((m) => m.id));
+        // Append + dedupe
+        const existingIds = new Set(prev.map((m) => m.id));
 
-      const newMovies = apiMovies.filter((m) => !existingIds.has(m.id));
+        const newMovies = apiMovies.filter((m) => !existingIds.has(m.id));
 
-      return [...prev, ...newMovies];
+        return [...prev, ...newMovies];
+      });
     });
   }, [data, cursor]);
 
@@ -240,6 +246,7 @@ export default function Overview({ onNavigateToReviews }) {
     const hasOverflow = el.scrollWidth > el.clientWidth;
 
     setCanScrollLeft(hasOverflow && el.scrollLeft > 0);
+
     setCanScrollRight(hasOverflow && el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
   }, []);
 
@@ -250,14 +257,19 @@ export default function Overview({ onNavigateToReviews }) {
       return undefined;
     }
 
-    updateArrows();
+    const frame = requestAnimationFrame(() => {
+      updateArrows();
+    });
 
     el.addEventListener('scroll', updateArrows, { passive: true });
 
     window.addEventListener('resize', updateArrows);
 
     return () => {
+      cancelAnimationFrame(frame);
+
       el.removeEventListener('scroll', updateArrows);
+
       window.removeEventListener('resize', updateArrows);
     };
   }, [updateArrows]);
@@ -295,7 +307,10 @@ export default function Overview({ onNavigateToReviews }) {
 
         // Reset pagination state to trigger fresh fetch from beginning
         setCursor(null);
-        setHasMore(true);
+
+        queueMicrotask(() => {
+          setHasMore(true);
+        });
 
         nextCursorRef.current = null;
         cursorInFlightRef.current = null;
@@ -303,6 +318,7 @@ export default function Overview({ onNavigateToReviews }) {
         // Revalidate to get fresh data - don't clear movies here,
         // the GET response already includes the new item
         mutate();
+
         success('Added to favorites', 'Movie saved to your favorites');
       } catch (err) {
         showError('Failed', err?.message || 'Could not add to favorites');
@@ -321,6 +337,7 @@ export default function Overview({ onNavigateToReviews }) {
         setMovies((prev) => prev.filter((m) => m.id !== id));
 
         setTotalCount((prev) => Math.max(0, prev - 1));
+
         success('Removed from favorites', 'Movie removed from your favorites');
       } catch (err) {
         showError('Failed', err?.message || 'Could not remove from favorites');
@@ -437,10 +454,13 @@ export default function Overview({ onNavigateToReviews }) {
                 />
               ))}
 
-              {isLoadingMore &&
-                loadingMoreSkeletons.map((item) => (
-                  <div key={item.id} className={styles.skeletonCard} />
-                ))}
+              {isLoadingMore && hasMore && (
+                <>
+                  {loadingMoreSkeletons.map((item) => (
+                    <div key={item.id} className={styles.skeletonCard} />
+                  ))}
+                </>
+              )}
             </div>
 
             <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
