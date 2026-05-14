@@ -36,7 +36,6 @@ export default function ChangeEmailModal({ isOpen, onClose, currentEmail }) {
   const { success, error: showError } = useToast();
 
   const cooldownIntervalRef = useRef(null);
-  const previousIsOpenRef = useRef(isOpen);
 
   const [, initiateLoading, initiateError, initiateTrigger] = useInitiateEmailChange();
 
@@ -53,25 +52,19 @@ export default function ChangeEmailModal({ isOpen, onClose, currentEmail }) {
     };
   }, [isOpen, openModal, closeModal]);
 
-  useEffect(() => {
-    const wasOpen = previousIsOpenRef.current;
+  const resetModalState = useCallback(() => {
+    setStep(STEPS.ENTER_EMAIL);
+    setNewEmail('');
+    setOtp('');
+    setError('');
+    setSuccessMessage('');
+    setCooldown(0);
 
-    if (wasOpen && !isOpen) {
-      setStep(STEPS.ENTER_EMAIL);
-      setNewEmail('');
-      setOtp('');
-      setError('');
-      setSuccessMessage('');
-      setCooldown(0);
-
-      if (cooldownIntervalRef.current) {
-        clearInterval(cooldownIntervalRef.current);
-        cooldownIntervalRef.current = null;
-      }
+    if (cooldownIntervalRef.current) {
+      clearInterval(cooldownIntervalRef.current);
+      cooldownIntervalRef.current = null;
     }
-
-    previousIsOpenRef.current = isOpen;
-  }, [isOpen]);
+  }, []);
 
   const startCooldown = useCallback(() => {
     if (cooldownIntervalRef.current) {
@@ -182,6 +175,7 @@ export default function ChangeEmailModal({ isOpen, onClose, currentEmail }) {
       className={sharedStyles.overlay}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
+          resetModalState();
           onClose();
         }
       }}
@@ -209,7 +203,10 @@ export default function ChangeEmailModal({ isOpen, onClose, currentEmail }) {
           <button
             type="button"
             className={sharedStyles.closeBtn}
-            onClick={onClose}
+            onClick={() => {
+              resetModalState();
+              onClose();
+            }}
             aria-label="Close"
           >
             <X size={16} />
@@ -290,7 +287,14 @@ export default function ChangeEmailModal({ isOpen, onClose, currentEmail }) {
 
         <div className={sharedStyles.footer}>
           <div className={styles.actionRow}>
-            <button type="button" className={styles.btnSecondary} onClick={onClose}>
+            <button
+              type="button"
+              className={styles.btnSecondary}
+              onClick={() => {
+                resetModalState();
+                onClose();
+              }}
+            >
               {step === STEPS.SUCCESS ? 'Done' : 'Cancel'}
             </button>
 
