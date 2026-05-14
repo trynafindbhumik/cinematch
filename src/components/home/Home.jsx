@@ -25,12 +25,11 @@ import styles from './Home.module.css';
 const SWIPE_THRESHOLD = 80;
 
 const ACTIONS = [
-  { id: 'hate', label: 'Hate', Icon: Skull, dir: 'left', overlayKey: 'skip' },
-  { id: 'dislike', label: 'Dislike', Icon: ThumbsDown, dir: 'left', overlayKey: 'skip' },
+  { id: 'hate', label: 'Hate', Icon: Skull, dir: 'left', overlayKey: 'hate' },
+  { id: 'dislike', label: 'Dislike', Icon: ThumbsDown, dir: 'left', overlayKey: 'dislike' },
   { id: 'skip', label: 'Skip', Icon: X, dir: 'left', overlayKey: 'skip' },
-  { id: 'watched', label: 'Watched', Icon: Eye, dir: 'up', overlayKey: 'watched' },
   { id: 'like', label: 'Like', Icon: ThumbsUp, dir: 'right', overlayKey: 'like' },
-  { id: 'love', label: 'Love', Icon: Heart, dir: 'right', overlayKey: 'like' },
+  { id: 'love', label: 'Love', Icon: Heart, dir: 'right', overlayKey: 'love' },
 ];
 
 const SwipeCard = forwardRef(function SwipeCard(
@@ -203,8 +202,18 @@ const SwipeCard = forwardRef(function SwipeCard(
         aria-hidden="true"
       >
         <div className={styles.overlayBadge}>
-          <Heart size={30} aria-hidden="true" />
+          <ThumbsUp size={30} aria-hidden="true" />
           <span>LIKE</span>
+        </div>
+      </div>
+      <div
+        className={`${styles.swipeOverlay} ${styles.overlayLove}`}
+        style={{ opacity: overlay === 'love' ? 1 : 0 }}
+        aria-hidden="true"
+      >
+        <div className={styles.overlayBadge}>
+          <Heart size={30} aria-hidden="true" />
+          <span>LOVE</span>
         </div>
       </div>
       <div
@@ -215,6 +224,26 @@ const SwipeCard = forwardRef(function SwipeCard(
         <div className={styles.overlayBadge}>
           <X size={30} aria-hidden="true" />
           <span>SKIP</span>
+        </div>
+      </div>
+      <div
+        className={`${styles.swipeOverlay} ${styles.overlayDislike}`}
+        style={{ opacity: overlay === 'dislike' ? 1 : 0 }}
+        aria-hidden="true"
+      >
+        <div className={styles.overlayBadge}>
+          <ThumbsDown size={30} aria-hidden="true" />
+          <span>NOPE</span>
+        </div>
+      </div>
+      <div
+        className={`${styles.swipeOverlay} ${styles.overlayHate}`}
+        style={{ opacity: overlay === 'hate' ? 1 : 0 }}
+        aria-hidden="true"
+      >
+        <div className={styles.overlayBadge}>
+          <Skull size={30} aria-hidden="true" />
+          <span>HATE</span>
         </div>
       </div>
       <div
@@ -388,7 +417,7 @@ export default function HomeComponent() {
         </button>
       </header>
 
-      <div className={styles.deckArea}>
+      <div className={styles.deckArea} data-tour="swipe-deck">
         <div className={styles.deck}>
           {[...visible].reverse().map((movie, index) => {
             const stackIndex = visible.length - 1 - index;
@@ -414,8 +443,12 @@ export default function HomeComponent() {
         <span>love →</span>
       </div>
 
-      {/* Action buttons */}
-      <div className={styles.actionBar} role="group" aria-label="Reaction buttons">
+      <div
+        className={styles.actionBar}
+        role="group"
+        aria-label="Reaction buttons"
+        data-tour="action-bar"
+      >
         {ACTIONS.map((action) => (
           <button
             key={action.id}

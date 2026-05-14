@@ -1,12 +1,17 @@
 'use client';
 
 import clsx from 'clsx';
-import { Mail, Lock, User, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
+import { AlertCircle, Mail, Lock, User, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import Input from '@/components/ui/input/Input';
+import { useResendVerification } from '@/hooks/useResendVerification';
+import { useSignup } from '@/hooks/useSignup';
+import { saveAuthTokens, saveAuthFlags } from '@/lib/api';
+import { useToast } from '@/lib/toast/useToast';
+import { ResendSchema, SignupSchema, validateSchema } from '@/lib/validations/auth';
 
 import styles from '../Auth.module.css';
 
@@ -16,33 +21,77 @@ export default function Signup() {
   const router = useRouter();
   const [step, setStep] = useState('form');
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
-  const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [verificationId, setVerificationId] = useState('');
+  const [{ loading, error }, signup] = useSignup();
+  const [, , , resendTrigger] = useResendVerification();
+  const { success, error: showError } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setFieldErrors({});
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const validation = validateSchema(SignupSchema, formData);
+    if (!validation.success) {
+      const errors = {};
+      validation.errors.forEach((err) => {
+        errors[err.field] = err.message;
+      });
+      setFieldErrors(errors);
+      return;
+    }
 
-    setIsLoading(false);
-    setStep('otp');
+    try {
+      const result = await signup(formData);
+
+      if (result?.verification_id) {
+        setVerificationId(result.verification_id);
+        setStep('otp');
+        success('Code sent', 'Check your email for the verification code');
+      }
+    } catch (err) {
+      if (err?.status === 409) {
+        showError('Account exists', 'An account with this email already exists');
+      } else {
+        showError('Signup failed', err.message || 'Please try again');
+      }
+    }
   };
 
-  const handleOtpVerified = async (otp) => {
-    // eslint-disable-next-line no-console
-    console.log('OTP verified:', otp);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    router.push('/login');
+  const handleOtpVerified = async (response) => {
+    if (response?.access_token) {
+      saveAuthTokens({ accessToken: response.access_token });
+      saveAuthFlags({
+        isVerified: response.is_verified,
+        needsOnboarding: response.needs_onboarding,
+      });
+    }
+
+    // Tour auto-starts on /home when needs_onboarding cookie is true (handled by TourContext)
+    router.push('/home');
   };
 
   const handleResend = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const validation = validateSchema(ResendSchema, { email: formData.email });
+      if (!validation.success) {
+        return { success: false, message: validation.errorMessage };
+      }
+      const result = await resendTrigger('/v1/auth/resend', validation.data);
+      if (result?.verification_id) {
+        setVerificationId(result.verification_id);
+      }
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: err.message || 'Failed to resend code' };
+    }
   };
 
   if (step === 'otp') {
     return (
       <OtpVerification
         email={formData.email}
+        verificationId={verificationId}
         onBack={() => setStep('form')}
         onVerify={handleOtpVerified}
         onResend={handleResend}
@@ -68,7 +117,7 @@ export default function Signup() {
         </p>
       </div>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <Input
           variant="underline"
           type="text"
@@ -77,6 +126,7 @@ export default function Signup() {
           onChange={(val) => setFormData((prev) => ({ ...prev, name: val }))}
           placeholder="John Doe"
           prefixIcon={<User size={16} />}
+          errorMessage={fieldErrors.name}
         />
 
         <Input
@@ -87,6 +137,7 @@ export default function Signup() {
           onChange={(val) => setFormData((prev) => ({ ...prev, email: val }))}
           placeholder="name@example.com"
           prefixIcon={<Mail size={16} />}
+          errorMessage={fieldErrors.email}
         />
 
         <Input
@@ -97,16 +148,24 @@ export default function Signup() {
           onChange={(val) => setFormData((prev) => ({ ...prev, password: val }))}
           placeholder="••••••••"
           prefixIcon={<Lock size={16} />}
+          errorMessage={fieldErrors.password}
         />
+
+        {error && (
+          <div className={styles.errorBanner}>
+            <AlertCircle size={14} />
+            <span>{error.message}</span>
+          </div>
+        )}
 
         <Button
           variant="cinema"
           type="submit"
-          disabled={!formData.name || !formData.email || !formData.password || isLoading}
-          rightIcon={isLoading ? null : <ArrowRight size={16} />}
+          disabled={!formData.name || !formData.email || !formData.password || loading}
+          rightIcon={loading ? null : <ArrowRight size={16} />}
           className={styles.ctaButton}
         >
-          {isLoading ? (
+          {loading ? (
             <span className={clsx('text-sm', styles.ctaLabel, styles.loadingWrap)}>
               <span className={styles.spinner} />
               Sending code...

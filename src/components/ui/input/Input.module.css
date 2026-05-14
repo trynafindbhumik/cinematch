@@ -274,3 +274,28 @@
 .filledContainer:focus-within .filledPrefixIcon {
   color: var(--color-accent, #8c7851);
 }
+
+.filledContainer--withClear {
+  position: relative;
+}
+
+.filledClearIcon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--color-ink-30);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.filledClearIcon:hover {
+  color: var(--color-ink-50);
+  background: var(--color-ink-06);
+}

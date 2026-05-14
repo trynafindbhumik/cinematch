@@ -1,0 +1,224 @@
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  box-shadow:
+    0 2px 8px var(--color-ink-10),
+    0 8px 24px -4px var(--color-ink-12);
+  pointer-events: auto;
+  /*
+   * NOTE: No `animation` here intentionally.
+   *
+   * Previously the animation lived on .toast itself with animation-fill-mode:both,
+   * which kept the CSS animation engine in control of `transform` even after the
+   * slide-in finished. That silently overrides any inline style transform, making
+   * the drag logic appear broken. The animation is now on .entering (below) and
+   * removed once onAnimationEnd fires (hasEntered=true), giving the inline style
+   * full ownership for drag and snap-back.
+   */
+  touch-action: pan-y;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.toast:active {
+  cursor: grabbing;
+}
+
+/* ── Entry animation ─────────────────────────────────────────────────────────── */
+/* Applied by ToastItem until onAnimationEnd sets hasEntered=true               */
+.entering {
+  animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Exit animations ─────────────────────────────────────────────────────────── */
+.exiting {
+  animation: toastSlideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+/* ── Swipe overlay (optional visual cue during drag) ────────────────────────── */
+.swipeOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-error);
+  transform: translateX(-100%);
+  transition: transform 0.15s ease-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.swipeOverlay svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+/* ── Layout pieces ───────────────────────────────────────────────────────────── */
+.iconWrapper {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.iconWrapper svg {
+  width: 100%;
+  height: 100%;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--fs-base);
+  color: var(--color-ink);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.message {
+  font-size: var(--fs-base);
+  color: var(--color-ink-60);
+  margin: 0.25rem 0 0;
+  line-height: 1.5;
+}
+
+.dismissBtn {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink-40);
+  padding: 0;
+  border-radius: 0.375rem;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.dismissBtn:hover {
+  color: var(--color-ink);
+  background: var(--color-ink-06);
+}
+
+.dismissBtn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ── Variant colours ─────────────────────────────────────────────────────────── */
+.success .iconWrapper {
+  color: var(--color-success);
+}
+.success {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.error .iconWrapper {
+  color: var(--color-error);
+}
+.error {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.warning .iconWrapper {
+  color: var(--color-warning);
+}
+.warning {
+  background: rgba(217, 119, 6, 0.08);
+}
+
+.info .iconWrapper {
+  color: var(--color-accent);
+}
+.info {
+  background: rgba(140, 120, 81, 0.08);
+}
+
+.loading .iconWrapper {
+  color: var(--color-accent);
+}
+.loading {
+  background: rgba(140, 120, 81, 0.06);
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────────── */
+
+/* Slide in from right */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Auto-timeout exit: slide out to left */
+@keyframes toastSlideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+/* Manual dismiss / swipe exit: slide out to right */
+@keyframes toastSlideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

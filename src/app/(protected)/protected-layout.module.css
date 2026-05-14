@@ -24,4 +24,7 @@
   .mainContent {
     padding-bottom: 5rem;
   }
+  .mainContent {
+    padding: 1rem;
+  }
 }

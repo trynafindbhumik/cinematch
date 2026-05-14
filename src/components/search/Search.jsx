@@ -35,7 +35,6 @@ export default function SearchComponent() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          // Use startTransition to avoid cascading renders
           import('react').then(({ startTransition }) => {
             startTransition(() => {
               setRecentSearches(parsed);
@@ -47,7 +46,6 @@ export default function SearchComponent() {
     loadRecentSearches();
   }, []);
 
-  // Filter movies based on query
   const suggestions = useMemo(() => {
     if (!query.trim() || query.length < 2) return [];
     const lowerQuery = query.toLowerCase();
@@ -284,10 +282,17 @@ export default function SearchComponent() {
                   </button>
                 </div>
                 {recentSearches.map((term) => (
-                  <button
+                  <div
                     key={term}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleRecentSearchClick(term)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleRecentSearchClick(term);
+                      }
+                    }}
                     className={styles.dropdownItem}
                   >
                     <Clock size={16} className={styles.recentIcon} />
@@ -303,7 +308,7 @@ export default function SearchComponent() {
                     >
                       <X size={14} />
                     </button>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -369,7 +374,7 @@ export default function SearchComponent() {
         </div>
       )}
 
-      {/* Initial State - Popular searches when no recent searches */}
+      {/* Popular searches when no recent searches */}
       {!hasSearched && recentSearches.length === 0 && (
         <div className={styles.popularContainer}>
           <h2 className={styles.popularTitle}>Popular Searches</h2>

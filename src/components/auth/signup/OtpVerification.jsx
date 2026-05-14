@@ -5,18 +5,23 @@ import { Mail, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 import Button from '@/components/ui/button/Button';
+import { useVerifyOtp } from '@/hooks/useVerifyOtp';
+import { useToast } from '@/lib/toast/useToast';
 
 import styles from './OtpVerification.module.css';
 
-const RESEND_COOLDOWN = 30;
+const RESEND_COOLDOWN = 60;
 
-export default function OtpVerification6Input({ email, onBack, onVerify, onResend }) {
+export default function OtpVerification({ email, verificationId, onBack, onVerify, onResend }) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(RESEND_COOLDOWN);
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef([]);
+
+  const [, verifyOtp] = useVerifyOtp();
+  const { success, error: showError } = useToast();
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -30,18 +35,31 @@ export default function OtpVerification6Input({ email, onBack, onVerify, onResen
 
   const handleResend = async () => {
     setIsResending(true);
+    setError('');
     try {
-      await onResend?.();
-      setTimeLeft(RESEND_COOLDOWN);
-      setOtp(['', '', '', '', '', '']);
-      inputRefs.current[0]?.focus();
+      const result = await onResend?.();
+      if (result?.success) {
+        setTimeLeft(RESEND_COOLDOWN);
+        setOtp(['', '', '', '', '', '']);
+        inputRefs.current[0]?.focus();
+        success('Code resent', 'Check your email for a new code');
+      } else if (result?.message) {
+        setError(result.message);
+        showError('Failed to resend', result.message);
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to resend code');
+      showError('Failed to resend', err.message || 'Please try again');
     } finally {
       setIsResending(false);
     }
   };
 
   const handleChange = (index, value) => {
-    const cleaned = value.replace(/\D/g, '').slice(-1);
+    const cleaned = value
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .slice(-1)
+      .toLowerCase();
     const newOtp = [...otp];
     newOtp[index] = cleaned;
     setOtp(newOtp);
@@ -61,7 +79,11 @@ export default function OtpVerification6Input({ email, onBack, onVerify, onResen
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pastedData = e.clipboardData
+      .getData('text')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .slice(0, 6)
+      .toLowerCase();
     const newOtp = [...otp];
     pastedData.split('').forEach((char, i) => {
       if (i < 6) newOtp[i] = char;
@@ -78,7 +100,7 @@ export default function OtpVerification6Input({ email, onBack, onVerify, onResen
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const otpString = otp.join('');
+    const otpString = otp.join('').toLowerCase();
     if (otpString.length !== 6) {
       setError('Please enter all 6 digits');
       return;
@@ -86,9 +108,14 @@ export default function OtpVerification6Input({ email, onBack, onVerify, onResen
     setIsLoading(true);
     setError('');
     try {
-      await onVerify(otpString);
-    } catch {
-      setError('Invalid verification code. Please try again.');
+      const response = await verifyOtp({
+        otp: otpString,
+        verification_id: verificationId,
+      });
+      await onVerify(response);
+    } catch (err) {
+      setError(err.message || 'Invalid verification code. Please try again.');
+      showError('Verification failed', 'Invalid code. Please try again');
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {

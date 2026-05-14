@@ -1,49 +1,121 @@
 'use client';
 
 import clsx from 'clsx';
-import { X, User, Mail, Upload, AlertCircle } from 'lucide-react';
+import { X, User, Mail, Upload, AlertCircle, Pencil, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
+import Toggle from '@/components/ui/toggle/Toggle';
 import { useModal } from '@/context/ModalContext';
+import { useUpdateProfile, useDeleteProfilePicture } from '@/hooks/useProfile';
+import { useToast } from '@/lib/toast/useToast';
 
 import sharedStyles from '../Modals.module.css';
 
 import styles from './EditProfileModal.module.css';
 
-/**
- *
- * Props:
- *  - isOpen      : boolean
- *  - onClose     : () => void
- *  - profile     : { name, email, avatar }
- *  - onSave      : (updatedProfile) => void
- */
-
 const MAX_FILE_SIZE_MB = 5;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
-  const [form, setForm] = useState(() => ({ ...profile }));
-  const [avatarPreview, setAvatarPreview] = useState(profile?.avatar ?? '');
+export default function EditProfileModal({
+  isOpen,
+  onClose,
+  profile,
+  onSave,
+  onChangeEmail,
+  suggestFromOtt,
+  onSmartSuggestUpdated,
+}) {
+  const [form, setForm] = useState({
+    name: profile?.name || '',
+    smartSuggest: profile?.smartSuggest ?? false,
+  });
+  const [avatarPreview, setAvatarPreview] = useState(profile?.profileUrl || profile?.avatar || '');
   const [fileError, setFileError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [localSmartSuggest, setLocalSmartSuggest] = useState(profile?.smartSuggest ?? false);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
 
   const [isClosing, setIsClosing] = useState(false);
   const { openModal, closeModal } = useModal();
+  const { success, error: showError } = useToast();
 
   const fileInputRef = useRef(null);
+
   const objectUrlRef = useRef(null);
+  const previousIsOpenRef = useRef(isOpen);
+  const suggestFromOttRef = useRef(suggestFromOtt);
+  const smartSuggestChangedRef = useRef(false);
+
+  // Keep ref in sync with prop
+  useEffect(() => {
+    suggestFromOttRef.current = suggestFromOtt;
+  }, [suggestFromOtt]);
+
+  // Track when smart suggest is changed in the modal (different from outer toggle)
+  const handleSmartSuggestToggle = (newValue) => {
+    setLocalSmartSuggest(newValue);
+    smartSuggestChangedRef.current = newValue !== suggestFromOttRef.current;
+    // Don't call API here - only call API when user clicks Save button
+    // Parent component will handle actual API call
+  };
+
+  const [, updateLoading, updateError, updateTrigger] = useUpdateProfile({
+    onSuccess: (data) => {
+      // Notify parent about smart suggest change so it can sync local state
+      if (smartSuggestChangedRef.current) {
+        onSmartSuggestUpdated?.(localSmartSuggest);
+        smartSuggestChangedRef.current = false;
+      }
+      success('Profile updated', 'Your changes have been saved');
+      onSave?.(data);
+      onClose();
+    },
+  });
+
+  const [, deleteLoading, , deleteTrigger] = useDeleteProfilePicture({
+    onSuccess: () => {
+      success('Photo removed', 'Profile photo has been removed');
+      setAvatarPreview('');
+      setRemoveAvatar(false);
+    },
+  });
 
   useEffect(() => {
-    if (isOpen) openModal();
-    return () => {
+    const wasOpen = previousIsOpenRef.current;
+
+    if (!wasOpen && isOpen) {
+      openModal();
+
+      queueMicrotask(() => {
+        setForm({
+          name: profile?.name || '',
+          smartSuggest: profile?.smartSuggest ?? false,
+        });
+
+        setLocalSmartSuggest(suggestFromOttRef.current ?? profile?.smartSuggest ?? false);
+        setAvatarPreview(profile?.profileUrl || profile?.avatar || '');
+        setAvatarFile(null);
+        setFileError('');
+        setRemoveAvatar(false);
+      });
+    }
+
+    if (wasOpen && !isOpen) {
       closeModal();
-      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    }
+
+    previousIsOpenRef.current = isOpen;
+
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
     };
-  }, [isOpen, openModal, closeModal]);
+  }, [isOpen, profile, openModal, closeModal, suggestFromOtt]);
 
   if (!isOpen && !isClosing) return null;
 
@@ -77,18 +149,21 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
     const url = URL.createObjectURL(file);
     objectUrlRef.current = url;
     setAvatarPreview(url);
-    setForm((prev) => ({ ...prev, avatar: url, avatarFile: file }));
+    setAvatarFile(file);
   };
 
   const handleFileChange = (e) => {
     const f = e.target.files?.[0];
     if (f) processFile(f);
   };
+
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
   };
+
   const handleDragLeave = () => setIsDragging(false);
+
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
@@ -96,11 +171,45 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
     if (f) processFile(f);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave?.({ ...form, avatar: avatarPreview });
-    handleClose();
+  const handleRemoveAvatar = async () => {
+    if (profile?.avatar || profile?.profileUrl) {
+      try {
+        await deleteTrigger('/v1/profile/me/picture');
+        setAvatarPreview('');
+        setRemoveAvatar(true);
+      } catch {
+        // Error handled by hook
+      }
+    } else {
+      setAvatarPreview('');
+    }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name?.trim()) return;
+
+    const data = new FormData();
+    data.append('name', form.name.trim());
+    data.append('smartSuggest', String(localSmartSuggest));
+
+    if (removeAvatar) {
+      // Signal to delete the avatar - API should handle this
+      data.append('removeAvatar', 'true');
+    }
+
+    if (avatarFile) {
+      data.append('profile_picture', avatarFile);
+    }
+
+    try {
+      await updateTrigger('/v1/profile/me', data);
+    } catch (err) {
+      showError('Update failed', err?.message || 'Could not save changes. Please try again');
+    }
+  };
+
+  const displayError = updateError?.message || fileError;
 
   const modal = (
     <div
@@ -111,6 +220,8 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
         className={clsx(sharedStyles.sheet, styles.editSheet, isClosing && styles.editSheetClosing)}
         onAnimationEnd={handleSheetAnimationEnd}
       >
+        <div className={sharedStyles.mobileHandle} />
+
         <div className={sharedStyles.header}>
           <div className={sharedStyles.headerText}>
             <h2 className={clsx('h-3xl', sharedStyles.title)}>Edit Profile</h2>
@@ -128,6 +239,7 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
 
         <div className={sharedStyles.body}>
           <form id="edit-profile-form" onSubmit={handleSubmit}>
+            {/* Avatar Upload Section */}
             <div className={styles.avatarUploadSection}>
               <div className={styles.avatarPreviewImg}>
                 {avatarPreview ? (
@@ -174,6 +286,19 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
                   Drag & drop or click — JPEG, PNG, WebP up to {MAX_FILE_SIZE_MB} MB
                 </p>
               </div>
+
+              {/* Remove Avatar Button */}
+              {(avatarPreview || profile?.avatar || profile?.profileUrl) && (
+                <button
+                  type="button"
+                  className={styles.removeAvatarBtn}
+                  onClick={handleRemoveAvatar}
+                  disabled={deleteLoading}
+                >
+                  <Trash2 size={14} />
+                  {deleteLoading ? 'Removing...' : 'Remove Photo'}
+                </button>
+              )}
             </div>
 
             {fileError && (
@@ -183,7 +308,8 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
               </div>
             )}
 
-            <div className={styles.formGroup} style={{ marginTop: '1.25rem' }}>
+            {/* Name Input */}
+            <div className={styles.formGroup}>
               <Input
                 variant="filled"
                 label="Full Name"
@@ -192,26 +318,65 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }) {
                 placeholder="Your Name"
                 prefixIcon={<User size={18} />}
               />
-              <Input
-                variant="filled"
-                label="Email Address"
-                type="email"
-                value={form.email}
-                onChange={(v) => setForm((p) => ({ ...p, email: v }))}
-                placeholder="you@example.com"
-                prefixIcon={<Mail size={18} />}
+            </div>
+
+            {/* Email Display (Read-only with Change option) */}
+            <div className={styles.emailDisplaySection}>
+              <div className={styles.emailDisplayRow}>
+                <div className={styles.emailValueWrap}>
+                  <Mail size={16} className={styles.emailIcon} />
+                  <span className={styles.emailValue}>{profile?.email}</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.changeEmailBtn}
+                  onClick={() => {
+                    handleClose();
+                    setTimeout(() => onChangeEmail?.(), 300);
+                  }}
+                >
+                  <Pencil size={12} />
+                  Change
+                </button>
+              </div>
+              <p className={styles.emailHint}>
+                Want to update your email? Click &quot;Change&quot; to start the verification
+                process.
+              </p>
+            </div>
+
+            {/* Smart Suggest Toggle */}
+            <div className={styles.smartSuggestSection}>
+              <Toggle
+                label="Smart Suggest"
+                checked={localSmartSuggest}
+                onChange={handleSmartSuggestToggle}
               />
+              <p className={styles.smartSuggestHint}>
+                Get personalized movie suggestions based on your preferences and watch history.
+              </p>
             </div>
           </form>
         </div>
 
         <div className={sharedStyles.footer}>
+          {displayError && (
+            <div className={styles.submitErrorBanner}>
+              <AlertCircle size={14} />
+              <span>{displayError}</span>
+            </div>
+          )}
           <div className={styles.actionRow}>
             <button type="button" className={styles.btnSecondary} onClick={handleClose}>
               Cancel
             </button>
-            <button type="submit" form="edit-profile-form" className={styles.btnPrimary}>
-              Save Changes
+            <button
+              type="submit"
+              form="edit-profile-form"
+              className={styles.btnPrimary}
+              disabled={updateLoading || !form.name?.trim()}
+            >
+              {updateLoading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>

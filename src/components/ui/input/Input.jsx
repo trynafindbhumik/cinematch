@@ -22,6 +22,8 @@ import styles from './Input.module.css';
  *  - actionLabel : JSX node — rendered to the right of the label row (underline only)
  *  - prefixIcon  : JSX node — icon shown before the input
  *  - showClear   : show X clear button when value is non-empty (default variant)
+ *  - showClearButton : show X clear button in filled variant
+ *  - onClear     : callback when clear button is clicked (filled variant)
  *  - disabled    : boolean
  *  - errorMessage: string — shows error text with icon
  *  - required    : boolean — appends * to label
@@ -33,6 +35,8 @@ export default function Input({
   label,
   actionLabel,
   showClear = true,
+  showClearButton = false,
+  onClear,
   disabled = false,
   errorMessage = '',
   required = false,
@@ -102,6 +106,13 @@ export default function Input({
   }
 
   if (variant === 'filled') {
+    const handleFilledClear = () => {
+      if (!disabled) {
+        onChange?.('');
+        onClear?.();
+      }
+    };
+
     return (
       <div className={clsx(styles.inputWrapper, styles.filledWrapper)}>
         {label && (
@@ -111,7 +122,12 @@ export default function Input({
           </label>
         )}
 
-        <div className={styles.filledContainer}>
+        <div
+          className={clsx(
+            styles.filledContainer,
+            hasValue && showClearButton && styles['filledContainer--withClear']
+          )}
+        >
           {prefixIcon && <span className={styles.filledPrefixIcon}>{prefixIcon}</span>}
           <input
             id={inputId}
@@ -129,6 +145,9 @@ export default function Input({
             )}
             {...props}
           />
+          {showClearButton && hasValue && !disabled && (
+            <X className={styles.filledClearIcon} onClick={handleFilledClear} />
+          )}
         </div>
 
         {hasError && (

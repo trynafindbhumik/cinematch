@@ -1,4 +1,6 @@
 import { Cormorant_Garamond, Inter } from 'next/font/google';
+
+import Providers from '@/lib/providers';
 import './globals.css';
 
 const cormorantGaramond = Cormorant_Garamond({
@@ -25,7 +27,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`}>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
