@@ -2,74 +2,47 @@
 
 import clsx from 'clsx';
 import { SlidersHorizontal } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import ReviewCard from '@/components/elements/reviewcard/Reviewcard';
 import DateRangePicker from '@/components/ui/dateRangePicker/DateRangePicker';
-import { MOCK_REVIEWS } from '@/mocks/data';
+import { useInfiniteReviews, transformReviews } from '@/hooks/useReviews';
 
 import styles from './Reviews.module.css';
 
-const PAGE_SIZE = 6;
-
-function parseReviewDate(raw) {
-  if (!raw) return null;
-  if (raw instanceof Date) return isNaN(raw) ? null : raw;
-  const d = new Date(raw);
-  return isNaN(d) ? null : d;
-}
-
 export default function Reviews() {
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [isLoading, setIsLoading] = useState(false);
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
-  const [reviews, setReviews] = useState(MOCK_REVIEWS);
 
-  const filteredReviews = useMemo(() => {
-    if (!dateFrom && !dateTo) return reviews;
+  const {
+    reviews: apiReviews,
+    hasMore,
+    loading,
+    loadMoreRef,
+  } = useInfiniteReviews({ dateFrom, dateTo });
 
-    return reviews.filter((review) => {
-      const reviewDate = parseReviewDate(review.date);
-      if (!reviewDate) return true;
+  const reviews = useMemo(() => transformReviews(apiReviews), [apiReviews]);
 
-      const d = reviewDate.getTime();
+  const handleDateChange = useCallback(({ from, to }) => {
+    setDateFrom(from ?? null);
+    setDateTo(to ?? null);
+  }, []);
 
-      if (dateFrom) {
-        const from = new Date(dateFrom);
-        from.setHours(0, 0, 0, 0);
-        if (d < from.getTime()) return false;
-      }
+  const handleClearFilter = useCallback(() => {
+    setDateFrom(null);
+    setDateTo(null);
+  }, []);
 
-      if (dateTo) {
-        const to = new Date(dateTo);
-        to.setHours(23, 59, 59, 999);
-        if (d > to.getTime()) return false;
-      }
-
-      return true;
-    });
-  }, [reviews, dateFrom, dateTo]);
-
-  const visibleReviews = filteredReviews.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredReviews.length;
-  const remaining = filteredReviews.length - visibleCount;
   const hasFilter = dateFrom || dateTo;
+  const totalCount = reviews.length;
 
-  const handleLoadMore = async () => {
-    setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setVisibleCount((prev) => prev + PAGE_SIZE);
-    setIsLoading(false);
-  };
-
-  const handleSave = (updated) => {
-    setReviews((prev) => prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)));
-  };
-
-  const handleDelete = (id) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
-  };
+  const initialSkeletons = useMemo(
+    () =>
+      Array.from({ length: 6 }, (_, index) => ({
+        id: `review-skeleton-${index}`,
+      })),
+    []
+  );
 
   return (
     <div className={styles.tabWrap}>
@@ -85,78 +58,115 @@ export default function Reviews() {
         <DateRangePicker
           from={dateFrom}
           to={dateTo}
-          onChange={({ from, to }) => {
-            setDateFrom(from ?? null);
-            setDateTo(to ?? null);
-            setVisibleCount(PAGE_SIZE);
-          }}
-          onClear={() => {
-            setDateFrom(null);
-            setDateTo(null);
-            setVisibleCount(PAGE_SIZE);
-          }}
+          onChange={handleDateChange}
+          onClear={handleClearFilter}
         />
 
         {hasFilter && (
           <span className={clsx(styles.filterCount, 'text-micro')}>
-            {filteredReviews.length} of {reviews.length}
+            {totalCount} review{totalCount !== 1 ? 's' : ''}
           </span>
         )}
       </div>
 
-      <div className={styles.reviewsGrid}>
-        {visibleReviews.length > 0 ? (
-          visibleReviews.map((review, index) => (
-            <div
-              key={review.id}
-              className={styles.reviewItem}
-              style={{ '--item-index': index % PAGE_SIZE }}
-            >
-              <ReviewCard review={review} showStars onSave={handleSave} onDelete={handleDelete} />
+      {loading && reviews.length === 0 ? (
+        <div className={styles.reviewsGrid}>
+          {initialSkeletons.map((item) => (
+            <div key={item.id} className={styles.reviewItem}>
+              <div className={styles.reviewSkeletonCard}>
+                <div className={styles.reviewSkeletonInner}>
+                  <div className={styles.reviewSkeletonPoster} />
+                  <div className={styles.reviewSkeletonContent}>
+                    <div className={styles.reviewSkeletonLine} style={{ height: '18px' }}>
+                      <div className={styles.reviewSkeletonLineWide} style={{ height: '18px' }} />
+                    </div>
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '40%', marginTop: '8px' }}
+                    />
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '100%', marginTop: '12px' }}
+                    />
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '80%', marginTop: '6px' }}
+                    />
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '60%', marginTop: '6px' }}
+                    />
+                  </div>
+                  <div className={styles.reviewSkeletonRating} />
+                </div>
+              </div>
             </div>
-          ))
-        ) : (
-          <div className={styles.emptyState}>
-            <span className={styles.emptyIcon} aria-hidden="true">
-              ✦
-            </span>
-            <p className={clsx(styles.emptyTitle, 'text-sm')}>No reviews found</p>
-            <p className={clsx(styles.emptySubtitle, 'text-xs')}>Try adjusting your date range.</p>
-          </div>
-        )}
-      </div>
-
-      {filteredReviews.length > 0 && (
-        <div className={styles.footer}>
-          {hasMore ? (
-            <button
-              type="button"
-              className={styles.loadMoreBtn}
-              onClick={handleLoadMore}
-              disabled={isLoading}
-              aria-busy={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <span className={styles.spinner} aria-hidden="true" />
-                  Loading…
-                </>
-              ) : (
-                <>
-                  Load {Math.min(remaining, PAGE_SIZE)} more
-                  <span className={styles.loadMoreCount}>{remaining} remaining</span>
-                </>
-              )}
-            </button>
-          ) : (
-            <p className={styles.endMessage}>
-              <span className={styles.endIcon}>✦</span>
-              You&apos;ve seen all {filteredReviews.length} review
-              {filteredReviews.length !== 1 ? 's' : ''}
-              {hasFilter ? ' matching this range' : ''}
-            </p>
-          )}
+          ))}
         </div>
+      ) : reviews.length === 0 ? (
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon} aria-hidden="true">
+            ✦
+          </span>
+          <p className={clsx(styles.emptyTitle, 'text-sm')}>No reviews found</p>
+          <p className={clsx(styles.emptySubtitle, 'text-xs')}>
+            {hasFilter
+              ? 'Try adjusting your date range.'
+              : 'Start watching movies to write your first review!'}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.reviewsGrid}>
+            {reviews.map((review, index) => (
+              <div
+                key={review.id}
+                className={styles.reviewItem}
+                data-animate={index < 10}
+                style={{ '--item-index': index }}
+              >
+                <ReviewCard review={review} showStars />
+              </div>
+            ))}
+
+            {loading && hasMore && (
+              <>
+                {Array.from({ length: 2 }, (_, index) => (
+                  <div key={`loading-more-${index}`} className={styles.reviewItem}>
+                    <div className={styles.reviewSkeletonCard}>
+                      <div className={styles.reviewSkeletonInner}>
+                        <div className={styles.reviewSkeletonPoster} />
+                        <div className={styles.reviewSkeletonContent}>
+                          <div className={styles.reviewSkeletonLine} style={{ height: '18px' }}>
+                            <div
+                              className={styles.reviewSkeletonLineWide}
+                              style={{ height: '18px' }}
+                            />
+                          </div>
+                          <div
+                            className={styles.reviewSkeletonLine}
+                            style={{ width: '40%', marginTop: '8px' }}
+                          />
+                        </div>
+                        <div className={styles.reviewSkeletonRating} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+
+          <div ref={loadMoreRef} className={styles.footer} style={{ minHeight: '60px' }}>
+            {!hasMore && reviews.length > 0 && (
+              <p className={styles.endMessage}>
+                <span className={styles.endIcon}>✦</span>
+                You&apos;ve seen all {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                {hasFilter ? ' matching this range' : ''}
+              </p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

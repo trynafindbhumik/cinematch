@@ -1,0 +1,266 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: var(--color-surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-ink);
+}
+
+.modalTitle h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.modalTitle svg {
+  color: var(--color-accent);
+}
+
+.closeBtn {
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--color-ink-40);
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  background: var(--color-ink-05);
+  color: var(--color-ink);
+}
+
+.modalSubtitle {
+  color: var(--color-ink-60);
+  font-size: 0.8125rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  color: var(--color-ink-40);
+  font-size: 0.875rem;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.sessionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: var(--color-ink-02);
+  border-radius: 0.75rem;
+}
+
+.sessionIconWrap {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--color-ink-05);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-60);
+  flex-shrink: 0;
+}
+
+.sessionInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.sessionDevice {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sessionMeta {
+  font-size: 0.75rem;
+  color: var(--color-ink-40);
+}
+
+.sessionDeviceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.currentChip {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.125rem 0.375rem;
+  background: var(--color-accent-10);
+  color: var(--color-accent);
+  border-radius: 0.25rem;
+}
+
+.deleteBtn {
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--color-ink-40);
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: var(--color-error-10);
+  color: var(--color-error);
+}
+
+.deleteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.showMoreBtn {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.showMoreBtn:hover {
+  color: var(--color-accent-dark);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-ink-40);
+  font-size: 0.875rem;
+}
+
+.modalFooter {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-ink-10);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.doneBtn {
+  padding: 0.625rem 1.25rem;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.doneBtn:hover {
+  background: var(--color-accent-dark);
+}
+
+.retryBtn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid var(--color-ink-20);
+  border-radius: 0.5rem;
+  color: var(--color-ink-60);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryBtn:hover {
+  background: var(--color-ink-05);
+  color: var(--color-ink);
+}
+
+.spinnerIcon {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
