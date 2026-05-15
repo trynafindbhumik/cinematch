@@ -9,16 +9,15 @@ import MovieCard from '@/components/elements/movieCard/MovieCard';
 import ReviewCard from '@/components/elements/reviewcard/Reviewcard';
 import Button from '@/components/ui/button/Button';
 import { useAddFavorites, useRemoveFavorite } from '@/hooks/useFavorites';
+import { useReviewsOverview, transformReviews } from '@/hooks/useReviews';
 import { useGet } from '@/lib/api';
 import { useToast } from '@/lib/toast/useToast';
-import { MOCK_REVIEWS } from '@/mocks/data';
 
 import styles from './Overview.module.css';
 
 export default function Overview({ onNavigateToReviews }) {
   const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [isAddFavOpen, setIsAddFavOpen] = useState(false);
-  const [reviews, setReviews] = useState(MOCK_REVIEWS);
 
   // Pagination state
   const [movies, setMovies] = useState([]);
@@ -26,13 +25,11 @@ export default function Overview({ onNavigateToReviews }) {
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
-  // Refs for preventing duplicate requests
   const nextCursorRef = useRef(null);
   const cursorInFlightRef = useRef(null);
   const observerFiredRef = useRef(false);
   const observerTimeoutRef = useRef(null);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (observerTimeoutRef.current) {
@@ -41,7 +38,6 @@ export default function Overview({ onNavigateToReviews }) {
     };
   }, []);
 
-  // Cleanup when showAllFavorites changes
   useEffect(() => {
     if (showAllFavorites) {
       return;
@@ -55,7 +51,6 @@ export default function Overview({ onNavigateToReviews }) {
     observerFiredRef.current = false;
   }, [showAllFavorites]);
 
-  // Build URL with cursor
   const buildUrl = useCallback((cursorParam) => {
     if (cursorParam) {
       return `/v1/favorites?cursor=${encodeURIComponent(cursorParam)}`;
@@ -72,7 +67,6 @@ export default function Overview({ onNavigateToReviews }) {
     noCache: true,
   });
 
-  // Handle data changes
   useEffect(() => {
     if (!data) {
       return;
@@ -82,7 +76,6 @@ export default function Overview({ onNavigateToReviews }) {
     const next = data.next_cursor ?? null;
     const total = data.total_count ?? 0;
 
-    // Check stale response
     const cursorWeAreWaitingFor = cursorInFlightRef.current;
 
     nextCursorRef.current = next;
@@ -117,14 +110,11 @@ export default function Overview({ onNavigateToReviews }) {
 
     queueMicrotask(() => {
       setMovies((prev) => {
-        // Initial load
         if (cursor === null) {
           return apiMovies;
         }
 
-        // Append + dedupe
         const existingIds = new Set(prev.map((m) => m.id));
-
         const newMovies = apiMovies.filter((m) => !existingIds.has(m.id));
 
         return [...prev, ...newMovies];
@@ -144,12 +134,7 @@ export default function Overview({ onNavigateToReviews }) {
       (entries) => {
         const [entry] = entries;
 
-        if (
-          entry.isIntersecting &&
-          nextCursorRef.current &&
-          cursorInFlightRef.current === null &&
-          !observerFiredRef.current
-        ) {
+        if (entry.isIntersecting && nextCursorRef.current && cursorInFlightRef.current === null) {
           observerFiredRef.current = true;
 
           const nextCursor = nextCursorRef.current;
@@ -184,7 +169,6 @@ export default function Overview({ onNavigateToReviews }) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // Carousel infinite scroll
   useEffect(() => {
     if (showAllFavorites) {
       if (carouselObserverRef.current) {
@@ -235,7 +219,6 @@ export default function Overview({ onNavigateToReviews }) {
     };
   }, [showAllFavorites, movies.length]);
 
-  // Update arrows
   const updateArrows = useCallback(() => {
     const el = carouselRef.current;
 
@@ -272,7 +255,7 @@ export default function Overview({ onNavigateToReviews }) {
 
       window.removeEventListener('resize', updateArrows);
     };
-  }, [updateArrows]);
+  }, [updateArrows, movies.length]);
 
   const scrollCarousel = useCallback((direction) => {
     const el = carouselRef.current;
@@ -289,7 +272,6 @@ export default function Overview({ onNavigateToReviews }) {
     });
   }, []);
 
-  // API hooks
   const [, , , triggerAddFav] = useAddFavorites();
   const [, , , triggerRemoveFav] = useRemoveFavorite();
   const { success, error: showError } = useToast();
@@ -305,7 +287,6 @@ export default function Overview({ onNavigateToReviews }) {
           tmdb_ids: tmdbIds,
         });
 
-        // Reset pagination state to trigger fresh fetch from beginning
         setCursor(null);
 
         queueMicrotask(() => {
@@ -315,8 +296,6 @@ export default function Overview({ onNavigateToReviews }) {
         nextCursorRef.current = null;
         cursorInFlightRef.current = null;
 
-        // Revalidate to get fresh data - don't clear movies here,
-        // the GET response already includes the new item
         mutate();
 
         success('Added to favorites', 'Movie saved to your favorites');
@@ -346,13 +325,16 @@ export default function Overview({ onNavigateToReviews }) {
     [triggerRemoveFav, success, showError]
   );
 
-  const handleDeleteReview = useCallback((id) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
-  }, []);
+  const {
+    reviews: apiReviews,
+    loading: reviewsLoading,
+    loadMoreRef: reviewLoadMoreRef,
+  } = useReviewsOverview();
 
-  const handleSaveReview = useCallback((updated) => {
-    setReviews((prev) => prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)));
-  }, []);
+  const isInitialLoading = loading && movies.length === 0;
+  const isLoadingMore = loading && movies.length > 0;
+
+  const transformedReviews = useMemo(() => transformReviews(apiReviews), [apiReviews]);
 
   const mapMovie = useCallback((movie) => {
     return {
@@ -366,10 +348,6 @@ export default function Overview({ onNavigateToReviews }) {
     };
   }, []);
 
-  // Loading states
-  const isInitialLoading = loading && movies.length === 0;
-  const isLoadingMore = loading && movies.length > 0;
-
   const carouselSkeletons = useMemo(() => {
     return Array.from({ length: 6 }, (_, index) => ({
       id: `carousel-skeleton-${index}`,
@@ -379,6 +357,12 @@ export default function Overview({ onNavigateToReviews }) {
   const loadingMoreSkeletons = useMemo(() => {
     return Array.from({ length: 8 }, (_, index) => ({
       id: `more-skeleton-${index}`,
+    }));
+  }, []);
+
+  const reviewSkeletons = useMemo(() => {
+    return Array.from({ length: 2 }, (_, index) => ({
+      id: `review-skeleton-${index}`,
     }));
   }, []);
 
@@ -421,7 +405,6 @@ export default function Overview({ onNavigateToReviews }) {
           </div>
         </div>
 
-        {/* Initial Loading */}
         {isInitialLoading && (
           <div className={styles.carouselWrap}>
             <div className={styles.carousel}>
@@ -434,14 +417,12 @@ export default function Overview({ onNavigateToReviews }) {
           </div>
         )}
 
-        {/* Empty State */}
         {!isInitialLoading && movies.length === 0 && !showAllFavorites && (
           <div className={styles.emptyFavorites}>
             <p>No favorites yet. Add some movies to get started!</p>
           </div>
         )}
 
-        {/* See All View */}
         {showAllFavorites && !isInitialLoading && movies.length > 0 && (
           <>
             <div className={styles.favoritesGrid}>
@@ -450,7 +431,7 @@ export default function Overview({ onNavigateToReviews }) {
                   key={movie.id}
                   movie={mapMovie(movie)}
                   showActions
-                  onSkip={() => handleRemoveFavorite(movie.id)}
+                  onDelete={() => handleRemoveFavorite(movie.id)}
                 />
               ))}
 
@@ -478,7 +459,6 @@ export default function Overview({ onNavigateToReviews }) {
           </>
         )}
 
-        {/* Carousel View */}
         {!showAllFavorites && !isInitialLoading && movies.length > 0 && (
           <div className={styles.carouselWrap}>
             <button
@@ -501,7 +481,7 @@ export default function Overview({ onNavigateToReviews }) {
                   <MovieCard
                     movie={mapMovie(movie)}
                     showActions
-                    onSkip={() => handleRemoveFavorite(movie.id)}
+                    onDelete={() => handleRemoveFavorite(movie.id)}
                   />
                 </div>
               ))}
@@ -573,17 +553,75 @@ export default function Overview({ onNavigateToReviews }) {
           </Button>
         </div>
 
-        <div className={styles.reviewsGrid}>
-          {reviews.slice(0, 2).map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              showStars={false}
-              onDelete={handleDeleteReview}
-              onSave={handleSaveReview}
-            />
-          ))}
-        </div>
+        {/* Loading state with skeletons */}
+        {reviewsLoading && transformedReviews.length === 0 ? (
+          <div className={styles.reviewsGrid}>
+            {reviewSkeletons.map((item) => (
+              <div key={item.id} className={styles.reviewSkeletonCard}>
+                <div className={styles.reviewSkeletonInner}>
+                  <div className={styles.reviewSkeletonPoster} />
+                  <div className={styles.reviewSkeletonContent}>
+                    <div className={styles.reviewSkeletonLine} style={{ marginBottom: '8px' }}>
+                      <div className={styles.reviewSkeletonLineWide} style={{ height: '18px' }} />
+                    </div>
+                    <div className={styles.reviewSkeletonLine} style={{ width: '80px' }} />
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '100%', marginTop: '12px' }}
+                    />
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '80%', marginTop: '4px' }}
+                    />
+                    <div
+                      className={styles.reviewSkeletonLine}
+                      style={{ width: '60%', marginTop: '4px' }}
+                    />
+                  </div>
+                  <div className={styles.reviewSkeletonRating} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className={styles.reviewsGrid}>
+              {transformedReviews.map((review) => (
+                <ReviewCard key={review.id} review={review} showStars={false} showActions={false} />
+              ))}
+
+              {reviewsLoading && transformedReviews.length > 0 && (
+                <>
+                  {Array.from({ length: 2 }, (_, index) => (
+                    <div
+                      key={`review-more-skeleton-${index}`}
+                      className={styles.reviewSkeletonCard}
+                    >
+                      <div className={styles.reviewSkeletonInner}>
+                        <div className={styles.reviewSkeletonPoster} />
+                        <div className={styles.reviewSkeletonContent}>
+                          <div className={styles.reviewSkeletonLine} style={{ height: '18px' }}>
+                            <div
+                              className={styles.reviewSkeletonLineWide}
+                              style={{ height: '18px' }}
+                            />
+                          </div>
+                          <div
+                            className={styles.reviewSkeletonLine}
+                            style={{ width: '80px', marginTop: '8px' }}
+                          />
+                        </div>
+                        <div className={styles.reviewSkeletonRating} />
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+
+            <div ref={reviewLoadMoreRef} style={{ minHeight: '20px' }} />
+          </>
+        )}
       </section>
 
       <AddMovieModal

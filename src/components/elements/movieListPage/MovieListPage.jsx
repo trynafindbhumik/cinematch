@@ -52,6 +52,7 @@ export default function MovieListPage({
   emptyTitle,
   emptyText,
   emptyActionLabel,
+  searchLoading = false,
   showLoadMore = false,
   loadMoreLabel = 'Load more',
   onLoadMore,
@@ -94,6 +95,11 @@ export default function MovieListPage({
             prefixIcon={<Search size={18} />}
             showClear={false}
           />
+          {searchLoading && (
+            <span className={styles.searchLoading} aria-hidden="true">
+              Searching…
+            </span>
+          )}
         </div>
         <div className={styles.dropdownWrap}>
           <Dropdown

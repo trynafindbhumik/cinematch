@@ -213,6 +213,61 @@
   font-weight: var(--fw-light);
   color: var(--color-ink-72);
   line-height: 1.75;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.commentExpanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+@keyframes expandText {
+  from {
+    opacity: 0.7;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.commentExpanded {
+  animation: expandText 0.3s ease forwards;
+}
+
+.readMoreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-family: var(--font-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  padding: 0.25rem 0;
+  margin-top: 0.5rem;
+  transition: opacity 0.2s ease;
+}
+
+.readMoreBtn:hover {
+  opacity: 0.7;
+}
+
+.chevronDown {
+  transition: transform 0.3s ease;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
 }
 
 .footer {
