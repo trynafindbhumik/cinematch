@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { Star, X, Calendar, Film, Trash2, Edit2 } from 'lucide-react';
+import { Star, X, Calendar, Film, Trash2, Edit2, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -25,7 +25,7 @@ function StarRow({ rating, max = 5 }) {
 function formatDate(raw) {
   if (!raw) return '';
   const d = new Date(raw);
-  if (isNaN(d)) return raw; // already a string like "Mar 2025"
+  if (isNaN(d)) return raw;
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
@@ -86,6 +86,7 @@ export default function ReviewModal({ review, onClose, onEdit, onDelete }) {
   const modalRef = useRef(null);
   const router = useRouter();
   const [isClosing, setIsClosing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const titleId = `review-modal-title-${review?.id ?? 'default'}`;
 
   const handleGoToMovie = () => {
@@ -187,9 +188,21 @@ export default function ReviewModal({ review, onClose, onEdit, onDelete }) {
 
         <div className={styles.commentSection}>
           <span className={clsx('text-micro', styles.commentLabel)}>Review</span>
-          <blockquote className={clsx('italic', styles.comment)}>
+          <blockquote
+            className={clsx('italic', styles.comment, expanded && styles.commentExpanded)}
+          >
             &ldquo;{review.comment}&rdquo;
           </blockquote>
+          {review.comment && review.comment.length > 200 && (
+            <button
+              type="button"
+              className={styles.readMoreBtn}
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? 'Show Less' : 'Read More'}
+              <ChevronDown size={14} className={expanded ? styles.chevronUp : styles.chevronDown} />
+            </button>
+          )}
         </div>
 
         <div className={styles.actions}>
@@ -211,7 +224,7 @@ export default function ReviewModal({ review, onClose, onEdit, onDelete }) {
               <button
                 type="button"
                 className={clsx('text-xs', styles.editBtn)}
-                onClick={() => onEdit(review)}
+                onClick={onEdit}
                 aria-label="Edit review"
               >
                 <Edit2 size={12} />
@@ -222,7 +235,7 @@ export default function ReviewModal({ review, onClose, onEdit, onDelete }) {
               <button
                 type="button"
                 className={clsx('text-xs', styles.deleteBtn)}
-                onClick={() => onDelete(review)}
+                onClick={onDelete}
                 aria-label="Delete review"
               >
                 <Trash2 size={12} />

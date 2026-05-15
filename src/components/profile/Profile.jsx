@@ -22,6 +22,7 @@ import DeleteAccountModal from '@/components/elements/modals/deleteAccountModal/
 import EditProfileModal from '@/components/elements/modals/editProfileModal/EditProfileModal';
 import OttModal from '@/components/elements/modals/ottModal/OttModal';
 import VerifyEmailModal from '@/components/elements/modals/verifyEmailModal/VerifyEmailModal';
+import SessionManagement from '@/components/profile/sessionManagement/SessionManagement';
 import Overview from '@/components/profile/tabs/overview/Overview';
 import Reviews from '@/components/profile/tabs/reviews/Reviews';
 import WatchedTab from '@/components/profile/tabs/watched/Watched';
@@ -64,8 +65,20 @@ const PROFILE_TABS = [
   { id: 'reviews', label: 'Reviews' },
 ];
 
+// Tab IDs for validation
+const VALID_TAB_IDS = PROFILE_TABS.map((t) => t.id);
+
+// Read initial tab from URL
+const getInitialTab = () => {
+  if (typeof window === 'undefined') return 'overview';
+
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+
+  return tab && VALID_TAB_IDS.includes(tab) ? tab : 'overview';
+};
+
 export default function ProfileComponent() {
-  // Profile state from API
   const {
     data: profileData,
     error: profileError,
@@ -73,15 +86,12 @@ export default function ProfileComponent() {
     mutate: mutateProfile,
   } = useProfile();
 
-  // Genres state from API
   const { data: allGenresData, loading: allGenresLoading } = useGenres();
 
   const { data: userGenresData, revalidate: revalidateUserGenres } = useUserGenres();
 
-  // Streaming services state from API
   const { data: userStreamingData, mutate: mutateUserStreaming } = useUserStreamingServices();
 
-  // API mutation hooks
   const [, , , updateTrigger] = useUpdateProfile();
   const [, , , addGenreTrigger] = useAddGenre();
   const [, , , removeGenreTrigger] = useRemoveGenre();
@@ -89,23 +99,49 @@ export default function ProfileComponent() {
   const [, , , removeStreamingTrigger] = useRemoveStreamingService();
   const { success, info, error: showError } = useToast();
 
-  // Local UI state
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTabState] = useState(getInitialTab);
   const [localSmartSuggest, setLocalSmartSuggest] = useState(false);
 
-  // Modal states
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isOttOpen, setIsOttOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false);
   const [isVerifyOpen, setIsVerifyOpen] = useState(false);
+  const [isSessionsOpen, setIsSessionsOpen] = useState(false);
   const [showAllServices, setShowAllServices] = useState(false);
 
   const tabRefs = useRef({});
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
-  // Derive profile from API data
+  const setActiveTab = useCallback((tabId) => {
+    setActiveTabState(tabId);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tabId);
+
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+
+      if (tab && VALID_TAB_IDS.includes(tab)) {
+        setActiveTabState(tab);
+      } else {
+        setActiveTabState('overview');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   const profile = useMemo(() => {
     if (!profileData) return null;
 
@@ -125,14 +161,10 @@ export default function ProfileComponent() {
     return Array.isArray(userGenresData) ? userGenresData : [];
   }, [userGenresData]);
 
-  // Derive loading state directly to avoid flicker during revalidation
-
   const isLoading = profileLoading || allGenresLoading;
 
-  // Sync smart suggest when profile data loads from server
   const effectiveSmartSuggest = profileData?.smartSuggest ?? false;
 
-  // Update indicator when tab changes
   const updateIndicator = useCallback((tabId) => {
     const el = tabRefs.current[tabId];
 
@@ -145,23 +177,33 @@ export default function ProfileComponent() {
   }, []);
 
   useEffect(() => {
-    updateIndicator(activeTab);
-  }, [activeTab, updateIndicator]);
+    if (isLoading) return undefined;
+
+    const id = requestAnimationFrame(() => {
+      updateIndicator(activeTab);
+    });
+
+    return () => {
+      cancelAnimationFrame(id);
+    };
+  }, [activeTab, updateIndicator, isLoading]);
 
   useEffect(() => {
-    const handleResize = () => updateIndicator(activeTab);
+    const handleResize = () => {
+      updateIndicator(activeTab);
+    };
 
     window.addEventListener('resize', handleResize);
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [activeTab, updateIndicator]);
 
-  // Handle profile update from edit modal
   const handleProfileUpdate = useCallback(() => {
     mutateProfile();
   }, [mutateProfile]);
 
-  // Handle smart suggest toggle
   const handleSmartSuggestToggle = useCallback(
     async (newValue) => {
       setLocalSmartSuggest(newValue);
@@ -180,12 +222,10 @@ export default function ProfileComponent() {
     [profile?.name, profileData?.smartSuggest, updateTrigger]
   );
 
-  // Called by EditProfileModal after successful save
   const handleSmartSuggestUpdated = useCallback((newValue) => {
     setLocalSmartSuggest(newValue);
   }, []);
 
-  // Handle genre toggle
   const handleToggleGenre = useCallback(
     async (genre) => {
       const currentGenres = localSelectedGenres ?? [];
@@ -200,7 +240,7 @@ export default function ProfileComponent() {
           await addGenreTrigger(`/v1/genres/${genre.id}`);
           success('Genre added', 'Your preferences have been updated');
         }
-        // Manually revalidate with populateCache: false to preserve existing data
+
         revalidateUserGenres();
       } catch (err) {
         showError('Failed', err?.message || 'Could not update genre preferences. Please try again');
@@ -217,7 +257,6 @@ export default function ProfileComponent() {
     ]
   );
 
-  // Handle save OTT from modal
   const handleSaveOtt = useCallback(
     async (serviceIds) => {
       try {
@@ -233,7 +272,6 @@ export default function ProfileComponent() {
     [updateStreamingTrigger, mutateUserStreaming, showError]
   );
 
-  // Handle remove OTT
   const handleRemoveOtt = useCallback(
     async (service) => {
       const serviceIdToRemove = service.id || service.sourceId;
@@ -244,6 +282,7 @@ export default function ProfileComponent() {
         });
 
         mutateUserStreaming();
+
         info('Service removed', 'Streaming service has been removed from your preferences');
       } catch {
         showError('Failed to remove', 'Could not remove this service');
@@ -252,17 +291,14 @@ export default function ProfileComponent() {
     [removeStreamingTrigger, mutateUserStreaming, info, showError]
   );
 
-  // Handle verification success
   const handleVerificationSuccess = useCallback(() => {
     mutateProfile();
   }, [mutateProfile]);
 
-  // Derive user genre IDs
   const userGenreIds = useMemo(() => {
     return localSelectedGenres?.map((g) => g.id || g.genreId) ?? [];
   }, [localSelectedGenres]);
 
-  // Get tag display info
   const tagInfo = useMemo(() => {
     if (!profile?.tag) return null;
 
@@ -307,8 +343,7 @@ export default function ProfileComponent() {
   return (
     <>
       <div className={styles.page}>
-        {/* Profile Info Card */}
-        <section className={styles.infoCard}>
+        <section className={styles.infoCard} data-tour="profile-info">
           <div className={styles.avatarRow}>
             <div className={styles.avatarWrap}>
               <div className={styles.avatar}>
@@ -359,7 +394,7 @@ export default function ProfileComponent() {
                   {profile?.email || '...'}
                 </span>
 
-                {/* Verify Email Button - Only for unverified users */}
+                {/* Only for unverified users */}
                 {!profile?.isVerified && (
                   <button
                     type="button"
@@ -395,7 +430,6 @@ export default function ProfileComponent() {
           </div>
 
           <div className={styles.settingsGrid}>
-            {/* Genres Section */}
             <div className={styles.settingsSection}>
               <div className={styles.settingsSectionHeader}>
                 <span className={clsx('text-micro', styles.settingsSectionLabel)}>
@@ -422,7 +456,6 @@ export default function ProfileComponent() {
               </div>
             </div>
 
-            {/* Streaming Services Section */}
             <div className={styles.settingsSection}>
               <div className={styles.settingsSectionHeader}>
                 <span className={styles.settingsSectionLabel}>Streaming Services</span>
@@ -518,7 +551,6 @@ export default function ProfileComponent() {
           </div>
         </section>
 
-        {/* Change Password Card */}
         <section className={styles.changePasswordCard}>
           <div className={styles.changePasswordInfo}>
             <div className={styles.changePasswordIconWrap}>
@@ -533,16 +565,24 @@ export default function ProfileComponent() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            className={styles.changePasswordBtn}
-            onClick={() => setIsPasswordOpen(true)}
-          >
-            Change Password
-          </button>
+          <div className={styles.changePasswordActions}>
+            <button
+              type="button"
+              className={styles.changePasswordBtn}
+              onClick={() => setIsPasswordOpen(true)}
+            >
+              Change Password
+            </button>
+            <button
+              type="button"
+              className={styles.sessionsBtn}
+              onClick={() => setIsSessionsOpen(true)}
+            >
+              Active Sessions
+            </button>
+          </div>
         </section>
 
-        {/* Danger Zone Card */}
         <section className={styles.dangerCard}>
           <div className={styles.dangerInfo}>
             <div className={styles.dangerIconWrap}>
@@ -560,7 +600,6 @@ export default function ProfileComponent() {
           </button>
         </section>
 
-        {/* Tabs */}
         <div className={styles.tabsBar} role="tablist">
           <span
             className={styles.tabSlider}
@@ -588,7 +627,6 @@ export default function ProfileComponent() {
           ))}
         </div>
 
-        {/* Tab Content */}
         <div key={activeTab} className={styles.tabContent}>
           {activeTab === 'overview' && (
             <Overview onNavigateToReviews={() => setActiveTab('reviews')} />
@@ -599,7 +637,6 @@ export default function ProfileComponent() {
         </div>
       </div>
 
-      {/* Modals */}
       <EditProfileModal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
@@ -637,6 +674,8 @@ export default function ProfileComponent() {
         email={profile?.email}
         onVerified={handleVerificationSuccess}
       />
+
+      <SessionManagement isOpen={isSessionsOpen} onClose={() => setIsSessionsOpen(false)} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { Star, ExternalLink } from 'lucide-react';
+import { Star, ExternalLink, Pencil, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -9,11 +9,22 @@ import { useState } from 'react';
 import DeleteConfirmModal from '@/components/elements/reviewcard/reviewModal/deleteConfirmModal/DeleteConfirmModal';
 import EditReviewModal from '@/components/elements/reviewcard/reviewModal/editReviewModal/EditReviewModal';
 import ReviewModal from '@/components/elements/reviewcard/reviewModal/ReviewModal';
+import { useUpdateReview, useDeleteReview } from '@/hooks/useReviews';
+import { useToast } from '@/lib/toast/useToast';
 
 import styles from './Reviewcard.module.css';
 
-export default function ReviewCard({ review, showStars = false, onSave, onDelete }) {
+export default function ReviewCard({
+  review,
+  showStars = false,
+  showActions = true,
+  onUpdated,
+  onDeleted,
+}) {
   const router = useRouter();
+  const { success, error: showError } = useToast();
+  const { updateReview, loading: isUpdating } = useUpdateReview();
+  const { deleteReview, loading: isDeleting } = useDeleteReview();
 
   const [activeModal, setActiveModal] = useState(null);
 
@@ -27,15 +38,32 @@ export default function ReviewCard({ review, showStars = false, onSave, onDelete
     }
   };
 
-  const handleSave = (updated) => {
-    onSave?.(updated);
-    closeAll();
+  const handleSave = async (updated) => {
+    try {
+      await updateReview(updated.id, {
+        comment: updated.comment,
+        rating: updated.rating,
+      });
+      onUpdated?.(updated);
+      closeAll();
+      success('Review updated', 'Your changes have been saved');
+    } catch (err) {
+      showError('Failed', err?.message || 'Could not update review');
+    }
   };
 
-  const handleConfirmDelete = () => {
-    onDelete?.(review.id);
-    closeAll();
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteReview(review.id);
+      onDeleted?.(review.id);
+      closeAll();
+      success('Review deleted', 'Your review has been removed');
+    } catch (err) {
+      showError('Failed', err?.message || 'Could not delete review');
+    }
   };
+
+  const isLoading = isUpdating || isDeleting;
 
   return (
     <>
@@ -54,13 +82,17 @@ export default function ReviewCard({ review, showStars = false, onSave, onDelete
       >
         <div className={styles.reviewCardInner}>
           <div className={styles.reviewPoster}>
-            <Image
-              src={review.moviePoster}
-              alt={`${review.movieTitle} poster`}
-              width={72}
-              height={104}
-              referrerPolicy="no-referrer"
-            />
+            {review.moviePoster ? (
+              <Image
+                src={review.moviePoster}
+                alt={`${review.movieTitle} poster`}
+                width={72}
+                height={104}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className={styles.reviewPosterPlaceholder} />
+            )}
           </div>
 
           <div className={styles.reviewContent}>
@@ -118,6 +150,37 @@ export default function ReviewCard({ review, showStars = false, onSave, onDelete
               </button>
             )}
           </div>
+
+          {showActions && (
+            <div className={styles.reviewActions} onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={() => setActiveModal('edit')}
+                disabled={isLoading}
+                aria-label="Edit review"
+              >
+                {isUpdating ? (
+                  <Loader2 size={14} className={styles.spinner} />
+                ) : (
+                  <Pencil size={14} />
+                )}
+              </button>
+              <button
+                type="button"
+                className={clsx(styles.actionBtn, styles.actionBtnDelete)}
+                onClick={() => setActiveModal('delete')}
+                disabled={isLoading}
+                aria-label="Delete review"
+              >
+                {isDeleting ? (
+                  <Loader2 size={14} className={styles.spinner} />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </article>
 
@@ -125,25 +188,17 @@ export default function ReviewCard({ review, showStars = false, onSave, onDelete
         <ReviewModal
           review={review}
           onClose={closeAll}
-          onEdit={onSave ? () => setActiveModal('edit') : undefined}
-          onDelete={onDelete ? () => setActiveModal('delete') : undefined}
+          onEdit={() => setActiveModal('edit')}
+          onDelete={() => setActiveModal('delete')}
         />
       )}
 
       {activeModal === 'edit' && (
-        <EditReviewModal
-          review={review}
-          onClose={() => setActiveModal('view')}
-          onSave={handleSave}
-        />
+        <EditReviewModal review={review} onClose={closeAll} onSave={handleSave} />
       )}
 
       {activeModal === 'delete' && (
-        <DeleteConfirmModal
-          review={review}
-          onClose={() => setActiveModal('view')}
-          onConfirm={handleConfirmDelete}
-        />
+        <DeleteConfirmModal review={review} onClose={closeAll} onConfirm={handleConfirmDelete} />
       )}
     </>
   );
