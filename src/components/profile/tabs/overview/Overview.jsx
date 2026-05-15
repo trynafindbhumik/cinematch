@@ -431,7 +431,7 @@ export default function Overview({ onNavigateToReviews }) {
                   key={movie.id}
                   movie={mapMovie(movie)}
                   showActions
-                  onSkip={() => handleRemoveFavorite(movie.id)}
+                  onDelete={() => handleRemoveFavorite(movie.id)}
                 />
               ))}
 
@@ -481,7 +481,7 @@ export default function Overview({ onNavigateToReviews }) {
                   <MovieCard
                     movie={mapMovie(movie)}
                     showActions
-                    onSkip={() => handleRemoveFavorite(movie.id)}
+                    onDelete={() => handleRemoveFavorite(movie.id)}
                   />
                 </div>
               ))}
