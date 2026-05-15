@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { Bookmark, Heart, Trash2, Star } from 'lucide-react';
+import { Trash2, Star } from 'lucide-react';
 import Image from 'next/image';
 
 import styles from './MovieCard.module.css';
@@ -12,9 +12,7 @@ import styles from './MovieCard.module.css';
  *  - movie          : { id, title, year, genre, rating, image, description }
  *  - tag            : optional string badge (top-left, e.g. "Watched")
  *  - showActions    : show quick-action buttons on hover (default true)
- *  - onLike         : () => void
- *  - onSkip         : () => void
- *  - onSave         : () => void
+ *  - onDelete         : () => void
  *  - onClick        : () => void
  *  - className      : extra class
  */
@@ -22,9 +20,7 @@ export default function MovieCard({
   movie,
   tag,
   showActions = true,
-  onLike,
-  onSkip,
-  onSave,
+  onDelete,
   onClick,
   className,
 }) {
@@ -59,49 +55,18 @@ export default function MovieCard({
 
         {tag && <span className={clsx('text-micro', styles.tagBadge)}>{tag}</span>}
 
-        {showActions && onSkip && (
+        {showActions && onDelete && (
           <button
             type="button"
             className={styles.removeBtn}
             onClick={(e) => {
               e.stopPropagation();
-              onSkip();
+              onDelete();
             }}
             aria-label="Remove from watchlist"
           >
             <Trash2 size={11} />
           </button>
-        )}
-
-        {showActions && (onSave || onLike) && (
-          <div className={styles.quickActions}>
-            {onSave && (
-              <button
-                type="button"
-                className={clsx(styles.actionBtn, styles.actionBtnAdd)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSave();
-                }}
-                aria-label="Save to watchlist"
-              >
-                <Bookmark className={styles.actionBtnIcon} />
-              </button>
-            )}
-            {onLike && (
-              <button
-                type="button"
-                className={clsx(styles.actionBtn, styles.actionBtnLike)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onLike();
-                }}
-                aria-label="Like"
-              >
-                <Heart className={styles.actionBtnIcon} />
-              </button>
-            )}
-          </div>
         )}
       </div>
 

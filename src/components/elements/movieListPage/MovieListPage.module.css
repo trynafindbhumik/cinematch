@@ -114,6 +114,14 @@
   width: 100%;
 }
 
+.searchLoading {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-ink-40);
+  align-self: center;
+}
+
 @media (min-width: 640px) {
   .dropdownWrap {
     width: 12rem;
