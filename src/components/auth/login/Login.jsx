@@ -3,7 +3,7 @@
 import clsx from 'clsx';
 import { Mail, Lock, ArrowRight, ChevronRight, Sparkles, AlertCircle, Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import Input from '@/components/ui/input/Input';
@@ -20,54 +20,72 @@ const MAX_SESSIONS = 5;
 
 export default function Login() {
   const router = useRouter();
+
   const [{ loading, error }, login] = useLogin();
+
   const { success, error: showError, warning, info } = useToast();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
-  const [showSessionModal, setShowSessionModal] = useState(false);
-  const [sessions, setSessions] = useState([]);
+
   const [pendingSessionData, setPendingSessionData] = useState(null);
+
   const [deletingSessionId, setDeletingSessionId] = useState(null);
+
   const [magicLink, setMagicLink] = useState(null);
 
+  const [sessionModalDismissed, setSessionModalDismissed] = useState(false);
+
   const { deleteSession } = useDeleteSession();
+
   const { data: sessionsData } = useFetchSessionsWithMagicLink(magicLink);
 
-  // Auto-populate sessions when data arrives
-  useEffect(() => {
-    if (sessionsData?.sessions) {
-      setSessions(sessionsData.sessions);
-      setShowSessionModal(true);
-      info('Session limit reached', 'Please remove a session to continue');
-    }
-  }, [sessionsData, info]);
+  // Derived sessions state
+  const sessions = useMemo(() => sessionsData?.sessions || [], [sessionsData]);
+
+  // Derived modal visibility
+  const showSessionModal = sessions.length > 0 && !sessionModalDismissed;
 
   const handleLoginSuccess = async (result) => {
     if (result.access_token) {
-      saveAuthTokens({ accessToken: result.access_token });
+      saveAuthTokens({
+        accessToken: result.access_token,
+      });
+
       saveAuthFlags({
         isVerified: result.is_verified,
         needsOnboarding: result.needs_onboarding,
       });
     }
+
     success('Welcome back!', 'Redirecting...');
+
     router.push('/home');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFieldErrors({});
 
-    const formData = { email, password };
+    setFieldErrors({});
+    setSessionModalDismissed(false);
+
+    const formData = {
+      email,
+      password,
+    };
+
     const validation = validateSchema(LoginSchema, formData);
 
     if (!validation.success) {
       const errors = {};
+
       validation.errors.forEach((err) => {
         errors[err.field] = err.message;
       });
+
       setFieldErrors(errors);
+
       return;
     }
 
@@ -75,8 +93,11 @@ export default function Login() {
       const result = await login(formData);
 
       if (result?.is_session_exhausted && result?.magic_link) {
+        info('Session limit reached', 'Please remove a session to continue');
+
         setPendingSessionData(result);
         setMagicLink(result.magic_link);
+
         return;
       }
 
@@ -87,6 +108,7 @@ export default function Login() {
       }
     } catch (err) {
       const errorStatus = err?.status;
+
       if (errorStatus === 429) {
         warning('Too many attempts', 'Please wait before trying again');
       } else if (errorStatus === 500) {
@@ -99,24 +121,32 @@ export default function Login() {
 
   const removeSessionAndLogin = async (sessionId) => {
     setDeletingSessionId(sessionId);
+
     try {
       const result = await deleteSession(sessionId, pendingSessionData?.magic_link);
 
       const updatedSessions = sessions.filter((s) => s.id !== sessionId);
-      setSessions(updatedSessions);
 
       if (result?.access_token) {
-        setShowSessionModal(false);
+        setSessionModalDismissed(true);
+
         clearAuthTokens();
-        saveAuthTokens({ accessToken: result.access_token });
+
+        saveAuthTokens({
+          accessToken: result.access_token,
+        });
+
         saveAuthFlags({
           isVerified: result.is_verified,
           needsOnboarding: result.needs_onboarding,
         });
+
         success('Session removed', 'Redirecting...');
+
         router.push('/home');
       } else if (updatedSessions.length < MAX_SESSIONS && pendingSessionData) {
-        setShowSessionModal(false);
+        setSessionModalDismissed(true);
+
         await handleLoginSuccess(pendingSessionData);
       }
     } catch {
@@ -128,31 +158,54 @@ export default function Login() {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Unknown';
+
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   const formatRelativeTime = (dateString) => {
     if (!dateString) return 'Unknown';
+
     const date = new Date(dateString);
     const now = new Date();
+
     const diffMs = now - date;
+
     const diffMins = Math.floor(diffMs / 60000);
+
     const diffHours = Math.floor(diffMs / 3600000);
+
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+
+    if (diffMins < 60) {
+      return `${diffMins}m ago`;
+    }
+
+    if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    }
+
+    if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    }
+
     return formatDate(dateString);
   };
 
   const getError = () => {
     if (error?.status) {
       const { message } = getErrorMessage(error.status, AUTH_ERROR_MESSAGES, error.message);
+
       return message;
     }
+
     return error?.message || null;
   };
 
@@ -164,6 +217,7 @@ export default function Login() {
         <div className={styles.headerGroup}>
           <div className={styles.badge}>
             <Sparkles className={styles.badgeIcon} />
+
             <span className={clsx('text-xs', styles.badgeText)}>AI Powered Discovery</span>
           </div>
 
@@ -233,6 +287,7 @@ export default function Login() {
 
         <div className={styles.linkRow}>
           <p className={clsx('text-base', styles.linkPrompt)}>New to the experience?</p>
+
           <button
             type="button"
             className={clsx('text-base', styles.linkBtn)}
@@ -251,6 +306,7 @@ export default function Login() {
               <Monitor size={24} />
               <h2>Session Limit Reached</h2>
             </div>
+
             <p className={styles.sessionModalText}>
               You have reached the maximum of {MAX_SESSIONS} active sessions. Please remove one to
               continue.
@@ -264,13 +320,16 @@ export default function Login() {
                       <span className={styles.sessionDevice}>
                         {session.device_name || 'Unknown Device'}
                       </span>
+
                       {session.is_current && <span className={styles.currentChip}>Current</span>}
                     </div>
+
                     <span className={styles.sessionMeta}>
                       Created {formatDate(session.created_at)} • Last used{' '}
                       {formatRelativeTime(session.last_login)}
                     </span>
                   </div>
+
                   <button
                     type="button"
                     className={styles.removeSessionBtn}
@@ -287,8 +346,10 @@ export default function Login() {
               type="button"
               className={styles.cancelSessionBtn}
               onClick={() => {
-                setShowSessionModal(false);
+                setSessionModalDismissed(true);
+
                 setPendingSessionData(null);
+
                 setMagicLink(null);
               }}
             >

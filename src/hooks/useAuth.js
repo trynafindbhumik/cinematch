@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { isTokenExpired, getTokenExpiry, isValidTokenFormat } from '@/lib/auth/middleware-utils';
 import { getCookie, removeCookie } from '@/lib/cookie';
@@ -54,11 +54,12 @@ export function useAuth() {
 
     const runCheck = () => {
       if (ignore) return;
+
       try {
         const token = getCookie(TOKEN_KEYS.ACCESS);
 
         if (!token || !isValidTokenFormat(token)) {
-          if (!ignore)
+          if (!ignore) {
             setAuthState({
               isAuthenticated: false,
               token: null,
@@ -66,12 +67,15 @@ export function useAuth() {
               isLoading: false,
               error: null,
             });
+          }
+
           return;
         }
 
         if (isTokenExpired(token)) {
           removeCookie(TOKEN_KEYS.ACCESS);
-          if (!ignore)
+
+          if (!ignore) {
             setAuthState({
               isAuthenticated: false,
               token: null,
@@ -79,11 +83,14 @@ export function useAuth() {
               isLoading: false,
               error: 'Token expired',
             });
+          }
+
           return;
         }
 
         const expiresIn = getTokenExpiry(token);
-        if (!ignore)
+
+        if (!ignore) {
           setAuthState({
             isAuthenticated: true,
             token,
@@ -91,15 +98,17 @@ export function useAuth() {
             isLoading: false,
             error: null,
           });
+        }
       } catch (error) {
-        if (!ignore)
+        if (!ignore) {
           setAuthState({
             isAuthenticated: false,
             token: null,
             expiresIn: null,
             isLoading: false,
-            error: error.message,
+            error: error instanceof Error ? error.message : 'Unknown auth error',
           });
+        }
       }
     };
 
@@ -110,8 +119,10 @@ export function useAuth() {
     };
 
     window.addEventListener('cinematch:cookie-change', handleCookieChange);
+
     return () => {
       ignore = true;
+
       window.removeEventListener('cinematch:cookie-change', handleCookieChange);
     };
   }, []);
@@ -136,19 +147,22 @@ export function useAuth() {
           isLoading: false,
           error: null,
         });
-      } else {
-        const expiresIn = getTokenExpiry(token);
 
-        if (expiresIn && expiresIn < 60) {
-          console.warn('[useAuth] Token expiring soon, triggering refresh');
-          window.dispatchEvent(new CustomEvent('auth:token-expiring-soon'));
-        }
-
-        setAuthState((prev) => ({
-          ...prev,
-          expiresIn,
-        }));
+        return;
       }
+
+      const expiresIn = getTokenExpiry(token);
+
+      if (expiresIn && expiresIn < 60) {
+        console.warn('[useAuth] Token expiring soon, triggering refresh');
+
+        window.dispatchEvent(new CustomEvent('auth:token-expiring-soon'));
+      }
+
+      setAuthState((prev) => ({
+        ...prev,
+        expiresIn,
+      }));
     }, 30000);
 
     return () => {
@@ -189,6 +203,7 @@ export function useProtectedRoute() {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       console.log('[useProtectedRoute] Not authenticated, redirecting to login');
+
       router.replace('/login');
     }
   }, [isAuthenticated, isLoading, router]);
@@ -217,6 +232,7 @@ export function usePublicRoute() {
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       console.log('[usePublicRoute] Already authenticated, redirecting to home');
+
       router.replace('/home');
     }
   }, [isAuthenticated, isLoading, router]);
@@ -241,8 +257,8 @@ export function usePublicRoute() {
  */
 export function useAuthGuard(options = {}) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, token } = useAuth();
-  const [hasAccess, setHasAccess] = useState(false);
+
+  const { isAuthenticated, isLoading } = useAuth();
 
   const {
     requireAuth = false,
@@ -250,31 +266,44 @@ export function useAuthGuard(options = {}) {
     onUnauthorized = () => router.replace('/login'),
   } = options;
 
+  /**
+   * Handle unauthorized access
+   */
   useEffect(() => {
     if (isLoading) return;
 
-    // Check authentication requirement
     if (requireAuth && !isAuthenticated) {
       console.log('[useAuthGuard] Authentication required but not authenticated');
+
       onUnauthorized();
-      setHasAccess(false);
-      return;
+    }
+  }, [isAuthenticated, isLoading, requireAuth, onUnauthorized]);
+
+  /**
+   * Derived access state
+   * Avoids setState inside useEffect
+   */
+  const hasAccess = useMemo(() => {
+    // Public route
+    if (!requireAuth) {
+      return true;
     }
 
-    // For now, basic role checking is commented out
-    // Implement full role/permission checking based on your needs
-    // const decoded = decodeTokenPayload(token);
-    // if (requiredRoles.length > 0) {
-    //   const hasRole = requiredRoles.includes(decoded?.role);
-    //   if (!hasRole) {
-    //     onUnauthorized();
-    //     setHasAccess(false);
-    //     return;
-    //   }
-    // }
+    // Protected route
+    if (requireAuth && isAuthenticated) {
+      return true;
+    }
 
-    setHasAccess(true);
-  }, [isAuthenticated, isLoading, token, requireAuth, requiredRoles, onUnauthorized]);
+    // Future role checking can go here
+    if (requiredRoles.length > 0) {
+      // Implement role logic later
+    }
 
-  return { hasAccess, isLoading };
+    return false;
+  }, [requireAuth, isAuthenticated, requiredRoles]);
+
+  return {
+    hasAccess,
+    isLoading,
+  };
 }
