@@ -150,6 +150,7 @@ export default function Sidebar({ profile }) {
                 referrerPolicy="no-referrer"
                 width={32}
                 height={32}
+                unoptimized
               />
             ) : (
               <User size={14} aria-hidden="true" />

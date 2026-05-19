@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import fallbackPoster from '@/assets/fallbacks/imagePoster_Fallback.png';
 import DeleteConfirmModal from '@/components/elements/reviewcard/reviewModal/deleteConfirmModal/DeleteConfirmModal';
 import EditReviewModal from '@/components/elements/reviewcard/reviewModal/editReviewModal/EditReviewModal';
 import ReviewModal from '@/components/elements/reviewcard/reviewModal/ReviewModal';
@@ -27,6 +28,7 @@ export default function ReviewCard({
   const { deleteReview, loading: isDeleting } = useDeleteReview();
 
   const [activeModal, setActiveModal] = useState(null);
+  const [posterError, setPosterError] = useState(false);
 
   const openView = () => setActiveModal('view');
   const closeAll = () => setActiveModal(null);
@@ -82,16 +84,24 @@ export default function ReviewCard({
       >
         <div className={styles.reviewCardInner}>
           <div className={styles.reviewPoster}>
-            {review.moviePoster ? (
+            {review.moviePoster && !posterError ? (
               <Image
                 src={review.moviePoster}
                 alt={`${review.movieTitle} poster`}
-                width={72}
-                height={104}
+                width={88}
+                height={128}
                 referrerPolicy="no-referrer"
+                onError={() => setPosterError(true)}
+                unoptimized
               />
             ) : (
-              <div className={styles.reviewPosterPlaceholder} />
+              <Image
+                src={fallbackPoster}
+                alt={`${review.movieTitle || 'Movie'} poster`}
+                width={88}
+                height={128}
+                referrerPolicy="no-referrer"
+              />
             )}
           </div>
 

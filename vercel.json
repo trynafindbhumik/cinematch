@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://cinematch-backend-6m8y.onrender.com/:path*"
+    }
+  ]
+}

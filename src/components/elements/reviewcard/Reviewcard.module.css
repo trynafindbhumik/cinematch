@@ -30,8 +30,8 @@
 }
 
 .reviewPoster {
-  width: 4.5rem;
-  height: 6.5rem;
+  width: 5.5rem;
+  height: 8rem;
   border-radius: 0.875rem;
   overflow: hidden;
   flex-shrink: 0;
@@ -150,6 +150,8 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
   margin-bottom: auto;
 }
 

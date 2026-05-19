@@ -71,6 +71,7 @@ export default function EditProfileModal({
         smartSuggestChangedRef.current = false;
       }
       success('Profile updated', 'Your changes have been saved');
+      // Pass updated data to parent so it can trigger silent refetch
       onSave?.(data);
       onClose();
     },
