@@ -33,6 +33,6 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "prettier": "^3.7.4"
+    "prettier": "3.8.3"
   }
 }
