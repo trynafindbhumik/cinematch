@@ -214,14 +214,18 @@
   color: var(--color-ink-72);
   line-height: 1.75;
   display: -webkit-box;
+  line-clamp: 5;
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
   transition: all 0.3s ease;
 }
 
 .commentExpanded {
   display: block;
+  line-clamp: unset;
   -webkit-line-clamp: unset;
   overflow: visible;
 }

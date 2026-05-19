@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Compass } from 'lucide-react';
+import { Home } from 'lucide-react';
 import Link from 'next/link';
 
 import styles from './NotFound.module.css';
@@ -17,7 +17,6 @@ export default function NotFoundComponent() {
       <div className={styles.glowRight} aria-hidden="true" />
 
       <div className={styles.filmFrame} role="main">
-        {/* Top sprocket strip */}
         <div className={styles.sprocketStrip} aria-hidden="true">
           <div className={styles.sprocketHoles}>
             {holes.map((i) => (
@@ -59,10 +58,6 @@ export default function NotFoundComponent() {
               <Home size={14} aria-hidden="true" />
               Back to Home
             </Link>
-            <Link href="/discover" className={styles.secondaryBtn}>
-              <Compass size={14} aria-hidden="true" />
-              Browse Films
-            </Link>
           </div>
 
           <div className={styles.sceneFooter} aria-hidden="true">
@@ -83,7 +78,6 @@ export default function NotFoundComponent() {
           </div>
         </div>
 
-        {/* Bottom sprocket strip */}
         <div className={styles.sprocketStripBottom} aria-hidden="true">
           <div className={styles.sprocketHoles}>
             {holes.map((i) => (

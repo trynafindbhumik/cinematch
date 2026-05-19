@@ -1,8 +1,10 @@
 'use client';
 
-import { Film, Menu, X } from 'lucide-react';
+import { Film, Menu, X, User } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+
+import { useAuth } from '@/hooks/useAuth';
 
 import styles from './Navbar.module.css';
 
@@ -26,6 +28,7 @@ const scrollToSection = (href, closeMenu) => {
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 24);
@@ -80,12 +83,22 @@ export const Navbar = () => {
           </div>
 
           <div className={styles.actions}>
-            <Link href="/login" className={styles.loginLink}>
-              Log In
-            </Link>
-            <Link href="/signup" className={styles.ctaBtn}>
-              Get Started
-            </Link>
+            {!isLoading &&
+              (isAuthenticated ? (
+                <Link href="/profile" className={styles.ctaBtn}>
+                  <User size={15} aria-hidden="true" />
+                  Profile
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" className={styles.loginLink}>
+                    Log In
+                  </Link>
+                  <Link href="/signup" className={styles.ctaBtn}>
+                    Get Started
+                  </Link>
+                </>
+              ))}
 
             <button
               className={styles.menuBtn}
@@ -124,16 +137,33 @@ export const Navbar = () => {
         </nav>
 
         <div className={styles.mobileCtas}>
-          <Link
-            href="/login"
-            className={styles.mobileLoginBtn}
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Log In
-          </Link>
-          <Link href="/signup" className={styles.mobileCtaBtn} onClick={() => setIsMenuOpen(false)}>
-            Get Started Free
-          </Link>
+          {!isLoading &&
+            (isAuthenticated ? (
+              <Link
+                href="/profile"
+                className={styles.mobileCtaBtn}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={styles.mobileLoginBtn}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/signup"
+                  className={styles.mobileCtaBtn}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Get Started Free
+                </Link>
+              </>
+            ))}
         </div>
       </div>
     </>

@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import fallbackPoster from '@/assets/fallbacks/imagePoster_Fallback.png';
+
 import styles from './ReviewModal.module.css';
 
 function StarRow({ rating, max = 5 }) {
@@ -87,6 +89,7 @@ export default function ReviewModal({ review, onClose, onEdit, onDelete }) {
   const router = useRouter();
   const [isClosing, setIsClosing] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [posterError, setPosterError] = useState(false);
   const titleId = `review-modal-title-${review?.id ?? 'default'}`;
 
   const handleGoToMovie = () => {
@@ -149,15 +152,29 @@ export default function ReviewModal({ review, onClose, onEdit, onDelete }) {
         </button>
 
         <div className={styles.header}>
-          {review.moviePoster && (
+          {review.moviePoster && !posterError ? (
             <div className={styles.posterWrap}>
               <Image
                 src={review.moviePoster}
                 alt={review.movieTitle}
                 className={styles.poster}
                 referrerPolicy="no-referrer"
-                width={80}
-                height={120}
+                width={96}
+                height={140}
+                loading="eager"
+                onError={() => setPosterError(true)}
+                unoptimized
+              />
+            </div>
+          ) : (
+            <div className={styles.posterWrap}>
+              <Image
+                src={fallbackPoster}
+                alt={`${review.movieTitle || 'Movie'} poster`}
+                className={styles.poster}
+                referrerPolicy="no-referrer"
+                width={96}
+                height={140}
                 loading="eager"
               />
             </div>

@@ -83,14 +83,15 @@ export default function ProfileComponent() {
     data: profileData,
     error: profileError,
     loading: profileLoading,
-    mutate: mutateProfile,
+    silentRefetch: silentRefetchProfile,
   } = useProfile();
 
   const { data: allGenresData, loading: allGenresLoading } = useGenres();
 
   const { data: userGenresData, revalidate: revalidateUserGenres } = useUserGenres();
 
-  const { data: userStreamingData, mutate: mutateUserStreaming } = useUserStreamingServices();
+  const { data: userStreamingData, silentRefetch: silentRefetchStreaming } =
+    useUserStreamingServices();
 
   const [, , , updateTrigger] = useUpdateProfile();
   const [, , , addGenreTrigger] = useAddGenre();
@@ -200,9 +201,13 @@ export default function ProfileComponent() {
     };
   }, [activeTab, updateIndicator]);
 
-  const handleProfileUpdate = useCallback(() => {
-    mutateProfile();
-  }, [mutateProfile]);
+  const handleProfileUpdate = useCallback(
+    (_updatedData) => {
+      // Silently refetch profile after update
+      silentRefetchProfile();
+    },
+    [silentRefetchProfile]
+  );
 
   const handleSmartSuggestToggle = useCallback(
     async (newValue) => {
@@ -264,12 +269,12 @@ export default function ProfileComponent() {
           serviceIds,
         });
 
-        mutateUserStreaming();
+        silentRefetchStreaming();
       } catch {
         showError('Update failed', 'Could not save streaming preferences');
       }
     },
-    [updateStreamingTrigger, mutateUserStreaming, showError]
+    [updateStreamingTrigger, silentRefetchStreaming, showError]
   );
 
   const handleRemoveOtt = useCallback(
@@ -281,19 +286,19 @@ export default function ProfileComponent() {
           allowEmptyBody: true,
         });
 
-        mutateUserStreaming();
+        silentRefetchStreaming();
 
         info('Service removed', 'Streaming service has been removed from your preferences');
       } catch {
         showError('Failed to remove', 'Could not remove this service');
       }
     },
-    [removeStreamingTrigger, mutateUserStreaming, info, showError]
+    [removeStreamingTrigger, silentRefetchStreaming, info, showError]
   );
 
   const handleVerificationSuccess = useCallback(() => {
-    mutateProfile();
-  }, [mutateProfile]);
+    silentRefetchProfile();
+  }, [silentRefetchProfile]);
 
   const userGenreIds = useMemo(() => {
     return localSelectedGenres?.map((g) => g.id || g.genreId) ?? [];
@@ -332,7 +337,7 @@ export default function ProfileComponent() {
             {profileError?.message || 'Something went wrong. Please try again.'}
           </p>
 
-          <button type="button" className={styles.retryBtn} onClick={() => mutateProfile()}>
+          <button type="button" className={styles.retryBtn} onClick={() => silentRefetchProfile()}>
             Try Again
           </button>
         </div>

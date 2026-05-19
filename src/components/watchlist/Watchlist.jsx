@@ -30,7 +30,7 @@ export default function WatchlistComponent() {
   const [genre, setGenre] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const { items, loading, hasMore, isFetchingMore, fetchNextPage, isDebouncing, refresh } =
+  const { items, loading, hasMore, isFetchingMore, fetchNextPage, isDebouncing, silentRefresh } =
     useWatchlist({
       query: search,
       genre,
@@ -83,7 +83,7 @@ export default function WatchlistComponent() {
     if (tmdb_ids.length === 0) return;
     try {
       await addTrigger('/v1/watchlist', { tmdb_ids });
-      await refresh();
+      await silentRefresh();
     } catch {
       // ignore - error state exposed by hook
     }
@@ -92,7 +92,7 @@ export default function WatchlistComponent() {
   const handleRemove = async (id) => {
     try {
       await removeTrigger(`/v1/watchlist/${id}`, null, { allowEmptyBody: true });
-      await refresh();
+      await silentRefresh();
     } catch {
       // ignore
     }

@@ -1,13 +1,26 @@
 'use client';
 
+import { useCallback } from 'react';
+
 import { useGet, usePost, usePut, useDelete } from '@/lib/api';
+
+const PROFILE_URL = '/v1/profile/me';
 
 /**
  * Hook for fetching current user profile
- * GET /v1/profile/me
  */
 export function useProfile() {
-  return useGet('/v1/profile/me');
+  const { data, error, loading, mutate } = useGet(PROFILE_URL);
+
+  /**
+   * Silent refetch that revalidates data without showing loading states.
+   * Uses mutate with populateCache: false to keep existing data visible while fetching.
+   */
+  const silentRefetch = useCallback(() => {
+    return mutate(undefined, { revalidate: true, populateCache: false });
+  }, [mutate]);
+
+  return { data, error, loading, mutate, silentRefetch };
 }
 
 /**
