@@ -1,9 +1,11 @@
 'use client';
 
-import { Film, Twitter, Instagram, Github, Linkedin } from 'lucide-react';
+import { Film, Twitter, Instagram, Github, Linkedin, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
+import { useAuth } from '@/hooks/useAuth';
 
 import styles from './Header.module.css';
 
@@ -18,6 +20,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isLightPage = pathname === '/about' || pathname === '/privacy';
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 24);
@@ -47,9 +50,17 @@ export function Header() {
 
           <div className={styles.divider} aria-hidden="true" />
 
-          <Link href="/signup" className={styles.ctaBtn}>
-            Get Started
-          </Link>
+          {!isLoading &&
+            (isAuthenticated ? (
+              <Link href="/profile" className={styles.ctaBtn}>
+                <User size={15} aria-hidden="true" />
+                Profile
+              </Link>
+            ) : (
+              <Link href="/signup" className={styles.ctaBtn}>
+                Get Started
+              </Link>
+            ))}
         </div>
       </div>
     </header>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { mutate as globalMutate } from 'swr';
 
 import { useGet, usePut, useDelete } from '@/lib/api';
 
@@ -22,10 +23,26 @@ export function useStreamingServices() {
  * GET /v1/streaming-services/mine
  */
 export function useUserStreamingServices() {
-  return useGet('/v1/streaming-services/mine', {
+  const result = useGet('/v1/streaming-services/mine', {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
+
+  /**
+   * Silent refetch that revalidates data without showing loading states.
+   * Uses populateCache: false to keep existing data visible while fetching.
+   */
+  const silentRefetch = useCallback(() => {
+    return globalMutate('/v1/streaming-services/mine', undefined, {
+      revalidate: true,
+      populateCache: false,
+    });
+  }, []);
+
+  return {
+    ...result,
+    silentRefetch,
+  };
 }
 
 /**

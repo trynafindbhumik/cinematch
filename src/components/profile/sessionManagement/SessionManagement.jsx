@@ -12,7 +12,7 @@ import styles from './SessionManagement.module.css';
 
 export default function SessionManagement({ isOpen, onClose }) {
   const router = useRouter();
-  const { data: sessionsData, error, loading: isLoading, revalidate } = useSessions(isOpen);
+  const { data: sessionsData, error, loading: isLoading, silentRefetch } = useSessions(isOpen);
   const { deleteSession } = useDeleteSession();
   const { success, error: showError } = useToast();
   const [deletingId, setDeletingId] = useState(null);
@@ -33,14 +33,15 @@ export default function SessionManagement({ isOpen, onClose }) {
         }
 
         success('Session removed', 'The session has been successfully removed');
-        revalidate();
+        // Silently revalidate sessions cache without showing loading states
+        silentRefetch();
       } catch (err) {
         showError('Failed to remove', err?.message || 'Could not remove session');
       } finally {
         setDeletingId(null);
       }
     },
-    [deleteSession, revalidate, success, showError, router]
+    [deleteSession, silentRefetch, success, showError, router]
   );
 
   const formatDate = (dateString) => {
@@ -97,7 +98,7 @@ export default function SessionManagement({ isOpen, onClose }) {
           <div className={styles.stateContainer}>
             <AlertCircle size={24} />
             <span>Could not load sessions</span>
-            <button type="button" onClick={() => revalidate()} className={styles.retryBtn}>
+            <button type="button" onClick={() => silentRefetch()} className={styles.retryBtn}>
               Retry
             </button>
           </div>

@@ -7,7 +7,6 @@ import {
   Skull,
   Eye,
   X,
-  RotateCcw,
   Star,
   Clock,
   Calendar,
@@ -18,7 +17,9 @@ import Image from 'next/image';
 import { useState, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 
 import MovieDetailComponent from '@/components/movieDetails/MovieDetails';
-import { DISCOVER_MOVIES, OTT_COLORS } from '@/mocks/data';
+import { useReaction } from '@/hooks/useReaction';
+import useSuggestions from '@/hooks/useSuggestions';
+import { OTT_COLORS } from '@/mocks/data';
 
 import styles from './Home.module.css';
 
@@ -32,12 +33,28 @@ const ACTIONS = [
   { id: 'love', label: 'Love', Icon: Heart, dir: 'right', overlayKey: 'love' },
 ];
 
+function mapMovieDetailsToCard(movie) {
+  return {
+    id: movie.tmdb_id,
+    image: movie.poster_url,
+    title: movie.title,
+    year: movie.release_year,
+    runtime: movie.runtime ? `${movie.runtime} min` : null,
+    genre: movie.genres,
+    rating: movie.tmdb_rating,
+    tagline: movie.tagline,
+    description: movie.tagline,
+    ottPlatforms: [],
+    userReaction: movie.user_reaction,
+  };
+}
+
 const SwipeCard = forwardRef(function SwipeCard(
   { movie, isTop, stackIndex, onSwipe, onOpenDetail },
   ref
 ) {
   const cardRef = useRef(null);
-  const [overlay, setOverlay] = useState(null); // 'like' | 'skip' | 'watched' | null
+  const [overlay, setOverlay] = useState(null); // 'like' | 'skip' | 'hate' | null
 
   const startX = useRef(0);
   const startY = useRef(0);
@@ -136,7 +153,7 @@ const SwipeCard = forwardRef(function SwipeCard(
 
       if (dx > 40) setOverlay('like');
       else if (dx < -40) setOverlay('skip');
-      else if (dy < -40) setOverlay('watched');
+      else if (dy < -40) setOverlay('hate');
       else setOverlay(null);
     },
     [isTop]
@@ -194,6 +211,7 @@ const SwipeCard = forwardRef(function SwipeCard(
         loading="eager"
         width={300}
         height={450}
+        unoptimized
       />
 
       <div
@@ -329,32 +347,28 @@ const SwipeCard = forwardRef(function SwipeCard(
 });
 
 export default function HomeComponent() {
-  const [movies, setMovies] = useState(DISCOVER_MOVIES);
-  const [history, setHistory] = useState([]);
+  const { suggestions, isGenerating, error, generate } = useSuggestions();
+
+  const { submitReaction } = useReaction();
+
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedMovie, setSelectedMovie] = useState(null);
 
   const topCardRef = useRef(null);
   const animatingRef = useRef(false);
 
-  const handleSwipe = useCallback((direction, movie) => {
-    setHistory((prev) => [...prev, { movie, direction }]);
-    setMovies((prev) => prev.slice(1));
-    animatingRef.current = false;
-  }, []);
+  const movies = suggestions.slice(currentIndex, currentIndex + 3).map(mapMovieDetailsToCard);
 
-  const handleUndo = useCallback(() => {
-    setHistory((prev) => {
-      if (!prev.length) return prev;
-      const lastEntry = prev[prev.length - 1];
-      const movieToRestore = lastEntry?.movie;
-      if (!movieToRestore) return prev;
-      setMovies((movies) => {
-        if (movies.find((m) => m.id === movieToRestore.id)) return movies;
-        return [movieToRestore, ...movies];
-      });
-      return prev.slice(0, -1);
-    });
-  }, []);
+  const handleSwipe = useCallback(
+    (direction, movie) => {
+      setCurrentIndex((prev) => prev + 1);
+      const dirToReaction = { right: 'like', left: 'skip' };
+      const reaction = dirToReaction[direction];
+      if (reaction) submitReaction(movie.id, reaction);
+      animatingRef.current = false;
+    },
+    [setCurrentIndex, submitReaction]
+  );
 
   const handleAction = useCallback(
     (action) => {
@@ -362,16 +376,44 @@ export default function HomeComponent() {
       const card = topCardRef.current;
       if (!card) return;
       animatingRef.current = true;
+      const movie = movies[0];
+      submitReaction(movie.id, action.id);
       card.swipe(action.dir, action.overlayKey);
       setTimeout(() => {
         animatingRef.current = false;
       }, 600);
     },
-    [movies.length]
+    [movies, submitReaction]
   );
 
   if (selectedMovie) {
     return <MovieDetailComponent movie={selectedMovie} onBack={() => setSelectedMovie(null)} />;
+  }
+
+  if (isGenerating) {
+    return (
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon}>
+          <Sparkles size={36} />
+        </div>
+        <h2 className={styles.emptyTitle}>Loading suggestions...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon}>
+          <Sparkles size={36} />
+        </div>
+        <h2 className={styles.emptyTitle}>Something went wrong</h2>
+        <p className={styles.emptyText}>{error}</p>
+        <button type="button" className={styles.undoBtn} onClick={generate}>
+          Retry
+        </button>
+      </div>
+    );
   }
 
   if (!movies.length) {
@@ -384,12 +426,9 @@ export default function HomeComponent() {
         <p className={styles.emptyText}>
           Your discovery queue is empty. Check back soon for fresh picks.
         </p>
-        {history.length > 0 && (
-          <button type="button" className={styles.undoBtn} onClick={handleUndo}>
-            <RotateCcw size={13} />
-            Undo last
-          </button>
-        )}
+        <button type="button" className={styles.undoBtn} onClick={generate}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -402,19 +441,10 @@ export default function HomeComponent() {
         <div className={styles.headerText}>
           <h1 className={styles.pageTitle}>Discover</h1>
           <p className={styles.pageSubtitle}>
-            {movies.length} film{movies.length !== 1 ? 's' : ''} in queue
+            {suggestions.length - currentIndex} film
+            {suggestions.length - currentIndex !== 1 ? 's' : ''} in queue
           </p>
         </div>
-        <button
-          type="button"
-          className={styles.undoBtn}
-          onClick={handleUndo}
-          disabled={!history.length}
-          aria-label="Undo last swipe"
-        >
-          <RotateCcw size={13} />
-          Undo
-        </button>
       </header>
 
       <div className={styles.deckArea} data-tour="swipe-deck">

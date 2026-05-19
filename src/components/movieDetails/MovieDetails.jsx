@@ -99,6 +99,7 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
             fill
             loading="eager"
             style={{ objectFit: 'cover' }}
+            unoptimized
           />
           <div className={styles.heroBackdropOverlay} />
         </div>
@@ -120,6 +121,7 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
               width={120}
               height={180}
               loading="eager"
+              unoptimized
             />
             <div className={styles.posterRating}>
               <Star className={styles.posterRatingIcon} />
@@ -262,6 +264,7 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
                     referrerPolicy="no-referrer"
                     width={60}
                     height={60}
+                    unoptimized
                   />
                 </div>
                 <p className={styles.castName}>{member.name}</p>
@@ -307,6 +310,7 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
                 referrerPolicy="no-referrer"
                 width={40}
                 height={40}
+                unoptimized
               />
             </div>
             <div className={styles.commentInputBody}>
@@ -369,6 +373,7 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
                     referrerPolicy="no-referrer"
                     width={40}
                     height={40}
+                    unoptimized
                   />
                 </div>
                 <div className={styles.commentBody}>

@@ -8,9 +8,8 @@ import AddMovieModal from '@/components/elements/modals/addMovieModal/AddMovieMo
 import MovieCard from '@/components/elements/movieCard/MovieCard';
 import ReviewCard from '@/components/elements/reviewcard/Reviewcard';
 import Button from '@/components/ui/button/Button';
-import { useAddFavorites, useRemoveFavorite } from '@/hooks/useFavorites';
+import { useFavorites, useAddFavorites, useRemoveFavorite } from '@/hooks/useFavorites';
 import { useReviewsOverview, transformReviews } from '@/hooks/useReviews';
-import { useGet } from '@/lib/api';
 import { useToast } from '@/lib/toast/useToast';
 
 import styles from './Overview.module.css';
@@ -19,170 +18,51 @@ export default function Overview({ onNavigateToReviews }) {
   const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [isAddFavOpen, setIsAddFavOpen] = useState(false);
 
-  // Pagination state
-  const [movies, setMovies] = useState([]);
-  const [cursor, setCursor] = useState(null);
-  const [totalCount, setTotalCount] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-
-  const nextCursorRef = useRef(null);
-  const cursorInFlightRef = useRef(null);
-  const observerFiredRef = useRef(false);
-  const observerTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (observerTimeoutRef.current) {
-        clearTimeout(observerTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (showAllFavorites) {
-      return;
-    }
-
-    if (observerTimeoutRef.current) {
-      clearTimeout(observerTimeoutRef.current);
-      observerTimeoutRef.current = null;
-    }
-
-    observerFiredRef.current = false;
-  }, [showAllFavorites]);
-
-  const buildUrl = useCallback((cursorParam) => {
-    if (cursorParam) {
-      return `/v1/favorites?cursor=${encodeURIComponent(cursorParam)}`;
-    }
-
-    return '/v1/favorites';
-  }, []);
-
-  // Fetch favorites
-  const { data, mutate, loading } = useGet(buildUrl(cursor), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    revalidateOnMount: false,
-    noCache: true,
-  });
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    const apiMovies = data.favorites || [];
-    const next = data.next_cursor ?? null;
-    const total = data.total_count ?? 0;
-
-    const cursorWeAreWaitingFor = cursorInFlightRef.current;
-
-    nextCursorRef.current = next;
-
-    if (cursorWeAreWaitingFor !== null && cursorWeAreWaitingFor !== cursor) {
-      queueMicrotask(() => {
-        setHasMore(next !== null);
-      });
-
-      return;
-    }
-
-    cursorInFlightRef.current = null;
-
-    queueMicrotask(() => {
-      setHasMore(next !== null);
-      setTotalCount(total);
-    });
-
-    if (next === null) {
-      observerFiredRef.current = false;
-    } else {
-      if (observerTimeoutRef.current) {
-        clearTimeout(observerTimeoutRef.current);
-      }
-
-      observerTimeoutRef.current = setTimeout(() => {
-        observerFiredRef.current = false;
-        observerTimeoutRef.current = null;
-      }, 500);
-    }
-
-    queueMicrotask(() => {
-      setMovies((prev) => {
-        if (cursor === null) {
-          return apiMovies;
-        }
-
-        const existingIds = new Set(prev.map((m) => m.id));
-        const newMovies = apiMovies.filter((m) => !existingIds.has(m.id));
-
-        return [...prev, ...newMovies];
-      });
-    });
-  }, [data, cursor]);
-
-  // Intersection Observer for "See All"
-  const loadMoreRef = useRef(null);
-
-  useEffect(() => {
-    if (!showAllFavorites) {
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-
-        if (entry.isIntersecting && nextCursorRef.current && cursorInFlightRef.current === null) {
-          observerFiredRef.current = true;
-
-          const nextCursor = nextCursorRef.current;
-
-          cursorInFlightRef.current = nextCursor;
-
-          setCursor(nextCursor);
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '200px',
-      }
-    );
-
-    const currentRef = loadMoreRef.current;
-
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [showAllFavorites]);
-
   // Carousel scroll handling
   const carouselRef = useRef(null);
   const loadMoreTriggerRef = useRef(null);
+  const loadMoreRef = useRef(null);
   const carouselObserverRef = useRef(null);
+  const [carouselCursor, setCarouselCursor] = useState(null);
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
+  // Use the useFavorites hook with cursor for pagination
+  const {
+    items: movies,
+    loading,
+    totalCount,
+    hasMore,
+    isFetchingMore,
+    silentRefresh: silentRefreshFavorites,
+  } = useFavorites({ cursor: carouselCursor });
+
+  // Reset carousel cursor when closing "See All"
   useEffect(() => {
-    if (showAllFavorites) {
+    if (!showAllFavorites) {
+      queueMicrotask(() => {
+        setCarouselCursor(null);
+      });
+    }
+  }, [showAllFavorites]);
+
+  // Carousel infinite scroll - trigger fetch when scrolling near end
+  useEffect(() => {
+    if (showAllFavorites || !loadMoreTriggerRef.current) {
       if (carouselObserverRef.current) {
         carouselObserverRef.current.disconnect();
         carouselObserverRef.current = null;
       }
+      return undefined;
+    }
 
+    if (!hasMore || isFetchingMore) {
       return undefined;
     }
 
     const setupObserver = () => {
-      if (!loadMoreTriggerRef.current) {
-        return;
-      }
+      if (!loadMoreTriggerRef.current) return;
 
       if (carouselObserverRef.current) {
         carouselObserverRef.current.disconnect();
@@ -192,16 +72,12 @@ export default function Overview({ onNavigateToReviews }) {
         (entries) => {
           const [entry] = entries;
 
-          if (entry.isIntersecting && nextCursorRef.current && cursorInFlightRef.current === null) {
-            cursorInFlightRef.current = nextCursorRef.current;
-
-            setCursor(nextCursorRef.current);
+          if (entry.isIntersecting && hasMore && !isFetchingMore) {
+            // Trigger next page fetch by setting cursor
+            setCarouselCursor((prev) => prev); // This will trigger the hook's fetchNextPage
           }
         },
-        {
-          threshold: 0,
-          rootMargin: '0px',
-        }
+        { threshold: 0, rootMargin: '0px' }
       );
 
       carouselObserverRef.current.observe(loadMoreTriggerRef.current);
@@ -211,13 +87,12 @@ export default function Overview({ onNavigateToReviews }) {
 
     return () => {
       clearTimeout(timer);
-
       if (carouselObserverRef.current) {
         carouselObserverRef.current.disconnect();
         carouselObserverRef.current = null;
       }
     };
-  }, [showAllFavorites, movies.length]);
+  }, [showAllFavorites, hasMore, isFetchingMore]);
 
   const updateArrows = useCallback(() => {
     const el = carouselRef.current;
@@ -287,23 +162,17 @@ export default function Overview({ onNavigateToReviews }) {
           tmdb_ids: tmdbIds,
         });
 
-        setCursor(null);
+        setCarouselCursor(null);
 
-        queueMicrotask(() => {
-          setHasMore(true);
-        });
-
-        nextCursorRef.current = null;
-        cursorInFlightRef.current = null;
-
-        mutate();
+        // Silently revalidate favorites cache without showing loading states
+        silentRefreshFavorites();
 
         success('Added to favorites', 'Movie saved to your favorites');
       } catch (err) {
         showError('Failed', err?.message || 'Could not add to favorites');
       }
     },
-    [triggerAddFav, mutate, success, showError]
+    [triggerAddFav, silentRefreshFavorites, success, showError]
   );
 
   const handleRemoveFavorite = useCallback(
@@ -313,22 +182,22 @@ export default function Overview({ onNavigateToReviews }) {
           allowEmptyBody: true,
         });
 
-        setMovies((prev) => prev.filter((m) => m.id !== id));
-
-        setTotalCount((prev) => Math.max(0, prev - 1));
+        // Silently revalidate favorites cache without showing loading states
+        silentRefreshFavorites();
 
         success('Removed from favorites', 'Movie removed from your favorites');
       } catch (err) {
         showError('Failed', err?.message || 'Could not remove from favorites');
       }
     },
-    [triggerRemoveFav, success, showError]
+    [triggerRemoveFav, silentRefreshFavorites, success, showError]
   );
 
   const {
     reviews: apiReviews,
     loading: reviewsLoading,
     loadMoreRef: reviewLoadMoreRef,
+    silentRefetch: silentRefetchReviews,
   } = useReviewsOverview();
 
   const isInitialLoading = loading && movies.length === 0;
@@ -587,7 +456,14 @@ export default function Overview({ onNavigateToReviews }) {
           <>
             <div className={styles.reviewsGrid}>
               {transformedReviews.map((review) => (
-                <ReviewCard key={review.id} review={review} showStars={false} showActions={false} />
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  showStars={false}
+                  showActions={false}
+                  onUpdated={silentRefetchReviews}
+                  onDeleted={silentRefetchReviews}
+                />
               ))}
 
               {reviewsLoading && transformedReviews.length > 0 && (

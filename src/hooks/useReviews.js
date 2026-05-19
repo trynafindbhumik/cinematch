@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import { mutate as globalMutate } from 'swr';
 
 import { useGet } from '@/lib/api';
 import { useDelete, usePatch } from '@/lib/api/hooks';
@@ -264,12 +265,24 @@ export function useReviewsOverview(dateFrom = null, dateTo = null) {
     return mutate();
   }, [mutate]);
 
+  /**
+   * Silent refetch that revalidates data without showing loading states.
+   * Uses populateCache: false to keep existing data visible while fetching.
+   */
+  const silentRefetch = useCallback(() => {
+    return globalMutate(`/v1/reviews${queryParams}`, undefined, {
+      revalidate: true,
+      populateCache: false,
+    });
+  }, [queryParams]);
+
   return {
     reviews,
     hasMore,
     loading: isLoading || isFetching,
     loadMoreRef,
     refetch,
+    silentRefetch,
   };
 }
 
@@ -462,6 +475,17 @@ export function useInfiniteReviews({ dateFrom = null, dateTo = null } = {}) {
     return mutate();
   }, [mutate]);
 
+  /**
+   * Silent refetch that revalidates data without showing loading states.
+   * Uses populateCache: false to keep existing data visible while fetching.
+   */
+  const silentRefetch = useCallback(() => {
+    return globalMutate(`/v1/reviews${queryParams}`, undefined, {
+      revalidate: true,
+      populateCache: false,
+    });
+  }, [queryParams]);
+
   return {
     reviews,
     hasMore,
@@ -469,6 +493,7 @@ export function useInfiniteReviews({ dateFrom = null, dateTo = null } = {}) {
     loadMoreRef,
     loadMore,
     refetch,
+    silentRefetch,
   };
 }
 

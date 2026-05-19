@@ -1,19 +1,27 @@
 'use client';
 
+import { useCallback } from 'react';
+import { mutate as globalMutate } from 'swr';
+
 import { useGet, useDelete } from '@/lib/api';
 
+const SESSIONS_URL = '/v1/auth/sessions';
+
 export function useSessions(enabled = true) {
-  const {
-    data,
-    loading,
-    error,
-    mutate: revalidate,
-  } = useGet(enabled ? '/v1/auth/sessions' : null, {
+  const { data, loading, error, mutate } = useGet(enabled ? SESSIONS_URL : null, {
     withAuth: true,
     noCache: true,
   });
 
-  return { data, loading, error, revalidate };
+  /**
+   * Silent refetch that revalidates data without showing loading states.
+   * Uses populateCache: false to keep existing data visible while fetching.
+   */
+  const silentRefetch = useCallback(() => {
+    return globalMutate(SESSIONS_URL, undefined, { revalidate: true, populateCache: false });
+  }, []);
+
+  return { data, loading, error, mutate, revalidate: mutate, silentRefetch };
 }
 
 export function useDeleteSession() {

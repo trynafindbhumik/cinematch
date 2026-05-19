@@ -19,6 +19,7 @@ export default function Reviews() {
     hasMore,
     loading,
     loadMoreRef,
+    silentRefetch,
   } = useInfiniteReviews({ dateFrom, dateTo });
 
   const reviews = useMemo(() => transformReviews(apiReviews), [apiReviews]);
@@ -125,7 +126,12 @@ export default function Reviews() {
                 data-animate={index < 10}
                 style={{ '--item-index': index }}
               >
-                <ReviewCard review={review} showStars />
+                <ReviewCard
+                  review={review}
+                  showStars
+                  onUpdated={silentRefetch}
+                  onDeleted={silentRefetch}
+                />
               </div>
             ))}
 
