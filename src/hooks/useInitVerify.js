@@ -1,16 +1,28 @@
 'use client';
 
-import { usePost } from '@/lib/api';
+import { useState, useCallback } from 'react';
 
-/**
- * Hook for initiating email verification (sends OTP to logged-in user's email)
- * POST /v1/auth/init-verify
- * Returns [data, loading, error, trigger]
- */
-export function useInitVerify(options = {}) {
-  return usePost({
-    withAuth: true,
-    disableRetries: true,
-    ...options,
-  });
+import api from '@/lib/api/axios';
+
+export function useInitVerify() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url = '/v1/auth/init-verify', payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }

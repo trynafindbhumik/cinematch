@@ -1,53 +1,46 @@
 'use client';
 
-import { useCallback } from 'react';
-import { mutate as globalMutate } from 'swr';
+import { useCallback, useState } from 'react';
 
-import { useGet, useDelete } from '@/lib/api';
+import { useFetch } from '@/lib/api';
+import api from '@/lib/api/axios';
 
 const SESSIONS_URL = '/v1/auth/sessions';
 
 export function useSessions(enabled = true) {
-  const { data, loading, error, mutate } = useGet(enabled ? SESSIONS_URL : null, {
-    withAuth: true,
-    noCache: true,
+  const { data, error, loading, refetch } = useFetch(enabled ? SESSIONS_URL : null, {
+    skip: !enabled,
   });
-
-  /**
-   * Silent refetch that revalidates data without showing loading states.
-   * Uses populateCache: false to keep existing data visible while fetching.
-   */
-  const silentRefetch = useCallback(() => {
-    return globalMutate(SESSIONS_URL, undefined, { revalidate: true, populateCache: false });
-  }, []);
-
-  return { data, loading, error, mutate, revalidate: mutate, silentRefetch };
+  return { data, error, loading, mutate: refetch, revalidate: refetch, silentRefetch: refetch };
 }
 
 export function useDeleteSession() {
-  const [, deleteLoading, deleteError, trigger] = useDelete({
-    withAuth: true,
-    disableRetries: true,
-  });
+  const [, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const deleteSession = async (sessionId, magicLink = null) => {
-    const params = magicLink ? `?magic_link=${encodeURIComponent(magicLink)}` : '';
-    return trigger(`/v1/auth/sessions${params}`, { session_id: sessionId });
-  };
+  const deleteSession = useCallback(async (sessionId, magicLink = null) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = magicLink ? `?magic_link=${encodeURIComponent(magicLink)}` : '';
+      const res = await api.delete(`/v1/auth/sessions${params}`, {
+        data: { session_id: sessionId },
+      });
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
 
-  return { loading: deleteLoading, error: deleteError, deleteSession };
+  return { loading, error, deleteSession };
 }
 
-/**
- * Reactive hook for magic link sessions.
- * Pass magicLink to trigger fetch - returns null URL when magicLink is null (skips request).
- */
 export function useFetchSessionsWithMagicLink(magicLink) {
-  return useGet(
-    magicLink ? `/v1/auth/sessions?magic_link=${encodeURIComponent(magicLink)}` : null,
-    {
-      withAuth: false,
-      noCache: true,
-    }
-  );
+  const url = magicLink ? `/v1/auth/sessions?magic_link=${encodeURIComponent(magicLink)}` : null;
+  return useFetch(url, { withAuth: false, skip: !magicLink });
 }

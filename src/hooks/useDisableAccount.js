@@ -1,15 +1,28 @@
 'use client';
 
-import { usePut } from '@/lib/api';
+import { useState, useCallback } from 'react';
 
-/**
- * Hook for disabling user account temporarily
- * PUT /v1/profile/disable
- * Returns [data, loading, error, trigger]
- */
-export function useDisableAccount(options = {}) {
-  return usePut({
-    disableRetries: true,
-    ...options,
-  });
+import api from '@/lib/api/axios';
+
+export function useDisableAccount() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.put(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
