@@ -1,21 +1,28 @@
 'use client';
 
-import { usePost } from '@/lib/api';
+import { useState, useCallback } from 'react';
+
 import { clearAuthTokens } from '@/lib/api/auth';
+import api from '@/lib/api/axios';
 
 export function useLogout() {
-  const [data, loading, error, trigger] = usePost({
-    withAuth: true,
-    disableRetries: true,
-  });
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      await trigger('/v1/auth/logout', {});
+      const res = await api.post('/v1/auth/logout', {});
+      setData(res.data);
+    } catch (err) {
+      setError(err);
     } finally {
+      setLoading(false);
       clearAuthTokens();
     }
-  };
+  }, []);
 
   return [{ data, loading, error }, logout];
 }

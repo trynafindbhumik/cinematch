@@ -1,11 +1,8 @@
 'use client';
 
-import { useReducer, useState, useEffect, useRef, useCallback } from 'react';
-import { mutate as globalMutate } from 'swr';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
-import { useGet } from '@/lib/api';
-
-// ─── Reducer ─────────────────────────────────────────────────────────────────
+import api from '@/lib/api/axios';
 
 const initialState = {
   items: [],
@@ -18,13 +15,11 @@ function reducer(state, action) {
   switch (action.type) {
     case 'RESET':
       return { ...initialState };
-
     case 'FETCH_MORE':
       return { ...state, cursor: action.payload, isFetchingMore: true };
-
     case 'DATA_RECEIVED': {
       const { apiMovies, nextCursor, isFirstPage } = action.payload;
-      const merged = isFirstPage
+      const items = isFirstPage
         ? apiMovies
         : (() => {
             const ids = new Set(state.items.map((m) => m.id));
@@ -32,28 +27,22 @@ function reducer(state, action) {
           })();
       return {
         ...state,
-        items: merged,
+        items,
         hasMore: !!nextCursor,
         isFetchingMore: false,
       };
     }
-
     default:
       return state;
   }
 }
 
-// ─── Hook ────────────────────────────────────────────────────────────────────
-
 export default function useWatchlist({ query = '', genre = null, enabled = true } = {}) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { items, cursor, hasMore, isFetchingMore } = state;
 
-  // debouncedQuery — setState only inside setTimeout (async), not synchronously in effect.
   const [debouncedQuery, setDebouncedQuery] = useState(query);
   const debounceRef = useRef(null);
-
-  // FIX 1 — derive isDebouncing: pure computation, no state, no effect setState.
   const isDebouncing = query.trim() !== debouncedQuery;
 
   useEffect(() => {
@@ -64,21 +53,14 @@ export default function useWatchlist({ query = '', genre = null, enabled = true 
     return () => clearTimeout(debounceRef.current);
   }, [query]);
 
-  // FIX 4 — resetKey: incrementing triggers the reset effect so ref mutations
-  // stay inside effects only — satisfies react-hooks/immutability.
-  const [resetKey, setResetKey] = useState(0);
-
-  const nextCursorRef = useRef(null);
-  const isFirstPageRef = useRef(true);
-
-  // FIX 2 — single dispatch. FIX 4 — only place refs are mutated (effect scope).
+  // Hard reset: triggered by query/genre change. Clears items.
   useEffect(() => {
     dispatch({ type: 'RESET' });
     nextCursorRef.current = null;
-    isFirstPageRef.current = true;
-  }, [debouncedQuery, genre, resetKey]);
+  }, [debouncedQuery, genre]);
 
-  // ─── URL ─────────────────────────────────────────────────────────────────
+  const nextCursorRef = useRef(null);
+  const isFirstPageRef = useRef(true);
 
   const buildUrl = useCallback(
     (cursorValue) => {
@@ -96,24 +78,46 @@ export default function useWatchlist({ query = '', genre = null, enabled = true 
 
   const url = enabled ? buildUrl(cursor) : null;
 
-  const { data, loading, error, mutate } = useGet(url, { noCache: !!cursor });
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [tick, setTick] = useState(0);
 
-  // FIX 3 — data effect has only [data] dep. cursor/items replaced by refs + reducer.
+  useEffect(() => {
+    if (!url) return undefined;
+    const controller = new AbortController();
+    // Snapshot: this fetch is a "first page" if URL has no cursor.
+    // Used by the data effect to decide replace vs append.
+    isFirstPageRef.current = !url.includes('cursor=');
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
+    api
+      .get(url, { signal: controller.signal })
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        setError(err);
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [url, tick]);
+
   useEffect(() => {
     if (!data) return;
-
     const apiMovies = data.movies || [];
     const nextCursor = data.next_cursor ?? null;
     const isFirstPage = isFirstPageRef.current;
-
     queueMicrotask(() => {
       dispatch({ type: 'DATA_RECEIVED', payload: { apiMovies, nextCursor, isFirstPage } });
       nextCursorRef.current = nextCursor;
-      isFirstPageRef.current = false;
     });
   }, [data]);
-
-  // ─── Actions ─────────────────────────────────────────────────────────────
 
   const fetchNextPage = useCallback(() => {
     if (!hasMore || isFetchingMore) return;
@@ -122,15 +126,15 @@ export default function useWatchlist({ query = '', genre = null, enabled = true 
     dispatch({ type: 'FETCH_MORE', payload: next });
   }, [hasMore, isFetchingMore]);
 
-  // FIX 4 — refresh never touches refs directly; resetKey increment triggers effect.
+  // Soft refresh: re-fetch the current page WITHOUT clearing items.
+  // UI keeps showing existing items while loading; new data replaces them.
   const refresh = useCallback(() => {
-    setResetKey((k) => k + 1);
-    mutate();
-  }, [mutate]);
+    setTick((t) => t + 1);
+  }, []);
 
   const silentRefresh = useCallback(() => {
-    return globalMutate(buildUrl(null), undefined, { revalidate: true, populateCache: false });
-  }, [buildUrl]);
+    setTick((t) => t + 1);
+  }, []);
 
   return {
     items,
@@ -143,4 +147,46 @@ export default function useWatchlist({ query = '', genre = null, enabled = true 
     silentRefresh,
     isDebouncing,
   };
+}
+
+export function useAddToWatchlist() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const addToWatchlist = useCallback(async (tmdbIds) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post('/v1/watchlist', { tmdb_ids: tmdbIds }, { timeout: 30000 });
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return { addToWatchlist, loading, error };
+}
+
+export function useRemoveFromWatchlist() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const removeFromWatchlist = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.delete(`/v1/watchlist/${id}`);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return { removeFromWatchlist, loading, error };
 }

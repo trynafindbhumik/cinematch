@@ -7,8 +7,7 @@ import AddMovieModal from '@/components/elements/modals/addMovieModal/AddMovieMo
 import MovieCard from '@/components/elements/movieCard/MovieCard';
 import MovieListPage from '@/components/elements/movieListPage/MovieListPage';
 import { useGenres } from '@/hooks/useGenres';
-import useWatched from '@/hooks/useWatched';
-import { usePost, useDelete } from '@/lib/api';
+import useWatched, { useAddToWatched, useRemoveFromWatched } from '@/hooks/useWatched';
 
 function mapApiMovie(m) {
   return {
@@ -37,15 +36,8 @@ export default function WatchedComponent() {
     });
   const { data: genresData } = useGenres();
 
-  const [, , , addTrigger] = usePost({
-    timeout: 30000,
-    disableRetries: true,
-  });
-
-  const [, , , removeTrigger] = useDelete({
-    allowEmptyBody: true,
-    disableRetries: true,
-  });
+  const { addToWatched } = useAddToWatched();
+  const { removeFromWatched } = useRemoveFromWatched();
 
   const sentinelRef = useRef(null);
 
@@ -82,7 +74,7 @@ export default function WatchedComponent() {
       .filter(Boolean);
     if (tmdb_ids.length === 0) return;
     try {
-      await addTrigger('/v1/watched', { tmdb_ids });
+      await addToWatched(tmdb_ids);
       await silentRefresh();
     } catch {
       // ignore
@@ -91,7 +83,7 @@ export default function WatchedComponent() {
 
   const handleRemove = async (id) => {
     try {
-      await removeTrigger(`/v1/watched/${id}`, null, { allowEmptyBody: true });
+      await removeFromWatched(id);
       await silentRefresh();
     } catch {
       // ignore

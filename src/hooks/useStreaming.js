@@ -1,165 +1,142 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { mutate as globalMutate } from 'swr';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useGet, usePut, useDelete } from '@/lib/api';
+import api from '@/lib/api/axios';
 
 const SERVICES_LIMIT = 20;
 
-/**
- * Hook for fetching all streaming services
- * GET /v1/streaming-services
- */
-export function useStreamingServices() {
-  return useGet('/v1/streaming-services', {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+function useFetchUrl(url) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!url) return undefined;
+    const controller = new AbortController();
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
+    api
+      .get(url, { signal: controller.signal })
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        setError(err);
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [url, tick]);
+
+  return { data, error, loading, refetch: () => setTick((t) => t + 1) };
 }
 
-/**
- * Hook for fetching user's selected streaming services
- * GET /v1/streaming-services/mine
- */
-export function useUserStreamingServices() {
-  const result = useGet('/v1/streaming-services/mine', {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+export function useStreamingServices() {
+  return useFetchUrl('/v1/streaming-services');
+}
 
-  /**
-   * Silent refetch that revalidates data without showing loading states.
-   * Uses populateCache: false to keep existing data visible while fetching.
-   */
-  const silentRefetch = useCallback(() => {
-    return globalMutate('/v1/streaming-services/mine', undefined, {
-      revalidate: true,
-      populateCache: false,
-    });
+export function useUserStreamingServices() {
+  const { data, error, loading, refetch } = useFetchUrl('/v1/streaming-services/mine');
+  return { data, error, loading, silentRefetch: refetch };
+}
+
+export function useUpdateStreamingServices() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.put(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
   }, []);
 
-  return {
-    ...result,
-    silentRefetch,
-  };
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for updating user's streaming services (bulk replace)
- * PUT /v1/streaming-services
- * Returns [data, loading, error, trigger]
- */
-export function useUpdateStreamingServices(options = {}) {
-  return usePut({
-    disableRetries: true,
-    disableAbort: true,
-    ...options,
-  });
+export function useRemoveStreamingService() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.delete(url);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for removing a single streaming service from user's profile
- * DELETE /v1/streaming-services/{serviceId}
- * Returns [data, loading, error, trigger]
- */
-export function useRemoveStreamingService(options = {}) {
-  return useDelete({
-    disableRetries: true,
-    disableAbort: true,
-    ...options,
-  });
-}
-
-/**
- * Hook for fetching streaming services with cursor-based pagination
- */
 export function useStreamingServicesPaginated(options = {}) {
   const { enabled = true } = options;
-
   const [services, setServices] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [nextCursor, setNextCursor] = useState(null);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-
-  const isLoadingRef = useRef(false);
-  const mountedRef = useRef(true);
-
   const [targetCursor, setTargetCursor] = useState(null);
 
+  const isLoadingRef = useRef(false);
+
   const fetchUrl = useMemo(() => {
-    if (!enabled) {
-      return null;
-    }
-
-    const params = new URLSearchParams({
-      limit: String(SERVICES_LIMIT),
-    });
-
-    if (targetCursor !== null) {
-      params.append('cursor', String(targetCursor));
-    }
-
+    if (!enabled) return null;
+    const params = new URLSearchParams({ limit: String(SERVICES_LIMIT) });
+    if (targetCursor !== null) params.append('cursor', String(targetCursor));
     return `/v1/streaming-services?${params.toString()}`;
   }, [enabled, targetCursor]);
 
-  const { data, error, loading } = useGet(fetchUrl, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, error, loading } = useFetchUrl(fetchUrl);
 
   useEffect(() => {
-    if (!mountedRef.current) {
-      return;
-    }
-
-    if (!data && !error) {
-      return;
-    }
-
+    if (!data && !error) return;
     if (error) {
       isLoadingRef.current = false;
-
-      queueMicrotask(() => {
-        setIsFetchingMore(false);
-      });
-
+      queueMicrotask(() => setIsFetchingMore(false));
       return;
     }
-
     const items = data?.streamingServices || [];
     const newCursor = data?.next_cursor || null;
-
     queueMicrotask(() => {
       setNextCursor(newCursor);
       setHasMore(Boolean(newCursor));
     });
-
     queueMicrotask(() => {
       setServices((prev) => {
-        if (targetCursor === null) {
-          return items;
-        }
-
-        const existingIds = new Set(prev.map((s) => s.id));
-
-        const uniqueItems = items.filter((s) => !existingIds.has(s.id));
-
-        return [...prev, ...uniqueItems];
+        if (targetCursor === null) return items;
+        const ids = new Set(prev.map((s) => s.id));
+        return [...prev, ...items.filter((s) => !ids.has(s.id))];
       });
     });
     isLoadingRef.current = false;
-
-    queueMicrotask(() => {
-      setIsFetchingMore(false);
-    });
+    queueMicrotask(() => setIsFetchingMore(false));
   }, [data, error, targetCursor]);
 
   const fetchNextPage = useCallback(() => {
-    if (isLoadingRef.current || !hasMore || !nextCursor) {
-      return;
-    }
-
+    if (isLoadingRef.current || !hasMore || !nextCursor) return;
     isLoadingRef.current = true;
     setIsFetchingMore(true);
     setTargetCursor(nextCursor);
@@ -170,18 +147,8 @@ export function useStreamingServicesPaginated(options = {}) {
     setHasMore(true);
     setNextCursor(null);
     setIsFetchingMore(false);
-
     isLoadingRef.current = false;
-
     setTargetCursor(null);
-  }, []);
-
-  useEffect(() => {
-    mountedRef.current = true;
-
-    return () => {
-      mountedRef.current = false;
-    };
   }, []);
 
   return {
@@ -189,114 +156,64 @@ export function useStreamingServicesPaginated(options = {}) {
     nextCursor,
     hasMore,
     loading,
-    error: error ?? null,
+    error,
     fetchNextPage,
     refresh,
     isFetchingMore,
   };
 }
 
-/**
- * Hook for searching streaming services with cursor-based pagination
- */
 export function useStreamingServicesSearch(initialQuery = '', options = {}) {
   const { enabled = true } = options;
-
   const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
-
   const [results, setResults] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [nextCursor, setNextCursor] = useState(null);
-
   const [isDebouncing, setIsDebouncing] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [targetCursor, setTargetCursor] = useState(null);
 
   const debounceTimerRef = useRef(null);
   const isLoadingRef = useRef(false);
-  const mountedRef = useRef(true);
-  const activeQueryRef = useRef('');
-
-  const [targetCursor, setTargetCursor] = useState(null);
 
   const fetchUrl = useMemo(() => {
-    if (!enabled || !debouncedQuery) {
-      return null;
-    }
-
-    const params = new URLSearchParams({
-      limit: String(SERVICES_LIMIT),
-      q: debouncedQuery,
-    });
-
-    if (targetCursor !== null) {
-      params.append('cursor', String(targetCursor));
-    }
-
+    if (!enabled || !debouncedQuery) return null;
+    const params = new URLSearchParams({ limit: String(SERVICES_LIMIT), q: debouncedQuery });
+    if (targetCursor !== null) params.append('cursor', String(targetCursor));
     return `/v1/streaming-services/search?${params.toString()}`;
   }, [enabled, debouncedQuery, targetCursor]);
 
-  const { data, error, loading } = useGet(fetchUrl, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, error, loading } = useFetchUrl(fetchUrl);
 
   useEffect(() => {
-    if (!mountedRef.current) {
-      return;
-    }
-
-    if (!data && !error) {
-      return;
-    }
-
+    if (!data && !error) return;
     if (error) {
       isLoadingRef.current = false;
-
-      queueMicrotask(() => {
-        setIsFetchingMore(false);
-      });
-
+      queueMicrotask(() => setIsFetchingMore(false));
       return;
     }
-
     const items = data?.streamingServices || [];
     const newCursor = data?.next_cursor || null;
-
     queueMicrotask(() => {
       setNextCursor(newCursor);
       setHasMore(Boolean(newCursor));
     });
-
     queueMicrotask(() => {
       setResults((prev) => {
-        if (targetCursor === null) {
-          return items;
-        }
-
-        const existingIds = new Set(prev.map((s) => s.id));
-
-        const uniqueItems = items.filter((s) => !existingIds.has(s.id));
-
-        return [...prev, ...uniqueItems];
+        if (targetCursor === null) return items;
+        const ids = new Set(prev.map((s) => s.id));
+        return [...prev, ...items.filter((s) => !ids.has(s.id))];
       });
     });
-
     isLoadingRef.current = false;
-
-    queueMicrotask(() => {
-      setIsFetchingMore(false);
-    });
+    queueMicrotask(() => setIsFetchingMore(false));
   }, [data, error, targetCursor]);
 
   const handleSearch = useCallback(
     (newQuery) => {
       setQuery(newQuery);
-
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       if (!newQuery.trim()) {
         setDebouncedQuery('');
         setResults([]);
@@ -304,34 +221,21 @@ export function useStreamingServicesSearch(initialQuery = '', options = {}) {
         setNextCursor(null);
         setIsDebouncing(false);
         setIsFetchingMore(false);
-
-        activeQueryRef.current = '';
         isLoadingRef.current = false;
-
         setTargetCursor(null);
-
         return;
       }
-
       setIsDebouncing(true);
-
       debounceTimerRef.current = setTimeout(() => {
-        const trimmedQuery = newQuery.trim();
-
+        const trimmed = newQuery.trim();
         setIsDebouncing(false);
-
-        if (trimmedQuery !== debouncedQuery) {
-          setDebouncedQuery(trimmedQuery);
-
+        if (trimmed !== debouncedQuery) {
+          setDebouncedQuery(trimmed);
           setResults([]);
           setHasMore(true);
           setNextCursor(null);
           setIsFetchingMore(false);
-
           isLoadingRef.current = false;
-
-          activeQueryRef.current = trimmedQuery;
-
           setTargetCursor(null);
         }
       }, 300);
@@ -340,14 +244,9 @@ export function useStreamingServicesSearch(initialQuery = '', options = {}) {
   );
 
   const fetchNextPage = useCallback(() => {
-    if (isLoadingRef.current || !hasMore || !activeQueryRef.current || !nextCursor) {
-      return;
-    }
-
+    if (isLoadingRef.current || !hasMore || !nextCursor) return;
     isLoadingRef.current = true;
-
     setIsFetchingMore(true);
-
     setTargetCursor(nextCursor);
   }, [hasMore, nextCursor]);
 
@@ -356,58 +255,40 @@ export function useStreamingServicesSearch(initialQuery = '', options = {}) {
     setHasMore(true);
     setNextCursor(null);
     setIsFetchingMore(false);
-
     isLoadingRef.current = false;
-
     setTargetCursor(null);
   }, []);
 
   const clearSearch = useCallback(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     setQuery('');
     setDebouncedQuery('');
     setResults([]);
-
     setHasMore(true);
     setNextCursor(null);
-
     setIsDebouncing(false);
     setIsFetchingMore(false);
-
-    activeQueryRef.current = '';
     isLoadingRef.current = false;
-
     setTargetCursor(null);
   }, []);
 
   useEffect(() => {
-    mountedRef.current = true;
-
     return () => {
-      mountedRef.current = false;
-
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
   }, []);
-
-  const isActive = Boolean(debouncedQuery);
 
   return {
     results,
     nextCursor,
     hasMore,
     loading,
-    error: error ?? null,
+    error,
     fetchNextPage,
     refresh,
     setQuery: handleSearch,
     clearSearch,
-    isActive,
+    isActive: Boolean(debouncedQuery),
     query,
     isDebouncing,
     isFetchingMore,

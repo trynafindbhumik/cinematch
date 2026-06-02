@@ -1,10 +1,40 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useGet } from '@/lib/api';
+import api from '@/lib/api/axios';
 
 const PRE_FETCH_THRESHOLD = 2;
+
+function useGetJson(url, { timeout } = {}) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!url) return undefined;
+    const controller = new AbortController();
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
+    api
+      .get(url, { signal: controller.signal, timeout })
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        setError(err);
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [url, timeout]);
+
+  return { data, error, loading };
+}
 
 export default function useSuggestions() {
   const [suggestions, setSuggestions] = useState([]);
@@ -21,16 +51,10 @@ export default function useSuggestions() {
   const nextSuggestion = suggestions[currentIndex + 1] || null;
   const hasMore = suggestions.length > currentIndex + 1;
 
-  // GET /v1/suggestions/generate
-  const { data: generateData, loading: generateLoading } = useGet(generateUrl, {
-    withAuth: true,
+  const { data: generateData, loading: generateLoading } = useGetJson(generateUrl, {
     timeout: 300000,
   });
-
-  // GET /v1/suggestions/next
-  const { data: nextSuggestionData, loading: nextLoading } = useGet(nextUrl, {
-    withAuth: true,
-  });
+  const { data: nextSuggestionData, loading: nextLoading } = useGetJson(nextUrl);
 
   const generate = useCallback(() => {
     if (isFetchingRef.current) return;
@@ -44,46 +68,37 @@ export default function useSuggestions() {
     setNextUrl(`/v1/suggestions/next?tmdb_id=${tmdbId}`);
   }, []);
 
-  // Handle generate response
   useEffect(() => {
     if (!generateData) return;
-
     queueMicrotask(() => {
       if (generateData.regeneration) {
         generate();
         return;
       }
-
       if (generateData.suggestions && generateData.suggestions.length > 0) {
         setSuggestions(generateData.suggestions);
         setCurrentIndex(0);
       }
-
       isFetchingRef.current = false;
       setIsGenerating(false);
       setGenerateUrl(null);
     });
   }, [generateData, generate]);
 
-  // Handle next suggestion response
   useEffect(() => {
     if (!nextSuggestionData) return;
-
     queueMicrotask(() => {
       if (nextSuggestionData.regeneration) {
         generate();
         return;
       }
-
       if (nextSuggestionData.suggestion) {
         setSuggestions((prev) => [...prev, nextSuggestionData.suggestion]);
       }
-
       setNextUrl(null);
     });
   }, [nextSuggestionData, generate]);
 
-  // Pre-fetch when getting low on suggestions
   useEffect(() => {
     queueMicrotask(() => {
       if (
@@ -97,7 +112,6 @@ export default function useSuggestions() {
     });
   }, [suggestions.length, currentIndex, currentSuggestion, nextSuggestion, nextMovie]);
 
-  // Initial load - use ref to avoid direct setState in effect
   useEffect(() => {
     generateRef.current = generate;
   }, [generate]);
