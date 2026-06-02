@@ -2,67 +2,30 @@
 
 import { setCookie, removeCookie } from '@/lib/cookie';
 
-import { globalConfig } from './config';
+const ACCESS_TOKEN_KEY = 'accessToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
+const COOKIE_EXPIRES_DAYS = 7;
 
-/**
- * Persists auth tokens to cookies using the same keys and options as the
- * rest of the API layer. Call immediately after a successful login so the
- * request interceptor can attach the token on the very next request.
- *
- * @param {{ accessToken: string, refreshToken?: string }} tokens
- *
- * @example
- * const result = await trigger('/auth/login', { email, password });
- * saveAuthTokens({ accessToken: result.token, refreshToken: result.refreshToken });
- */
 export function saveAuthTokens({ accessToken, refreshToken }) {
-  if (!accessToken) {
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.warn('[api] saveAuthTokens() was called without an accessToken.');
-    }
-    return;
-  }
-
-  const { expires, ...cookieRest } = globalConfig.cookieOptions;
-  setCookie(globalConfig.accessTokenKey, accessToken, expires, cookieRest);
-
+  if (!accessToken) return;
+  setCookie(ACCESS_TOKEN_KEY, accessToken, COOKIE_EXPIRES_DAYS);
   if (refreshToken) {
-    setCookie(globalConfig.refreshTokenKey, refreshToken, expires, cookieRest);
+    setCookie(REFRESH_TOKEN_KEY, refreshToken, COOKIE_EXPIRES_DAYS);
   }
 }
 
-/**
- * Stores user state flags in cookies.
- * Call after login/signup to persist is_verified and needs_onboarding.
- *
- * @param {{ isVerified?: boolean, needsOnboarding?: boolean }} flags
- *
- * @example
- * saveAuthFlags({ isVerified: result.is_verified, needsOnboarding: result.needs_onboarding });
- */
 export function saveAuthFlags({ isVerified, needsOnboarding }) {
-  const { expires, ...cookieRest } = globalConfig.cookieOptions;
-
   if (typeof isVerified === 'boolean') {
-    setCookie('is_verified', String(isVerified), expires, cookieRest);
+    setCookie('is_verified', String(isVerified), COOKIE_EXPIRES_DAYS);
   }
-
   if (typeof needsOnboarding === 'boolean') {
-    setCookie('needs_onboarding', String(needsOnboarding), expires, cookieRest);
+    setCookie('needs_onboarding', String(needsOnboarding), COOKIE_EXPIRES_DAYS);
   }
 }
 
-/**
- * Removes all auth cookies including user state flags. Use in logout handlers.
- *
- * @example
- * clearAuthTokens();
- * router.push('/login');
- */
 export function clearAuthTokens() {
-  removeCookie(globalConfig.accessTokenKey);
-  removeCookie(globalConfig.refreshTokenKey);
+  removeCookie(ACCESS_TOKEN_KEY);
+  removeCookie(REFRESH_TOKEN_KEY);
   removeCookie('is_verified');
   removeCookie('needs_onboarding');
 }

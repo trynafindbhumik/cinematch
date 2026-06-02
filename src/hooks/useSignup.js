@@ -1,16 +1,28 @@
 'use client';
 
-import { usePost } from '@/lib/api';
+import { useState, useCallback } from 'react';
+
+import api from '@/lib/api/axios';
 
 export function useSignup() {
-  const [data, loading, error, trigger] = usePost({
-    withAuth: false,
-    disableRetries: true,
-  });
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const signup = async (formData) => {
-    return trigger('/v1/auth/signup', formData);
-  };
+  const signup = useCallback(async (formData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post('/v1/auth/signup', formData, { withAuth: false });
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
 
   return [{ data, loading, error }, signup];
 }

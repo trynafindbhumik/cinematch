@@ -1,111 +1,190 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useGet, usePost, usePut, useDelete } from '@/lib/api';
+import { useFetch } from '@/lib/api';
+import api from '@/lib/api/axios';
 
 const PROFILE_URL = '/v1/profile/me';
 
-/**
- * Hook for fetching current user profile
- */
 export function useProfile() {
-  const { data, error, loading, mutate } = useGet(PROFILE_URL);
+  const { data, error, loading, refetch } = useFetch(PROFILE_URL);
 
-  /**
-   * Silent refetch that revalidates data without showing loading states.
-   * Uses mutate with populateCache: false to keep existing data visible while fetching.
-   */
-  const silentRefetch = useCallback(() => {
-    return mutate(undefined, { revalidate: true, populateCache: false });
-  }, [mutate]);
-
-  return { data, error, loading, mutate, silentRefetch };
+  return {
+    data,
+    error,
+    loading,
+    mutate: refetch,
+    silentRefetch: refetch,
+  };
 }
 
-/**
- * Hook for updating profile (name, avatar, smartSuggest)
- * PUT /v1/profile/me
- * Returns [data, loading, error, trigger]
- */
-export function useUpdateProfile(options = {}) {
-  return usePut({
-    asFormData: true,
-    disableRetries: true,
-    ...options,
-  });
+export function useUpdateProfile() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload, options = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const isFormData = payload instanceof FormData;
+      const res = await api({
+        method: 'PUT',
+        url,
+        data: payload,
+        ...(isFormData ? {} : { headers: { 'Content-Type': 'application/json' } }),
+        ...options,
+      });
+      setData(res.data);
+      setLoading(false);
+      options.onSuccess?.(res.data);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      options.onError?.(err);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for deleting profile picture
- * DELETE /v1/profile/me/picture
- * Returns [data, loading, error, trigger]
- */
-export function useDeleteProfilePicture(options = {}) {
-  return useDelete({
-    allowEmptyBody: true,
-    disableRetries: true,
-    revalidateKeys: ['/v1/profile/me'],
-    ...options,
-  });
+export function useDeleteProfilePicture() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.delete(url);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for initiating email change (sends OTP to old email)
- * POST /v1/profile/email/change
- * Returns [data, loading, error, trigger]
- */
-export function useInitiateEmailChange(options = {}) {
-  return usePost({
-    disableRetries: true,
-    ...options,
-  });
+export function useInitiateEmailChange() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for resending email change OTP
- * POST /v1/profile/email/resend
- * Returns [data, loading, error, trigger]
- */
-export function useResendEmailChangeOtp(options = {}) {
-  return usePost({
-    disableRetries: true,
-    ...options,
-  });
+export function useResendEmailChangeOtp() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for verifying email (email change flow)
- * POST /v1/profile/verify
- * Returns [data, loading, error, trigger]
- */
-export function useVerifyEmail(options = {}) {
-  return usePost({
-    disableRetries: true,
-    ...options,
-  });
+export function useVerifyEmail() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for changing password
- * PUT /v1/profile/password
- * Returns [data, loading, error, trigger]
- */
-export function useChangePassword(options = {}) {
-  return usePut({
-    disableRetries: true,
-    ...options,
-  });
+export function useChangePassword() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.put(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for deleting account
- * DELETE /v1/profile/me
- * Returns [data, loading, error, trigger]
- */
-export function useDeleteAccount(options = {}) {
-  return useDelete({
-    disableRetries: true,
-    ...options,
-  });
+export function useDeleteAccount() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.delete(url, { data: payload });
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }

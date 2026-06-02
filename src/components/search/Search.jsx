@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import MovieCard from '@/components/elements/movieCard/MovieCard';
-import { useGet } from '@/lib/api';
+import { useMovieSearch } from '@/hooks/useMovieSearch';
 
 import styles from './Search.module.css';
 
@@ -63,13 +63,9 @@ export default function SearchComponent() {
   }, [query]);
 
   // API call for search suggestions (dropdown) — minimal results for speed
-  const suggestionsUrl = useMemo(() => {
-    if (!debouncedQuery || debouncedQuery.length < 2) return null;
+  const suggestionsQuery = debouncedQuery && debouncedQuery.length >= 2 ? debouncedQuery : null;
 
-    return `/v1/movies/search?q=${encodeURIComponent(debouncedQuery)}`;
-  }, [debouncedQuery]);
-
-  const { data: suggestionsData } = useGet(suggestionsUrl);
+  const { data: suggestionsData } = useMovieSearch(suggestionsQuery);
 
   const suggestions = useMemo(() => {
     if (!suggestionsData?.movies) return [];
@@ -243,13 +239,9 @@ export default function SearchComponent() {
   }, [closeDropdown]);
 
   // Full search results — separate from dropdown suggestions
-  const searchResultsUrl = useMemo(() => {
-    if (!hasSearched || !debouncedQuery) return null;
+  const searchResultsQuery = hasSearched && debouncedQuery ? debouncedQuery : null;
 
-    return `/v1/movies/search?q=${encodeURIComponent(debouncedQuery)}`;
-  }, [hasSearched, debouncedQuery]);
-
-  const { data: searchResultsData, loading: searchLoading } = useGet(searchResultsUrl);
+  const { data: searchResultsData, loading: searchLoading } = useMovieSearch(searchResultsQuery);
 
   const searchResults = useMemo(() => {
     return (searchResultsData?.movies || []).map(normalizeMovie);

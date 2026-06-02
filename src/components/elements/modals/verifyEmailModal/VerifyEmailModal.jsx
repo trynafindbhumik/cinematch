@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 import Input from '@/components/ui/input/Input';
 import { useModal } from '@/context/ModalContext';
 import { useInitVerify } from '@/hooks/useInitVerify';
-import { usePost } from '@/lib/api';
+import { useVerifyOtp } from '@/hooks/useVerifyOtp';
 import { useToast } from '@/lib/toast/useToast';
 
 import sharedStyles from '../Modals.module.css';
@@ -27,19 +27,20 @@ export default function VerifyEmailModal({ isOpen, onClose, email, onVerified })
   const cooldownIntervalRef = useRef(null);
   const isVerifiedRef = useRef(false);
 
-  // Direct usePost for verification - bypasses useVerifyEmail to avoid any hook-level side effects
-  const [verifyData, verifyLoading, verifyError, verifyTrigger] = usePost({
-    disableRetries: true,
-    onSuccess: (data) => {
-      const isVerified = data?.isVerified ?? data?.is_verified;
-      if (isVerified && !isVerifiedRef.current) {
-        isVerifiedRef.current = true;
-        success('Email verified!', 'Welcome aboard!');
-        onVerified?.();
-        onClose();
-      }
-    },
-  });
+  // Direct useVerifyOtp for verification - bypasses useVerifyEmail to avoid any hook-level side effects
+  const [{ data: verifyData, loading: verifyLoading, error: verifyError }, verifyOtp] =
+    useVerifyOtp();
+
+  useEffect(() => {
+    if (!verifyData) return;
+    const isVerified = verifyData?.isVerified ?? verifyData?.is_verified;
+    if (isVerified && !isVerifiedRef.current) {
+      isVerifiedRef.current = true;
+      success('Email verified!', 'Welcome aboard!');
+      onVerified?.();
+      onClose();
+    }
+  }, [verifyData, success, onVerified, onClose]);
 
   const [, initLoading, , initTrigger] = useInitVerify();
 
@@ -140,7 +141,7 @@ export default function VerifyEmailModal({ isOpen, onClose, email, onVerified })
     }
     setError('');
     try {
-      await verifyTrigger('/v1/auth/verify', { verification_id: verificationId, otp });
+      await verifyOtp({ otp, verification_id: verificationId });
     } catch (err) {
       setError(err.message || 'Invalid or expired code');
       showError('Verification failed', 'Invalid or expired code');

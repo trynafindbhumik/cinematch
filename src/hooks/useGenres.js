@@ -1,65 +1,61 @@
 'use client';
 
-import { mutate as globalMutate } from 'swr';
+import { useCallback, useState } from 'react';
 
-import { useGet, usePost, useDelete } from '@/lib/api';
+import { useFetch } from '@/lib/api';
+import api from '@/lib/api/axios';
 
-/**
- * Hook for fetching all available genres
- * GET /v1/genres
- */
 export function useGenres() {
-  return useGet('/v1/genres');
+  return useFetch('/v1/genres');
 }
 
-/**
- * Hook for fetching user's selected genres
- * GET /v1/genres/mine
- */
 export function useUserGenres() {
-  const result = useGet('/v1/genres/mine', {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-
-  // Manual revalidate function that preserves existing cache during background refresh
-  const revalidate = () => {
-    globalMutate('/v1/genres/mine', undefined, { revalidate: true, populateCache: false });
-  };
-
-  return {
-    ...result,
-    revalidate,
-  };
+  const { data, error, loading, refetch } = useFetch('/v1/genres/mine');
+  return { data, error, loading, revalidate: refetch };
 }
 
-/**
- * Hook for adding a genre to user's preferences
- * POST /v1/genres/{genreId}
- * Returns [data, loading, error, trigger]
- *
- * Note: No revalidateKeys here - we handle revalidation manually in the component
- * using useUserGenres().revalidate() to avoid cache clearing issues
- */
-export function useAddGenre(options = {}) {
-  return usePost({
-    disableRetries: true,
-    ...options,
-  });
+export function useAddGenre() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url, payload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post(url, payload);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }
 
-/**
- * Hook for removing a genre from user's preferences
- * DELETE /v1/genres/{genreId}
- * Returns [data, loading, error, trigger]
- *
- * Note: No revalidateKeys here - we handle revalidation manually in the component
- * using useUserGenres().revalidate() to avoid cache clearing issues
- */
-export function useRemoveGenre(options = {}) {
-  return useDelete({
-    allowEmptyBody: true,
-    disableRetries: true,
-    ...options,
-  });
+export function useRemoveGenre() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const trigger = useCallback(async (url) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.delete(url);
+      setData(res.data);
+      setLoading(false);
+      return res.data;
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  return [data, loading, error, trigger];
 }

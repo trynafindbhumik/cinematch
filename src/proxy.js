@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
 const ROUTE_GROUPS = {
-  // ✅ Public routes - accessible to everyone (no token needed)
   public: [
     '/',
     '/about',
@@ -14,11 +13,9 @@ const ROUTE_GROUPS = {
     '/contribute',
   ],
 
-  // 🔐 Auth routes - only accessible when NOT authenticated
   // When token exists, user redirects to dashboard
   auth: ['/login', '/signup', '/verify', '/forgot-password', '/reset-password'],
 
-  // 🛡️ Protected routes - only accessible when authenticated
   // When token absent, user redirects to login
   protected: ['/home', '/for-you', '/movie/:id', '/search', '/watched', '/watchlist', '/profile'],
 };
