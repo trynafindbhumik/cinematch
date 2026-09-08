@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   AlertCircle,
   Globe,
+  Loader2,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
@@ -29,6 +30,7 @@ import WatchedTab from '@/components/profile/tabs/watched/Watched';
 import WatchlistTab from '@/components/profile/tabs/watchlist/Watchlist';
 import { ProfileSkeleton, ActionCardSkeleton } from '@/components/ui/skeleton/Skeleton';
 import Toggle from '@/components/ui/toggle/Toggle';
+import { useTour } from '@/context/TourContext';
 import { useGenres, useUserGenres, useAddGenre, useRemoveGenre } from '@/hooks/useGenres';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import {
@@ -143,7 +145,21 @@ export default function ProfileComponent() {
     };
   }, []);
 
+  const { isActive: isTourActive } = useTour() || {};
+
   const profile = useMemo(() => {
+    if (isTourActive && !profileData) {
+      return {
+        id: 1,
+        name: 'Cinema Lover',
+        email: 'user@cinematch.app',
+        avatar: '',
+        isVerified: true,
+        smartSuggest: true,
+        tag: 'cinephile',
+        publicId: 'usr_demo',
+      };
+    }
     if (!profileData) return null;
 
     return {
@@ -156,13 +172,27 @@ export default function ProfileComponent() {
       tag: profileData.tag,
       publicId: profileData.publicId,
     };
-  }, [profileData]);
+  }, [profileData, isTourActive]);
 
   const localSelectedGenres = useMemo(() => {
     return Array.isArray(userGenresData) ? userGenresData : [];
   }, [userGenresData]);
 
-  const isLoading = profileLoading || allGenresLoading;
+  const isLoading = isTourActive ? false : profileLoading || allGenresLoading;
+
+  const displayGenres = useMemo(() => {
+    if (allGenresData && allGenresData.length > 0) return allGenresData;
+    if (isTourActive) {
+      return [
+        { id: 1, name: 'Action' },
+        { id: 2, name: 'Drama' },
+        { id: 3, name: 'Sci-Fi' },
+        { id: 4, name: 'Comedy' },
+        { id: 5, name: 'Thriller' },
+      ];
+    }
+    return [];
+  }, [allGenresData, isTourActive]);
 
   const effectiveSmartSuggest = profileData?.smartSuggest ?? false;
 
@@ -231,12 +261,14 @@ export default function ProfileComponent() {
     setLocalSmartSuggest(newValue);
   }, []);
 
+  const [updatingGenreId, setUpdatingGenreId] = useState(null);
+
   const handleToggleGenre = useCallback(
     async (genre) => {
       const currentGenres = localSelectedGenres ?? [];
-
       const isSelected = currentGenres.some((g) => g.id === genre.id || g.genreId === genre.id);
 
+      setUpdatingGenreId(genre.id);
       try {
         if (isSelected) {
           await removeGenreTrigger(`/v1/genres/${genre.id}`);
@@ -249,6 +281,8 @@ export default function ProfileComponent() {
         revalidateUserGenres();
       } catch (err) {
         showError('Failed', err?.message || 'Could not update genre preferences. Please try again');
+      } finally {
+        setUpdatingGenreId(null);
       }
     },
     [
@@ -279,7 +313,7 @@ export default function ProfileComponent() {
 
   const handleRemoveOtt = useCallback(
     async (service) => {
-      const serviceIdToRemove = service.id || service.sourceId;
+      const serviceIdToRemove = service.sourceId || service.id;
 
       try {
         await removeStreamingTrigger(`/v1/streaming-services/${serviceIdToRemove}`, null, {
@@ -435,7 +469,7 @@ export default function ProfileComponent() {
           </div>
 
           <div className={styles.settingsGrid}>
-            <div className={styles.settingsSection}>
+            <div className={styles.settingsSection} data-tour="profile-genres">
               <div className={styles.settingsSectionHeader}>
                 <span className={clsx('text-micro', styles.settingsSectionLabel)}>
                   Preferred Genres
@@ -445,16 +479,20 @@ export default function ProfileComponent() {
                 </span>
               </div>
               <div className={styles.genreChips}>
-                {(allGenresData || [])?.map((genre) => {
+                {(displayGenres || [])?.map((genre) => {
                   const isActive = userGenreIds.includes(genre.id);
+                  const isUpdating = updatingGenreId === genre.id;
                   return (
                     <button
                       key={genre.id}
                       type="button"
                       className={`${styles.genreChip} ${isActive ? styles.genreChipActive : ''}`}
                       onClick={() => handleToggleGenre(genre)}
+                      disabled={isUpdating}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                     >
-                      {genre.name}
+                      {isUpdating && <Loader2 size={12} className="animate-spin" />}
+                      <span>{genre.name}</span>
                     </button>
                   );
                 })}
@@ -605,7 +643,7 @@ export default function ProfileComponent() {
           </button>
         </section>
 
-        <div className={styles.tabsBar} role="tablist">
+        <div className={styles.tabsBar} role="tablist" data-tour="profile-tabs">
           <span
             className={styles.tabSlider}
             style={{

@@ -142,6 +142,10 @@ export default function EditProfileModal({
       setFileError('Please upload a JPEG, PNG, WebP, or GIF image.');
       return;
     }
+    if (file.size === 0) {
+      setFileError('Selected file is empty (0 bytes). Please pick a valid image.');
+      return;
+    }
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
       setFileError(`File is too large. Maximum size is ${MAX_FILE_SIZE_MB} MB.`);
       return;
@@ -199,7 +203,7 @@ export default function EditProfileModal({
       data.append('removeAvatar', 'true');
     }
 
-    if (avatarFile) {
+    if (avatarFile && avatarFile.size > 0) {
       data.append('profile_picture', avatarFile);
     }
 

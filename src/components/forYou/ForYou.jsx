@@ -1,239 +1,214 @@
 'use client';
 
 import clsx from 'clsx';
-import { Film, RefreshCw, Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { RefreshCw, Sparkles, AlertCircle, Flame, Compass } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 import MovieCard from '@/components/elements/movieCard/MovieCard';
-import EmptyState from '@/components/forYou/emptyState/EmptyState';
-import FilmCountdownLoader from '@/components/forYou/filmCountdownLoader/Filmcountdownloader';
 import ScanRefreshLoader from '@/components/forYou/scanRefreshLoader/ScanRefreshLoader';
-import { MOCK_MOVIES } from '@/mocks/data';
+import { MovieCardSkeleton } from '@/components/ui/skeleton/Skeleton';
+import { useTour } from '@/context/TourContext';
+import { useWeeklySuggestions } from '@/hooks/useWeeklySuggestions';
 
 import styles from './ForYou.module.css';
 
-const WEEKLY_TRIES = 3;
-const TOP_PICKS = MOCK_MOVIES.slice(0, 5);
-const TRIES_KEYS = ['t1', 't2', 't3'];
+const TOUR_FORYOU_PICKS = [
+  {
+    tmdb_id: 550,
+    title: 'Fight Club',
+    poster_url: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+    tmdb_rating: 84,
+    release_year: 1999,
+    genres: ['Drama', 'Thriller'],
+    match_reason: 'Matches your preference for psychological thrillers',
+  },
+  {
+    tmdb_id: 157336,
+    title: 'Interstellar',
+    poster_url: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+    tmdb_rating: 86,
+    release_year: 2014,
+    genres: ['Sci-Fi', 'Drama'],
+    match_reason: 'High affinity for Christopher Nolan epics',
+  },
+  {
+    tmdb_id: 27205,
+    title: 'Inception',
+    poster_url: 'https://image.tmdb.org/t/p/w500/oYuLEW9W2vBBGLB2JSXA3iMoVpq.jpg',
+    tmdb_rating: 83,
+    release_year: 2010,
+    genres: ['Action', 'Sci-Fi'],
+    match_reason: 'Recommended based on mind-bending plot preferences',
+  },
+  {
+    tmdb_id: 278,
+    title: 'The Shawshank Redemption',
+    poster_url: 'https://image.tmdb.org/t/p/w500/9cqN1wXHQyBhGvdUtPSpwUtOfXB.jpg',
+    tmdb_rating: 87,
+    release_year: 1994,
+    genres: ['Drama', 'Crime'],
+    match_reason: 'Top rated masterpiece curated for film lovers',
+  },
+  {
+    tmdb_id: 680,
+    title: 'Pulp Fiction',
+    poster_url: 'https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg',
+    tmdb_rating: 85,
+    release_year: 1994,
+    genres: ['Crime', 'Drama'],
+    match_reason: 'Classic non-linear narrative recommendation',
+  },
+];
+
+function mapWeeklyMovieToCard(movie) {
+  return {
+    id: movie.tmdb_id,
+    title: movie.title,
+    image: movie.poster_url,
+    rating: movie.tmdb_rating ? (movie.tmdb_rating / 10).toFixed(1) : '8.0',
+    year: movie.release_year,
+    genre: movie.genres,
+    description: movie.match_reason,
+  };
+}
 
 export default function ForYouComponent() {
-  const [triesLeft, setTriesLeft] = useState(WEEKLY_TRIES);
+  const { suggestions, remainingTries, loading, error, generateTry } = useWeeklySuggestions();
+  const { isActive: isTourActive } = useTour() || {};
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [genError, setGenError] = useState(null);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [loaderLineIdx, setLoaderLineIdx] = useState(0);
-  const [loaderTick, setLoaderTick] = useState(0);
-
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const [suggestions, setSuggestions] = useState([]);
-  const [revealed, setRevealed] = useState(false);
-
-  const timeoutRefs = useRef([]);
-  const lineRef = useRef(null);
-
-  useEffect(
-    () => () => {
-      timeoutRefs.current.forEach(clearTimeout);
-      timeoutRefs.current = [];
-    },
-    []
-  );
-
-  const pickMovies = () => {
-    const pool = [...MOCK_MOVIES].sort(() => Math.random() - 0.5);
-    return pool.slice(0, 4);
-  };
-
-  const handleSuggest = () => {
-    if (triesLeft <= 0 || isLoading || isRefreshing) return;
-
-    const isFirstSuggest = suggestions.length === 0;
-
-    if (isFirstSuggest) {
-      setIsLoading(true);
-      setRevealed(false);
-      setLoaderTick(0);
-      setLoaderLineIdx(0);
-
-      let lineIdx = 0;
-      lineRef.current = setInterval(() => {
-        lineIdx = (lineIdx + 1) % 5;
-        setLoaderLineIdx(lineIdx);
-      }, 700);
-
-      const t1 = setTimeout(() => setLoaderTick(1), 900);
-      const t2 = setTimeout(() => setLoaderTick(2), 1800);
-      const t3 = setTimeout(() => {
-        clearInterval(lineRef.current);
-        setSuggestions(pickMovies());
-        setIsLoading(false);
-        setTriesLeft((t) => t - 1);
-        setTimeout(() => setRevealed(true), 60);
-      }, 2800);
-
-      timeoutRefs.current = [t1, t2, t3];
-    } else {
-      setIsRefreshing(true);
-      setRevealed(false);
-
-      const t4 = setTimeout(() => {
-        setSuggestions(pickMovies());
-        setIsRefreshing(false);
-        setTriesLeft((t) => t - 1);
-        setTimeout(() => setRevealed(true), 60);
-      }, 1500);
-
-      timeoutRefs.current = [t4];
+  const handleGenerateNextTry = async () => {
+    if (remainingTries <= 0 || isGenerating) return;
+    setIsGenerating(true);
+    setGenError(null);
+    try {
+      await generateTry();
+    } catch (err) {
+      setGenError(err.message || 'Failed to generate new suggestions');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const exhausted = triesLeft <= 0;
-  const hasSuggestions = suggestions.length > 0;
+  const rawSuggestions =
+    suggestions && suggestions.length > 0
+      ? suggestions
+      : isTourActive
+        ? TOUR_FORYOU_PICKS
+        : suggestions;
+
+  const movies = rawSuggestions.map(mapWeeklyMovieToCard);
+  const activeError = isTourActive ? null : error || genError;
+  const isReactionsRequired = (activeError || '').toLowerCase().includes('reaction');
 
   return (
     <main className={styles.page}>
       <section className={styles.hero} data-tour="foryou-hero">
-        <div className={styles.heroLabel}>
-          <span className={styles.heroDot} />
-          <span className={clsx(styles.heroEyebrow, 'text-micro')}>Editor&apos;s Selection</span>
-        </div>
-
-        <div className={styles.heroHeadingRow}>
-          <h1 className={clsx(styles.heroHeading, 'h-4xl')}>
-            Top 5 Picks
-            <br />
-            <em>This Week</em>
-          </h1>
-          <p className={styles.heroSubtext}>
-            Curated by our film algorithm,
-            <br className={styles.mobileBreak} />
-            refreshed every Monday.
-          </p>
-        </div>
-
-        <div className={styles.heroCards}>
-          {TOP_PICKS.map((movie, i) => (
-            <div key={movie.id} className={styles.heroCardWrap} style={{ '--i': i }}>
-              <span className={clsx(styles.rankBadge, 'text-micro')}>#{i + 1}</span>
-              <MovieCard movie={movie} showActions={false} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.suggestSection} data-tour="foryou-suggest">
-        <div className={styles.suggestHeader}>
-          <div className={styles.suggestHeaderLeft}>
-            <span className={clsx(styles.suggestEyebrow, 'text-micro')}>
-              <Sparkles size={11} aria-hidden="true" />
-              AI-Powered
-            </span>
-            <h2 className={clsx(styles.suggestTitle, 'h-3xl')}>Suggest Me a Film</h2>
-            <p className={styles.suggestSubtitle}>
-              We&apos;ll pick the perfect film based on your taste profile.
-            </p>
+        <div className={styles.heroHeaderContainer}>
+          <div className={styles.heroLabel}>
+            <span className={styles.heroDot} />
+            <span className={clsx(styles.heroEyebrow, 'text-micro')}>Editor&apos;s Selection</span>
           </div>
 
-          <div className={styles.triesPill} aria-label={`${triesLeft} suggests remaining`}>
-            <div className={styles.triesDots} aria-hidden="true">
-              {TRIES_KEYS.map((key, i) => (
-                <span
-                  key={key}
-                  className={clsx(
-                    styles.triesDot,
-                    i < triesLeft ? styles.triesDotFull : styles.triesDotEmpty
-                  )}
-                />
+          <div className={styles.heroHeadingRow}>
+            <h1 className={clsx(styles.heroHeading, 'h-4xl')}>
+              Top 5 Picks
+              <br />
+              <em>This Week</em>
+            </h1>
+            <p className={styles.heroSubtext}>
+              Curated by our film algorithm,
+              <br className={styles.mobileBreak} />
+              refreshed every Sunday.
+            </p>
+          </div>
+        </div>
+
+        {!isTourActive && loading && movies.length === 0 ? (
+          <div className={styles.heroCardsWrap}>
+            <div className={styles.heroCards}>
+              {[1, 2, 3, 4, 5].map((item, i) => (
+                <div key={item} className={styles.heroCardWrap} style={{ '--i': i }}>
+                  <span className={clsx(styles.rankBadge, 'text-micro')}>#{i + 1}</span>
+                  <MovieCardSkeleton />
+                </div>
               ))}
             </div>
-            <span className={clsx(styles.triesLabel, 'text-micro')}>
-              {exhausted
-                ? 'Resets Monday'
-                : `${triesLeft} suggest${triesLeft !== 1 ? 's' : ''} left`}
-            </span>
           </div>
-        </div>
-
-        <div className={styles.suggestBody}>
-          {isLoading && (
-            <div className={styles.loaderWrap}>
-              <FilmCountdownLoader tick={loaderTick} lineIndex={loaderLineIdx} />
-            </div>
-          )}
-
-          {!isLoading && hasSuggestions && (
+        ) : movies.length > 0 ? (
+          <div className={styles.heroCardsWrap}>
             <div
               className={clsx(
-                styles.resultsWrap,
-                (revealed || isRefreshing) && styles.resultsRevealed
+                styles.heroCards,
+                !isTourActive && (loading || isGenerating) && styles.heroCardsDimmed
               )}
             >
-              <div className={styles.resultsMeta}>
-                <Film size={13} aria-hidden="true" />
-                <span className="text-micro">Your picks are ready</span>
-              </div>
-
-              <div className={styles.resultsGridWrap}>
-                {isRefreshing && <ScanRefreshLoader />}
-
-                <div
-                  className={clsx(styles.resultsGrid, isRefreshing && styles.resultsGridRefreshing)}
-                >
-                  {suggestions.map((movie, i) => (
-                    <div
-                      key={movie.id}
-                      className={styles.resultCardWrap}
-                      style={{ '--delay': `${i * 0.1}s` }}
-                    >
-                      <MovieCard movie={movie} showActions />
-                    </div>
-                  ))}
+              {movies.map((movie, i) => (
+                <div key={movie.id || i} className={styles.heroCardWrap} style={{ '--i': i }}>
+                  <span className={clsx(styles.rankBadge, 'text-micro')}>#{i + 1}</span>
+                  <MovieCard movie={movie} showActions={false} />
                 </div>
+              ))}
+            </div>
+            {!isTourActive && (loading || isGenerating) && (
+              <div className={styles.cardsLoaderOverlay}>
+                <ScanRefreshLoader />
               </div>
+            )}
+          </div>
+        ) : isReactionsRequired ? (
+          <div className={styles.unlockCard}>
+            <div className={styles.unlockIconWrap}>
+              <Flame size={32} />
             </div>
-          )}
-
-          {!isLoading && !hasSuggestions && (
-            <EmptyState exhausted={exhausted} onSuggest={handleSuggest} />
-          )}
-
-          {!isLoading && !exhausted && (
-            <div className={styles.suggestBtnRow}>
-              <button
-                type="button"
-                className={styles.suggestBtn}
-                onClick={handleSuggest}
-                disabled={isRefreshing}
-                aria-label={hasSuggestions ? 'Suggest again' : 'Suggest me a film'}
-              >
-                {hasSuggestions ? (
-                  <>
-                    <RefreshCw size={16} aria-hidden="true" />
-                    <span>Suggest Again</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={16} aria-hidden="true" />
-                    <span>Suggest Me</span>
-                  </>
-                )}
-              </button>
-
-              {!hasSuggestions && (
-                <p className={styles.suggestBtnHint}>
-                  Uses 1 of {triesLeft} remaining suggest{triesLeft !== 1 ? 's' : ''}
-                </p>
-              )}
+            <div className={styles.unlockContent}>
+              <h2 className={styles.unlockTitle}>Build Your Taste Profile</h2>
+              <p className={styles.unlockDescription}>
+                To generate personalized AI recommendations, we need to learn what you love. Rate or
+                swipe at least <strong>20 movies</strong> on CineMatch to unlock your Top 5 Picks!
+              </p>
+              <div className={styles.unlockProgressContainer}>
+                <div className={styles.unlockProgressBar}>
+                  <div className={styles.unlockProgressFill} style={{ width: '35%' }} />
+                </div>
+                <span className={styles.unlockProgressLabel}>Taste Profile Building</span>
+              </div>
+              <Link href="/home" className={styles.unlockCtaBtn}>
+                <Compass size={18} />
+                <span>Start Swiping Movies Now</span>
+              </Link>
             </div>
-          )}
-
-          {exhausted && hasSuggestions && (
-            <p className={styles.exhaustedNote}>
-              You&apos;ve used all your suggests for this week. Come back Monday for more.
-            </p>
-          )}
-        </div>
+          </div>
+        ) : activeError ? (
+          <div className={styles.errorBox}>
+            <AlertCircle size={20} />
+            <span>{activeError}</span>
+          </div>
+        ) : null}
       </section>
+
+      {movies.length > 0 && (
+        <div className={styles.trySection} data-tour="foryou-suggest">
+          <div className={styles.tryCounter}>
+            <Sparkles size={20} className={styles.sparkleIcon} />
+            <div className={styles.tryTextWrap}>
+              <span className={styles.tryNumber}>{remainingTries}</span>
+              <span className={styles.tryLabel}>Weekly Tries Remaining</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={styles.refreshBtn}
+            disabled={remainingTries <= 0 || loading || isGenerating}
+            onClick={handleGenerateNextTry}
+          >
+            <RefreshCw size={18} className={isGenerating ? styles.spin : ''} />
+            <span>{isGenerating ? 'Generating...' : 'Generate New Picks'}</span>
+          </button>
+        </div>
+      )}
     </main>
   );
 }
