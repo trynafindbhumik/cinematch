@@ -80,44 +80,47 @@ export default function Tour() {
 
   const applyPopoverPos = useCallback(
     (r) => {
-      if (!popoverRef.current) return;
+      if (!popoverRef.current || !r) return;
 
       const pop = popoverRef.current.getBoundingClientRect();
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const gap = 16;
 
+      const popWidth = pop.width || popoverRef.current.offsetWidth || 340;
+      const popHeight = pop.height || popoverRef.current.offsetHeight || 200;
+
       let top = 0;
       let left = 0;
 
       switch (currentStep?.side) {
         case 'top':
-          top = r.top - PAD - pop.height - gap;
-          left = r.left + r.width / 2 - pop.width / 2;
+          top = r.top - PAD - popHeight - gap;
+          left = r.left + r.width / 2 - popWidth / 2;
           break;
 
         case 'bottom':
           top = r.bottom + PAD + gap;
-          left = r.left + r.width / 2 - pop.width / 2;
+          left = r.left + r.width / 2 - popWidth / 2;
           break;
 
         case 'left':
-          top = r.top + r.height / 2 - pop.height / 2;
-          left = r.left - PAD - pop.width - gap;
+          top = r.top + r.height / 2 - popHeight / 2;
+          left = r.left - PAD - popWidth - gap;
           break;
 
         case 'right':
-          top = r.top + r.height / 2 - pop.height / 2;
+          top = r.top + r.height / 2 - popHeight / 2;
           left = r.right + PAD + gap;
           break;
 
         default:
-          top = vh / 2 - pop.height / 2;
-          left = vw / 2 - pop.width / 2;
+          top = vh / 2 - popHeight / 2;
+          left = vw / 2 - popWidth / 2;
       }
 
-      left = Math.max(16, Math.min(left, vw - pop.width - 16));
-      top = Math.max(16, Math.min(top, vh - pop.height - 16));
+      left = Math.max(16, Math.min(left, vw - popWidth - 16));
+      top = Math.max(16, Math.min(top, vh - popHeight - 16));
 
       setPopoverPos({ top, left });
     },
@@ -370,6 +373,12 @@ export default function Tour() {
 
     return undefined;
   }, [isActive]);
+
+  useEffect(() => {
+    if (popoverVisible && currentRectRef.current) {
+      applyPopoverPos(currentRectRef.current);
+    }
+  }, [popoverVisible, applyPopoverPos]);
 
   // Early return
 

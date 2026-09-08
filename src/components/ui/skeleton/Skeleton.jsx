@@ -143,3 +143,18 @@ export function ActionCardSkeleton() {
     </div>
   );
 }
+
+/**
+ * Movie card skeleton for movie lists and recommendations
+ */
+export function MovieCardSkeleton() {
+  return (
+    <div className={styles.movieCardSkeleton}>
+      <Skeleton variant="rectangular" className={styles.posterSkeleton} />
+      <div className={styles.cardInfoSkeleton}>
+        <Skeleton width="80%" height={14} />
+        <Skeleton width="50%" height={12} style={{ marginTop: 6 }} />
+      </div>
+    </div>
+  );
+}

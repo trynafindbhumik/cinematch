@@ -81,12 +81,21 @@ export default function WatchlistComponent() {
     }
   };
 
+  const [deletingIds, setDeletingIds] = useState(new Set());
+
   const handleRemove = async (id) => {
+    setDeletingIds((prev) => new Set(prev).add(id));
     try {
       await removeFromWatchlist(id);
       await silentRefresh();
     } catch {
       // ignore
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -126,6 +135,7 @@ export default function WatchlistComponent() {
             key={movie.id}
             movie={movie}
             showActions
+            isDeleting={deletingIds.has(movie.id)}
             onDelete={() => handleRemove(movie.id)}
           />
         ))}
@@ -150,6 +160,8 @@ export default function WatchlistComponent() {
         onAdd={handleAdd}
         title="Add to Watchlist"
         subtitle="Select one or more films to add to your collection."
+        collectionType="watchlist"
+        existingIds={(items || []).map((m) => m.tmdb_id || m.id)}
       />
     </>
   );

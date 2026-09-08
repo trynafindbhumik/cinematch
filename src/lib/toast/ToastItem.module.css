@@ -3,27 +3,20 @@
   align-items: center;
   gap: 0.875rem;
   padding: 1rem 1.25rem;
-  border-radius: 1rem;
-  background: var(--color-surface);
+  border-radius: 0.875rem;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(26, 26, 26, 0.08);
   box-shadow:
-    0 2px 8px var(--color-ink-10),
-    0 8px 24px -4px var(--color-ink-12);
+    0 12px 32px -4px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.05);
   pointer-events: auto;
-  /*
-   * NOTE: No `animation` here intentionally.
-   *
-   * Previously the animation lived on .toast itself with animation-fill-mode:both,
-   * which kept the CSS animation engine in control of `transform` even after the
-   * slide-in finished. That silently overrides any inline style transform, making
-   * the drag logic appear broken. The animation is now on .entering (below) and
-   * removed once onAnimationEnd fires (hasEntered=true), giving the inline style
-   * full ownership for drag and snap-back.
-   */
   touch-action: pan-y;
   user-select: none;
   position: relative;
   overflow: hidden;
   cursor: grab;
+  z-index: 9999;
 }
 
 .toast:active {
@@ -31,7 +24,6 @@
 }
 
 /* ── Entry animation ─────────────────────────────────────────────────────────── */
-/* Applied by ToastItem until onAnimationEnd sets hasEntered=true               */
 .entering {
   animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -42,7 +34,7 @@
   pointer-events: none;
 }
 
-/* ── Swipe overlay (optional visual cue during drag) ────────────────────────── */
+/* ── Swipe overlay ──────────────────────────────────────────────────────────── */
 .swipeOverlay {
   position: absolute;
   top: 0;
@@ -52,7 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-error);
+  background: #ef4444;
   transform: translateX(-100%);
   transition: transform 0.15s ease-out;
   pointer-events: none;
@@ -92,18 +84,18 @@
 }
 
 .title {
-  font-weight: 600;
-  font-size: var(--fs-base);
-  color: var(--color-ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1a1a1a;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .message {
-  font-size: var(--fs-base);
-  color: var(--color-ink-60);
+  font-size: 0.85rem;
+  color: rgba(26, 26, 26, 0.65);
   margin: 0.25rem 0 0;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .dismissBtn {
@@ -116,7 +108,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-ink-40);
+  color: rgba(26, 26, 26, 0.35);
   padding: 0;
   border-radius: 0.375rem;
   transition:
@@ -127,8 +119,8 @@
 }
 
 .dismissBtn:hover {
-  color: var(--color-ink);
-  background: var(--color-ink-06);
+  color: #1a1a1a;
+  background: rgba(26, 26, 26, 0.06);
 }
 
 .dismissBtn svg {
@@ -136,40 +128,45 @@
   height: 1rem;
 }
 
-/* ── Variant colours ─────────────────────────────────────────────────────────── */
-.success .iconWrapper {
-  color: var(--color-success);
-}
+/* ── Light Theme Variant styles ──────────────────────────────────────────────── */
 .success {
-  background: rgba(16, 185, 129, 0.08);
+  background: #ffffff;
+  border-left: 4px solid #10b981;
+}
+.success .iconWrapper {
+  color: #10b981;
 }
 
-.error .iconWrapper {
-  color: var(--color-error);
-}
 .error {
-  background: rgba(239, 68, 68, 0.08);
+  background: #ffffff;
+  border-left: 4px solid #ef4444;
+}
+.error .iconWrapper {
+  color: #ef4444;
 }
 
-.warning .iconWrapper {
-  color: var(--color-warning);
-}
 .warning {
-  background: rgba(217, 119, 6, 0.08);
+  background: #ffffff;
+  border-left: 4px solid #f59e0b;
+}
+.warning .iconWrapper {
+  color: #f59e0b;
 }
 
-.info .iconWrapper {
-  color: var(--color-accent);
-}
 .info {
-  background: rgba(140, 120, 81, 0.08);
+  background: #ffffff;
+  border-left: 4px solid #8c7851;
+}
+.info .iconWrapper {
+  color: #8c7851;
 }
 
-.loading .iconWrapper {
-  color: var(--color-accent);
-}
 .loading {
-  background: rgba(140, 120, 81, 0.06);
+  background: #ffffff;
+  border-left: 4px solid #8c7851;
+}
+.loading .iconWrapper {
+  color: #8c7851;
 }
 
 .spinIcon {
@@ -177,8 +174,6 @@
 }
 
 /* ── Keyframes ───────────────────────────────────────────────────────────────── */
-
-/* Slide in from right */
 @keyframes toastSlideIn {
   from {
     opacity: 0;
@@ -190,7 +185,6 @@
   }
 }
 
-/* Auto-timeout exit: slide out to left */
 @keyframes toastSlideOutLeft {
   from {
     opacity: 1;
@@ -202,7 +196,6 @@
   }
 }
 
-/* Manual dismiss / swipe exit: slide out to right */
 @keyframes toastSlideOutRight {
   from {
     opacity: 1;

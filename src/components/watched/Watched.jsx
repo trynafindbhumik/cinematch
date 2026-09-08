@@ -81,12 +81,21 @@ export default function WatchedComponent() {
     }
   };
 
+  const [deletingIds, setDeletingIds] = useState(new Set());
+
   const handleRemove = async (id) => {
+    setDeletingIds((prev) => new Set(prev).add(id));
     try {
       await removeFromWatched(id);
       await silentRefresh();
     } catch {
       // ignore
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -134,6 +143,7 @@ export default function WatchedComponent() {
             movie={movie}
             tag="Watched"
             showActions
+            isDeleting={deletingIds.has(movie.id)}
             onDelete={() => handleRemove(movie.id)}
           />
         ))}
@@ -158,6 +168,8 @@ export default function WatchedComponent() {
         onAdd={handleAdd}
         title="Mark as Watched"
         subtitle="Select films you've already seen."
+        collectionType="watched"
+        existingIds={(items || []).map((m) => m.tmdb_id || m.id)}
       />
     </>
   );

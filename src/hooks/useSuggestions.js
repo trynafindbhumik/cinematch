@@ -40,31 +40,42 @@ export default function useSuggestions() {
   const [suggestions, setSuggestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasMoreBackend, setHasMoreBackend] = useState(true);
   const [error, setError] = useState(null);
 
   const [generateUrl, setGenerateUrl] = useState(null);
   const [nextUrl, setNextUrl] = useState(null);
   const isFetchingRef = useRef(false);
+  const lastFetchedIdRef = useRef(null);
   const generateRef = useRef(null);
 
   const currentSuggestion = suggestions[currentIndex] || null;
   const nextSuggestion = suggestions[currentIndex + 1] || null;
   const hasMore = suggestions.length > currentIndex + 1;
 
-  const { data: generateData, loading: generateLoading } = useGetJson(generateUrl, {
+  const {
+    data: generateData,
+    loading: generateLoading,
+    error: generateErr,
+  } = useGetJson(generateUrl, {
     timeout: 300000,
   });
-  const { data: nextSuggestionData, loading: nextLoading } = useGetJson(nextUrl);
+  const { data: nextSuggestionData, error: nextErr } = useGetJson(nextUrl);
 
   const generate = useCallback(() => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
     setIsGenerating(true);
     setError(null);
+    setHasMoreBackend(true);
+    lastFetchedIdRef.current = null;
     setGenerateUrl('/v1/suggestions/generate');
   }, []);
 
   const nextMovie = useCallback((tmdbId) => {
+    if (!tmdbId || lastFetchedIdRef.current === tmdbId) return;
+    lastFetchedIdRef.current = tmdbId;
+    isFetchingRef.current = true;
     setNextUrl(`/v1/suggestions/next?tmdb_id=${tmdbId}`);
   }, []);
 
@@ -78,6 +89,7 @@ export default function useSuggestions() {
       if (generateData.suggestions && generateData.suggestions.length > 0) {
         setSuggestions(generateData.suggestions);
         setCurrentIndex(0);
+        setHasMoreBackend(true);
       }
       isFetchingRef.current = false;
       setIsGenerating(false);
@@ -86,31 +98,66 @@ export default function useSuggestions() {
   }, [generateData, generate]);
 
   useEffect(() => {
+    if (generateErr) {
+      queueMicrotask(() => {
+        isFetchingRef.current = false;
+        setIsGenerating(false);
+        setGenerateUrl(null);
+        setError(generateErr.response?.data?.error || 'Failed to load suggestions');
+      });
+    }
+  }, [generateErr]);
+
+  useEffect(() => {
     if (!nextSuggestionData) return;
     queueMicrotask(() => {
       if (nextSuggestionData.regeneration) {
         generate();
         return;
       }
-      if (nextSuggestionData.suggestion) {
-        setSuggestions((prev) => [...prev, nextSuggestionData.suggestion]);
+      if (nextSuggestionData.finished || !nextSuggestionData.has_more) {
+        setHasMoreBackend(false);
       }
+      if (nextSuggestionData.suggestion) {
+        const newMovie = nextSuggestionData.suggestion;
+        setSuggestions((prev) => {
+          if (prev.some((item) => item.tmdb_id === newMovie.tmdb_id)) {
+            return prev;
+          }
+          return [...prev, newMovie];
+        });
+      }
+      isFetchingRef.current = false;
       setNextUrl(null);
     });
   }, [nextSuggestionData, generate]);
 
   useEffect(() => {
+    if (nextErr) {
+      queueMicrotask(() => {
+        isFetchingRef.current = false;
+        setNextUrl(null);
+      });
+    }
+  }, [nextErr]);
+
+  useEffect(() => {
     queueMicrotask(() => {
+      const remaining = suggestions.length - currentIndex;
       if (
-        suggestions.length <= currentIndex + PRE_FETCH_THRESHOLD &&
+        suggestions.length > 0 &&
+        remaining <= PRE_FETCH_THRESHOLD &&
+        hasMoreBackend &&
         !isFetchingRef.current &&
-        currentSuggestion &&
-        nextSuggestion === null
+        !nextUrl
       ) {
-        nextMovie(currentSuggestion.tmdb_id);
+        const lastSuggestion = suggestions[suggestions.length - 1];
+        if (lastSuggestion && lastSuggestion.tmdb_id) {
+          nextMovie(lastSuggestion.tmdb_id);
+        }
       }
     });
-  }, [suggestions.length, currentIndex, currentSuggestion, nextSuggestion, nextMovie]);
+  }, [suggestions, currentIndex, hasMoreBackend, nextUrl, nextMovie]);
 
   useEffect(() => {
     generateRef.current = generate;
@@ -128,8 +175,9 @@ export default function useSuggestions() {
     nextSuggestion,
     suggestions,
     currentIndex,
+    setCurrentIndex,
     hasMore,
-    isGenerating: isGenerating || generateLoading || nextLoading,
+    isGenerating: isGenerating || generateLoading,
     error,
     generate,
     nextMovie,

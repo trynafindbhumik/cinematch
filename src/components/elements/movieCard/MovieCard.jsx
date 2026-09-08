@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { Trash2, Star } from 'lucide-react';
+import { Trash2, Star, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -13,8 +13,9 @@ import styles from './MovieCard.module.css';
  *  - movie          : { id, title, year, genre, rating, image, description }
  *  - tag            : optional string badge (top-left, e.g. "Watched")
  *  - showActions    : show quick-action buttons on hover (default true)
- *  - onDelete         : () => void
+ *  - onDelete       : () => void
  *  - onClick        : () => void
+ *  - isDeleting     : boolean
  *  - className      : extra class
  */
 export default function MovieCard({
@@ -23,6 +24,7 @@ export default function MovieCard({
   showActions = true,
   onDelete,
   onClick,
+  isDeleting = false,
   className,
 }) {
   const [imageError, setImageError] = useState(false);
@@ -35,11 +37,11 @@ export default function MovieCard({
 
   return (
     <div
-      className={clsx(styles.card, className)}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+      className={clsx(styles.card, isDeleting && styles.cardDeleting, className)}
+      onClick={!isDeleting ? onClick : undefined}
+      role={onClick && !isDeleting ? 'button' : undefined}
+      tabIndex={onClick && !isDeleting ? 0 : undefined}
+      onKeyDown={onClick && !isDeleting ? (e) => e.key === 'Enter' && onClick() : undefined}
     >
       <div className={styles.imageWrap}>
         {!imageError ? (
@@ -59,6 +61,12 @@ export default function MovieCard({
         )}
         <div className={styles.imageGradient} />
 
+        {isDeleting && (
+          <div className={styles.deletingOverlay}>
+            <Loader2 size={24} className={styles.deletingSpinner} />
+          </div>
+        )}
+
         <div className={styles.ratingBadge}>
           <Star className={styles.ratingIcon} />
           <span className={clsx('text-micro', styles.ratingText)}>{movie.rating}</span>
@@ -69,14 +77,15 @@ export default function MovieCard({
         {showActions && onDelete && (
           <button
             type="button"
-            className={styles.removeBtn}
+            className={clsx(styles.removeBtn, isDeleting && styles.removeBtnDeleting)}
+            disabled={isDeleting}
             onClick={(e) => {
               e.stopPropagation();
-              onDelete();
+              if (!isDeleting) onDelete();
             }}
-            aria-label="Remove from watchlist"
+            aria-label="Remove from collection"
           >
-            <Trash2 size={11} />
+            {isDeleting ? <Loader2 size={11} className={styles.spinIcon} /> : <Trash2 size={11} />}
           </button>
         )}
       </div>

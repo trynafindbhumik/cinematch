@@ -4,23 +4,20 @@ import {
   Star,
   Eye,
   Bookmark,
-  Play,
-  Share2,
   Clock,
   Calendar,
-  Globe,
   ThumbsUp,
   ThumbsDown,
   Heart,
   Frown,
   ChevronLeft,
-  MessageCircle,
   Send,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useRef } from 'react';
 
-import { MOCK_MOVIE, MOCK_CAST, MOCK_MOVIE_COMMENTS } from '@/mocks/data';
+import { useMovieDetails, useMovieReviews, createMovieReview } from '@/hooks/useMovies';
+import { useReaction } from '@/hooks/useReaction';
 
 import styles from './MovieDetails.module.css';
 
@@ -38,17 +35,40 @@ const REACTIONS = [
   { id: 'hate', label: 'Hate it', Icon: Frown, colorClass: styles.reactionHate },
 ];
 
-export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
+export default function MovieDetailComponent({ movie: initialMovie, movieId, onBack }) {
+  const { movieData, loading: apiLoading } = useMovieDetails(movieId);
+  const { submitReaction } = useReaction();
+
+  const rawMovie = movieData || initialMovie || {};
+  const movie = {
+    id: rawMovie.tmdb_id || rawMovie.id || 550,
+    title: rawMovie.title || 'Movie Title',
+    image: rawMovie.poster_url || rawMovie.image || '/placeholder-poster.png',
+    backdrop: rawMovie.backdrop_url || rawMovie.backdrop || rawMovie.poster_url || rawMovie.image,
+    rating: rawMovie.tmdb_rating
+      ? (rawMovie.tmdb_rating / 10).toFixed(1)
+      : rawMovie.rating || '8.0',
+    year: rawMovie.release_year || rawMovie.year || 2024,
+    runtime: rawMovie.runtime ? `${rawMovie.runtime} min` : rawMovie.runtime || '120 min',
+    tagline: rawMovie.tagline || rawMovie.description || '',
+    overview: rawMovie.overview || rawMovie.tagline || rawMovie.description || '',
+    genres: rawMovie.genres || rawMovie.genre || [],
+    ottPlatforms: rawMovie.ottPlatforms || ['Netflix'],
+    userReaction: rawMovie.user_reaction || null,
+  };
+
+  const { reviews: apiReviews, refetch: refetchReviews } = useMovieReviews(movie.id);
+
   const [isWatched, setIsWatched] = useState(false);
   const [isWatchlisted, setIsWatchlisted] = useState(false);
-  const [userReaction, setUserReaction] = useState(null);
+  const [userReaction, setUserReaction] = useState(movie.userReaction);
   const [reactionCounts, setReactionCounts] = useState({
-    love: 1842,
-    like: 3210,
-    dislike: 412,
-    hate: 98,
+    love: rawMovie.love_count || 0,
+    like: rawMovie.like_count || 0,
+    dislike: rawMovie.dislike_count || 0,
+    hate: rawMovie.hate_count || 0,
   });
-  const [comments, setComments] = useState(MOCK_MOVIE_COMMENTS);
+
   const [commentText, setCommentText] = useState('');
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -57,6 +77,9 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
   const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + b, 0);
 
   const handleReaction = (id) => {
+    if (movie.id) {
+      submitReaction(movie.id, id);
+    }
     setReactionCounts((prev) => {
       const next = { ...prev };
       if (userReaction === id) {
@@ -64,28 +87,35 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
         setUserReaction(null);
       } else {
         if (userReaction) next[userReaction] = Math.max(0, next[userReaction] - 1);
-        next[id] += 1;
+        next[id] = (next[id] || 0) + 1;
         setUserReaction(id);
       }
       return next;
     });
   };
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     const trimmed = commentText.trim();
     if (!trimmed) return;
-    const newComment = {
-      id: `r${Date.now()}`,
-      user: 'You',
-      avatar: 'https://i.pravatar.cc/150?img=33',
-      rating: userRating || 0,
-      date: 'Now',
-      text: trimmed,
-    };
-    setComments((prev) => [newComment, ...prev]);
-    setCommentText('');
-    setUserRating(0);
+    try {
+      await createMovieReview(movie.id, userRating || 5, trimmed);
+      setCommentText('');
+      setUserRating(0);
+      refetchReviews();
+    } catch (err) {
+      console.error('Failed to submit review:', err);
+    }
   };
+
+  if (apiLoading) {
+    return (
+      <div className={styles.page}>
+        <div style={{ padding: '60px', textAlign: 'center', color: '#fff' }}>
+          Loading movie details...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -118,282 +148,210 @@ export default function MovieDetailComponent({ movie = MOCK_MOVIE, onBack }) {
               alt={movie.title}
               className={styles.poster}
               referrerPolicy="no-referrer"
-              width={120}
-              height={180}
+              width={200}
+              height={300}
               loading="eager"
               unoptimized
             />
-            <div className={styles.posterRating}>
-              <Star className={styles.posterRatingIcon} />
-              <span>{movie.rating}</span>
-            </div>
           </div>
 
-          <div className={styles.heroMeta}>
-            <div className={styles.genrePills}>
-              {movie.genre.map((g) => (
+          <div className={styles.details}>
+            <div className={styles.taglineRow}>
+              {movie.tagline && (
+                <span className={styles.tagline}>&ldquo;{movie.tagline}&rdquo;</span>
+              )}
+            </div>
+
+            <h1 className={styles.title}>{movie.title}</h1>
+
+            <div className={styles.metaRow}>
+              <div className={styles.metaBadge}>
+                <Star className={styles.starIcon} size={14} />
+                <span>{movie.rating}</span>
+              </div>
+              <span className={styles.metaDivider}>•</span>
+              <div className={styles.metaItem}>
+                <Calendar size={13} />
+                <span>{movie.year}</span>
+              </div>
+              <span className={styles.metaDivider}>•</span>
+              <div className={styles.metaItem}>
+                <Clock size={13} />
+                <span>{movie.runtime}</span>
+              </div>
+            </div>
+
+            <div className={styles.genreRow}>
+              {movie.genres?.map((g) => (
                 <span key={g} className={styles.genrePill}>
                   {g}
                 </span>
               ))}
             </div>
 
-            <h1 className={styles.heroTitle}>{movie.title}</h1>
-
-            {movie.tagline && <p className={styles.heroTagline}>&ldquo;{movie.tagline}&rdquo;</p>}
-
-            <div className={styles.heroStats}>
-              <span className={styles.heroStat}>
-                <Calendar size={13} />
-                {movie.year}
-              </span>
-              <span className={styles.heroStatDivider} />
-              <span className={styles.heroStat}>
-                <Clock size={13} />
-                {movie.runtime}
-              </span>
-              <span className={styles.heroStatDivider} />
-              <span className={styles.heroStat}>
-                <Globe size={13} />
-                {movie.language}
-              </span>
-            </div>
-
-            <p className={styles.heroDirector}>
-              Directed by <strong>{movie.director}</strong>
-            </p>
-
-            <div className={styles.heroCtas}>
+            <div className={styles.actionRow}>
               <button
                 type="button"
-                className={`${styles.ctaBtn} ${styles.ctaPrimary}`}
-                onClick={() => commentRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                <Play size={15} />
-                Watch Trailer
-              </button>
-
-              <button
-                type="button"
-                className={`${styles.ctaBtn} ${styles.ctaWatched} ${isWatched ? styles.ctaWatchedActive : ''}`}
-                onClick={() => setIsWatched((v) => !v)}
-              >
-                <Eye size={15} />
-                {isWatched ? 'Watched' : 'Mark as Watched'}
-              </button>
-
-              <button
-                type="button"
-                className={`${styles.ctaBtn} ${isWatchlisted ? styles.ctaWatchedActive : ''}`}
+                className={`${styles.actionBtn} ${isWatchlisted ? styles.activeWatchlist : ''}`}
                 onClick={() => setIsWatchlisted((v) => !v)}
               >
-                <Bookmark size={15} />
-                {isWatchlisted ? 'Added to Watchlist' : 'Add to Watchlist'}
+                <Bookmark size={16} />
+                <span>{isWatchlisted ? 'Watchlisted' : 'Watchlist'}</span>
               </button>
 
-              <button type="button" className={styles.ctaIconBtn} aria-label="Share">
-                <Share2 size={16} />
+              <button
+                type="button"
+                className={`${styles.actionBtn} ${isWatched ? styles.activeWatched : ''}`}
+                onClick={() => setIsWatched((v) => !v)}
+              >
+                <Eye size={16} />
+                <span>{isWatched ? 'Watched' : 'Mark Watched'}</span>
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      <div className={styles.body}>
-        <section className={styles.card}>
-          <h2 className={styles.sectionLabel}>Synopsis</h2>
-          <p className={styles.synopsis}>{movie.description}</p>
-        </section>
-
-        <section className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionLabel}>Your Reaction</h2>
-            <span className={styles.reactionTotal}>
-              {totalReactions.toLocaleString()} reactions
-            </span>
-          </div>
-
-          <div className={styles.reactionBar}>
-            {REACTIONS.map(({ id }) => {
-              const pct = totalReactions > 0 ? (reactionCounts[id] / totalReactions) * 100 : 25;
-              return (
-                <div
-                  key={id}
-                  className={`${styles.reactionBarSegment} ${styles[`reactionBar__${id}`]}`}
-                  style={{ width: `${pct}%` }}
-                />
-              );
-            })}
-          </div>
-
-          <div className={styles.reactionButtons}>
-            {REACTIONS.map(({ id, label, Icon, colorClass }) => {
-              const isActive = userReaction === id;
-              const pct =
-                totalReactions > 0 ? Math.round((reactionCounts[id] / totalReactions) * 100) : 0;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className={`${styles.reactionBtn} ${colorClass} ${isActive ? styles.reactionBtnActive : ''}`}
-                  onClick={() => handleReaction(id)}
-                >
-                  <span className={styles.reactionIconWrap}>
-                    <Icon size={18} />
-                  </span>
-                  <span className={styles.reactionLabel}>{label}</span>
-                  <span className={styles.reactionCount}>
-                    {reactionCounts[id].toLocaleString()}
-                    <span className={styles.reactionPct}>&nbsp;·&nbsp;{pct}%</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className={styles.card}>
-          <h2 className={styles.sectionLabel}>Cast</h2>
-          <div className={styles.castCarousel}>
-            {MOCK_CAST.map((member) => (
-              <div key={member.id} className={styles.castCard}>
-                <div className={styles.castAvatar}>
-                  <Image
-                    src={member.avatar}
-                    alt={member.name}
-                    referrerPolicy="no-referrer"
-                    width={60}
-                    height={60}
-                    unoptimized
-                  />
-                </div>
-                <p className={styles.castName}>{member.name}</p>
-                <p className={styles.castRole}>{member.role}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.card}>
-          <h2 className={styles.sectionLabel}>Where to Watch</h2>
-          <div className={styles.ottList}>
-            {movie.ottPlatforms.map((ott) => {
-              const color = OTT_COLORS[ott] || '#8c7851';
-              return (
-                <button key={ott} type="button" className={styles.ottChip}>
-                  <span className={styles.ottDot} style={{ background: color }} />
-                  {ott}
-                  <span className={styles.ottAvailTag}>Available</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className={styles.card} ref={commentRef}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionLabel}>
-              <MessageCircle
-                size={14}
-                style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle' }}
-              />
-              Reviews &amp; Comments
-            </h2>
-            <span className={styles.commentCount}>{comments.length} reviews</span>
-          </div>
-
-          <div className={styles.commentInput}>
-            <div className={styles.commentInputAvatar}>
-              <Image
-                src="https://i.pravatar.cc/150?img=33"
-                alt="You"
-                referrerPolicy="no-referrer"
-                width={40}
-                height={40}
-                unoptimized
-              />
+      <section className={styles.bodySection}>
+        <div className={styles.grid}>
+          <div className={styles.mainCol}>
+            <div className={styles.card}>
+              <h2 className={styles.sectionTitle}>Overview</h2>
+              <p className={styles.overviewText}>{movie.overview}</p>
             </div>
-            <div className={styles.commentInputBody}>
-              <div className={styles.starPicker}>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className={styles.starPickerBtn}
-                    onMouseEnter={() => setHoverRating(i)}
-                    onMouseLeave={() => setHoverRating(0)}
-                    onClick={() => setUserRating(i)}
-                    aria-label={`Rate ${i} stars`}
-                  >
-                    <Star
-                      size={16}
-                      className={
-                        i <= (hoverRating || userRating)
-                          ? styles.starPickerFilled
-                          : styles.starPickerEmpty
-                      }
-                    />
-                  </button>
-                ))}
-                {userRating > 0 && <span className={styles.starPickerLabel}>{userRating}/5</span>}
+
+            <div className={styles.card}>
+              <div className={styles.reactionHeader}>
+                <h2 className={styles.sectionTitle}>Audience Sentiment</h2>
+                <span className={styles.totalBadge}>{totalReactions.toLocaleString()} votes</span>
               </div>
 
-              <textarea
-                className={styles.commentTextarea}
-                placeholder="Share your thoughts on this film…"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                rows={3}
-              />
-
-              <div className={styles.commentInputFooter}>
-                <span className={styles.commentCharsLeft}>
-                  {500 - commentText.length} characters left
-                </span>
-                <button
-                  type="button"
-                  className={styles.commentSubmitBtn}
-                  onClick={handleCommentSubmit}
-                  disabled={!commentText.trim()}
-                >
-                  <Send size={13} />
-                  Post Review
-                </button>
+              <div className={styles.reactionGrid}>
+                {REACTIONS.map(({ id, label, Icon, colorClass }) => {
+                  const count = reactionCounts[id] || 0;
+                  const pct = totalReactions > 0 ? Math.round((count / totalReactions) * 100) : 0;
+                  const isSelected = userReaction === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`${styles.reactionBtn} ${colorClass} ${isSelected ? styles.selectedReaction : ''}`}
+                      onClick={() => handleReaction(id)}
+                    >
+                      <Icon size={20} />
+                      <span className={styles.reactionLabel}>{label}</span>
+                      <span className={styles.reactionPct}>{pct}%</span>
+                      <div className={styles.reactionBar} style={{ width: `${pct}%` }} />
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          </div>
 
-          <div className={styles.commentList}>
-            {comments.map((c) => (
-              <div key={c.id} className={styles.commentItem}>
-                <div className={styles.commentAvatar}>
-                  <Image
-                    src={c.avatar}
-                    alt={c.user}
-                    referrerPolicy="no-referrer"
-                    width={40}
-                    height={40}
-                    unoptimized
-                  />
-                </div>
-                <div className={styles.commentBody}>
-                  <div className={styles.commentMeta}>
-                    <span className={styles.commentUser}>{c.user}</span>
-                    {c.rating > 0 && (
-                      <span className={styles.commentRating}>
-                        <Star size={10} className={styles.commentRatingIcon} />
-                        {c.rating}/5
-                      </span>
-                    )}
-                    <span className={styles.commentDate}>{c.date}</span>
+            <div className={styles.card}>
+              <div className={styles.commentHeader}>
+                <h2 className={styles.sectionTitle}>Discussion ({comments.length})</h2>
+              </div>
+
+              <div className={styles.commentForm}>
+                <div className={styles.starRatingRow}>
+                  <span className={styles.ratePrompt}>Your Rating:</span>
+                  <div className={styles.stars}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={18}
+                        className={`${styles.star} ${(hoverRating || userRating) >= star ? styles.starFilled : ''}`}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => setUserRating(star)}
+                      />
+                    ))}
                   </div>
-                  <p className={styles.commentText}>{c.text}</p>
+                </div>
+
+                <div className={styles.inputWrap}>
+                  <textarea
+                    ref={commentRef}
+                    className={styles.commentInput}
+                    placeholder="Share your thoughts on this film..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    rows={3}
+                  />
+                  <button
+                    type="button"
+                    className={styles.sendBtn}
+                    onClick={handleCommentSubmit}
+                    disabled={!commentText.trim()}
+                  >
+                    <Send size={15} />
+                    <span>Post</span>
+                  </button>
                 </div>
               </div>
-            ))}
+
+              <div className={styles.commentList}>
+                {apiReviews.length === 0 ? (
+                  <p
+                    style={{
+                      color: 'rgba(255,255,255,0.4)',
+                      fontSize: '0.9rem',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    No reviews yet. Be the first to share your thoughts!
+                  </p>
+                ) : (
+                  apiReviews.map((c, idx) => (
+                    <div key={c.id || c.tmdb_id || `rev-${idx}`} className={styles.commentItem}>
+                      <Image
+                        src={c.user_avatar || c.avatar || '/placeholder-avatar.png'}
+                        alt=""
+                        width={36}
+                        height={36}
+                        className={styles.commentAvatar}
+                      />
+                      <div className={styles.commentBody}>
+                        <div className={styles.commentMeta}>
+                          <span className={styles.commentUser}>
+                            {c.username || c.user_name || c.user || 'Movie Fan'}
+                          </span>
+                          <span className={styles.commentDate}>
+                            {c.created_at
+                              ? new Date(c.created_at).toLocaleDateString()
+                              : c.date || 'Recent'}
+                          </span>
+                        </div>
+                        <p className={styles.commentText}>{c.review_text || c.comment || c.text}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
-        </section>
-      </div>
+
+          <div className={styles.sideCol}>
+            <div className={styles.card}>
+              <h3 className={styles.sideTitle}>Streaming Platforms</h3>
+              <div className={styles.ottList}>
+                {movie.ottPlatforms?.map((p) => (
+                  <div key={p} className={styles.ottItem}>
+                    <span
+                      className={styles.ottBadge}
+                      style={{ background: OTT_COLORS[p] ?? '#333' }}
+                    >
+                      {p[0]}
+                    </span>
+                    <span className={styles.ottName}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

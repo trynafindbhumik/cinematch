@@ -255,3 +255,47 @@
   border-radius: 0.35rem;
   white-space: nowrap;
 }
+
+.cardDeleting {
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.removeBtnDeleting {
+  opacity: 1 !important;
+  pointer-events: none;
+  background: var(--color-error-red-85) !important;
+  border-color: var(--color-bg-white-95) !important;
+  color: #ffffff !important;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+.deletingOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.deletingSpinner {
+  color: #ffffff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

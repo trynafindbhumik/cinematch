@@ -1,29 +1,15 @@
 'use client';
 
-import {
-  Heart,
-  ThumbsUp,
-  ThumbsDown,
-  Skull,
-  Eye,
-  X,
-  Star,
-  Clock,
-  Calendar,
-  Info,
-  Sparkles,
-} from 'lucide-react';
-import Image from 'next/image';
-import { useState, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
+import { Sparkles, Heart, ThumbsUp, ThumbsDown, Skull, X } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
 
+import SwipeCard from '@/components/home/SwipeCard';
 import MovieDetailComponent from '@/components/movieDetails/MovieDetails';
+import { useTour } from '@/context/TourContext';
 import { useReaction } from '@/hooks/useReaction';
 import useSuggestions from '@/hooks/useSuggestions';
-import { OTT_COLORS } from '@/mocks/data';
 
 import styles from './Home.module.css';
-
-const SWIPE_THRESHOLD = 80;
 
 const ACTIONS = [
   { id: 'hate', label: 'Hate', Icon: Skull, dir: 'left', overlayKey: 'hate' },
@@ -33,341 +19,102 @@ const ACTIONS = [
   { id: 'love', label: 'Love', Icon: Heart, dir: 'right', overlayKey: 'love' },
 ];
 
-function mapMovieDetailsToCard(movie) {
+function mapMovieDetailsToCard(item) {
+  if (!item) return null;
   return {
-    id: movie.tmdb_id,
-    image: movie.poster_url,
-    title: movie.title,
-    year: movie.release_year,
-    runtime: movie.runtime ? `${movie.runtime} min` : null,
-    genre: movie.genres,
-    rating: movie.tmdb_rating,
-    tagline: movie.tagline,
-    description: movie.tagline,
-    ottPlatforms: [],
-    userReaction: movie.user_reaction,
+    ...item,
+    id: item.tmdb_id || item.id,
+    title: item.title || 'Untitled',
+    image: item.poster_url || item.image || '/placeholder-poster.png',
+    backdrop: item.backdrop_url || item.backdrop || item.poster_url || item.image,
+    rating: item.tmdb_rating
+      ? Number(item.tmdb_rating) > 10
+        ? (Number(item.tmdb_rating) / 10).toFixed(1)
+        : Number(item.tmdb_rating).toFixed(1)
+      : item.rating || '8.0',
+    year:
+      item.release_year ||
+      item.year ||
+      (item.release_date ? String(item.release_date).slice(0, 4) : '2024'),
+    runtime: typeof item.runtime === 'number' ? `${item.runtime} min` : item.runtime || '120 min',
+    description: item.tagline || item.overview || item.description || '',
+    genre: item.genres || item.genre || [],
+    genres: item.genres || item.genre || [],
+    ottPlatforms: item.ott_platforms || item.ottPlatforms || ['Netflix'],
   };
 }
 
-const SwipeCard = forwardRef(function SwipeCard(
-  { movie, isTop, stackIndex, onSwipe, onOpenDetail },
-  ref
-) {
-  const cardRef = useRef(null);
-  const [overlay, setOverlay] = useState(null); // 'like' | 'skip' | 'hate' | null
-
-  const startX = useRef(0);
-  const startY = useRef(0);
-  const curX = useRef(0);
-  const curY = useRef(0);
-  const dragged = useRef(false);
-  const isDown = useRef(false);
-  const flying = useRef(false);
-
-  const resetOverlay = useCallback(() => setOverlay(null), []);
-
-  const snapBack = useCallback(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    el.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    el.style.transform = '';
-    el.style.boxShadow = '';
-    resetOverlay();
-  }, [resetOverlay]);
-
-  const flyOff = useCallback(
-    (direction, overlayKey = null) => {
-      if (flying.current) return;
-      flying.current = true;
-
-      const el = cardRef.current;
-      if (!el) return;
-
-      if (overlayKey) setOverlay(overlayKey);
-
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      let tx = 0,
-        ty = 0,
-        rot = 0;
-
-      if (direction === 'right') {
-        tx = vw * 1.6;
-        rot = 30;
-      }
-      if (direction === 'left') {
-        tx = -vw * 1.6;
-        rot = -30;
-      }
-      if (direction === 'up') {
-        ty = -vh * 1.4;
-      }
-
-      el.style.transition = 'transform 0.42s ease-in, opacity 0.42s ease-in';
-      el.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg)`;
-      el.style.opacity = '0';
-
-      setTimeout(() => onSwipe(direction), 420);
-    },
-    [onSwipe]
-  );
-
-  useImperativeHandle(
-    ref,
-    () => ({ swipe: (direction, overlayKey) => flyOff(direction, overlayKey) }),
-    [flyOff]
-  );
-
-  const handlePointerDown = useCallback(
-    (e) => {
-      if (!isTop || flying.current) return;
-      e.preventDefault();
-      const el = cardRef.current;
-      if (!el) return;
-      el.setPointerCapture(e.pointerId);
-      el.style.transition = 'box-shadow 0.1s ease';
-      startX.current = e.clientX;
-      startY.current = e.clientY;
-      curX.current = 0;
-      curY.current = 0;
-      dragged.current = false;
-      isDown.current = true;
-    },
-    [isTop]
-  );
-
-  const handlePointerMove = useCallback(
-    (e) => {
-      if (!isDown.current || !isTop) return;
-      const dx = e.clientX - startX.current;
-      const dy = e.clientY - startY.current;
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragged.current = true;
-      curX.current = dx;
-      curY.current = dy;
-
-      const el = cardRef.current;
-      if (!el) return;
-
-      el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.07}deg)`;
-      el.style.boxShadow = `${-dx * 0.05}px 12px 40px rgba(26,26,26,0.25)`;
-
-      if (dx > 40) setOverlay('like');
-      else if (dx < -40) setOverlay('skip');
-      else if (dy < -40) setOverlay('hate');
-      else setOverlay(null);
-    },
-    [isTop]
-  );
-
-  const handlePointerUp = useCallback(() => {
-    if (!isDown.current) return;
-    isDown.current = false;
-
-    if (!dragged.current) {
-      onOpenDetail();
-      const el = cardRef.current;
-      if (el) {
-        el.style.transition = '';
-        el.style.transform = '';
-        el.style.boxShadow = '';
-      }
-      return;
-    }
-
-    const dx = curX.current;
-    const dy = curY.current;
-
-    if (dx > SWIPE_THRESHOLD) flyOff('right');
-    else if (dx < -SWIPE_THRESHOLD) flyOff('left');
-    else if (dy < -SWIPE_THRESHOLD) flyOff('up');
-    else snapBack();
-  }, [flyOff, snapBack, onOpenDetail]);
-
-  const stackStyle =
-    stackIndex > 0
-      ? {
-          transform: `translateY(${stackIndex * 10}px) scale(${1 - stackIndex * 0.05})`,
-          zIndex: 10 - stackIndex,
-          pointerEvents: 'none',
-        }
-      : { zIndex: 10 };
-
-  return (
-    <div
-      ref={cardRef}
-      className={`${styles.swipeCard} ${isTop ? styles.swipeCardTop : ''}`}
-      style={stackStyle}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={snapBack}
-    >
-      <Image
-        src={movie.image}
-        alt={movie.title}
-        className={styles.poster}
-        referrerPolicy="no-referrer"
-        draggable={false}
-        loading="eager"
-        width={300}
-        height={450}
-        unoptimized
-      />
-
-      <div
-        className={`${styles.swipeOverlay} ${styles.overlayLike}`}
-        style={{ opacity: overlay === 'like' ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <div className={styles.overlayBadge}>
-          <ThumbsUp size={30} aria-hidden="true" />
-          <span>LIKE</span>
-        </div>
-      </div>
-      <div
-        className={`${styles.swipeOverlay} ${styles.overlayLove}`}
-        style={{ opacity: overlay === 'love' ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <div className={styles.overlayBadge}>
-          <Heart size={30} aria-hidden="true" />
-          <span>LOVE</span>
-        </div>
-      </div>
-      <div
-        className={`${styles.swipeOverlay} ${styles.overlaySkip}`}
-        style={{ opacity: overlay === 'skip' ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <div className={styles.overlayBadge}>
-          <X size={30} aria-hidden="true" />
-          <span>SKIP</span>
-        </div>
-      </div>
-      <div
-        className={`${styles.swipeOverlay} ${styles.overlayDislike}`}
-        style={{ opacity: overlay === 'dislike' ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <div className={styles.overlayBadge}>
-          <ThumbsDown size={30} aria-hidden="true" />
-          <span>NOPE</span>
-        </div>
-      </div>
-      <div
-        className={`${styles.swipeOverlay} ${styles.overlayHate}`}
-        style={{ opacity: overlay === 'hate' ? 1 : 0 }}
-        aria-hidden="true"
-      >
-        <div className={styles.overlayBadge}>
-          <Skull size={30} aria-hidden="true" />
-          <span>HATE</span>
-        </div>
-      </div>
-      <div
-        className={`${styles.swipeOverlay} ${styles.overlayWatched}`}
-        style={{ opacity: overlay === 'watched' ? 1 : 0 }}
-      >
-        <div className={styles.overlayBadge}>
-          <Eye size={30} />
-          <span>WATCHED</span>
-        </div>
-      </div>
-
-      <div className={styles.topBar}>
-        <div className={styles.ottRow}>
-          {movie.ottPlatforms?.slice(0, 3).map((p) => (
-            <span
-              key={p}
-              className={styles.ottDot}
-              style={{ background: OTT_COLORS[p] ?? '#8c7851' }}
-              title={p}
-            />
-          ))}
-        </div>
-        <div className={styles.ratingBadge}>
-          <Star className={styles.ratingIcon} />
-          <span>{movie.rating}</span>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        className={styles.infoBtn}
-        onClick={(e) => {
-          e.stopPropagation();
-          onOpenDetail();
-        }}
-        aria-label={`View details for ${movie.title}`}
-      >
-        <Info size={14} />
-      </button>
-
-      <div className={styles.cardGradient} />
-      <div className={styles.cardContent}>
-        <div className={styles.genreRow}>
-          {movie.genre?.slice(0, 3).map((g) => (
-            <span key={g} className={styles.genrePill}>
-              {g}
-            </span>
-          ))}
-        </div>
-        <h2 className={styles.cardTitle}>{movie.title}</h2>
-        <div className={styles.cardMeta}>
-          <span className={styles.metaItem}>
-            <Calendar size={10} />
-            {movie.year}
-          </span>
-          <span className={styles.metaDot} />
-          <span className={styles.metaItem}>
-            <Clock size={10} />
-            {movie.runtime}
-          </span>
-          {movie.language && (
-            <>
-              <span className={styles.metaDot} />
-              <span className={styles.metaItem}>{movie.language}</span>
-            </>
-          )}
-        </div>
-        <p className={styles.cardDesc}>{movie.description}</p>
-        {movie.director && (
-          <p className={styles.cardDir}>
-            <span>Dir. </span>
-            {movie.director}
-          </p>
-        )}
-        <p className={styles.tapHint}>
-          <Info size={9} />
-          Tap card for full details
-        </p>
-      </div>
-    </div>
-  );
-});
+const TOUR_SWIPE_DUMMY = [
+  {
+    id: 550,
+    tmdb_id: 550,
+    title: 'Fight Club',
+    poster_url: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+    tmdb_rating: 84,
+    release_year: 1999,
+    genres: ['Drama', 'Thriller'],
+    tagline: 'Mischief. Mayhem. Soap.',
+  },
+  {
+    id: 157336,
+    tmdb_id: 157336,
+    title: 'Interstellar',
+    poster_url: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+    tmdb_rating: 86,
+    release_year: 2014,
+    genres: ['Sci-Fi', 'Drama'],
+    tagline: 'Mankind was born on Earth. It was never meant to die here.',
+  },
+  {
+    id: 27205,
+    tmdb_id: 27205,
+    title: 'Inception',
+    poster_url: 'https://image.tmdb.org/t/p/w500/oYuLEW9W2vBBGLB2JSXA3iMoVpq.jpg',
+    tmdb_rating: 83,
+    release_year: 2010,
+    genres: ['Action', 'Sci-Fi'],
+    tagline: 'Your mind is the scene of the crime.',
+  },
+];
 
 export default function HomeComponent() {
-  const { suggestions, isGenerating, error, generate } = useSuggestions();
-
+  const { suggestions, currentIndex, setCurrentIndex, isGenerating, error, generate } =
+    useSuggestions();
   const { submitReaction } = useReaction();
+  const { isActive: isTourActive } = useTour() || {};
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [tourIndex, setTourIndex] = useState(0);
   const [selectedMovie, setSelectedMovie] = useState(null);
 
   const topCardRef = useRef(null);
   const animatingRef = useRef(false);
 
-  const movies = suggestions.slice(currentIndex, currentIndex + 3).map(mapMovieDetailsToCard);
+  const rawList = isTourActive
+    ? TOUR_SWIPE_DUMMY
+    : suggestions && suggestions.length > 0
+      ? suggestions
+      : [];
+
+  const effectiveIndex = isTourActive ? tourIndex : currentIndex;
+
+  const movies = (rawList || [])
+    .slice(effectiveIndex, effectiveIndex + 3)
+    .map(mapMovieDetailsToCard)
+    .filter(Boolean);
 
   const handleSwipe = useCallback(
     (direction, movie) => {
-      setCurrentIndex((prev) => prev + 1);
+      if (isTourActive) {
+        setTourIndex((prev) => prev + 1);
+      } else {
+        setCurrentIndex((prev) => prev + 1);
+      }
       const dirToReaction = { right: 'like', left: 'skip' };
       const reaction = dirToReaction[direction];
-      if (reaction) submitReaction(movie.id, reaction);
+      if (reaction && !isTourActive) submitReaction(movie.id, reaction);
       animatingRef.current = false;
     },
-    [setCurrentIndex, submitReaction]
+    [submitReaction, isTourActive, setCurrentIndex]
   );
 
   const handleAction = useCallback(
@@ -377,20 +124,20 @@ export default function HomeComponent() {
       if (!card) return;
       animatingRef.current = true;
       const movie = movies[0];
-      submitReaction(movie.id, action.id);
+      if (!isTourActive) submitReaction(movie.id, action.id);
       card.swipe(action.dir, action.overlayKey);
       setTimeout(() => {
         animatingRef.current = false;
-      }, 600);
+      }, 350);
     },
-    [movies, submitReaction]
+    [movies, submitReaction, isTourActive]
   );
 
   if (selectedMovie) {
     return <MovieDetailComponent movie={selectedMovie} onBack={() => setSelectedMovie(null)} />;
   }
 
-  if (isGenerating) {
+  if (!isTourActive && isGenerating) {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>
@@ -401,7 +148,7 @@ export default function HomeComponent() {
     );
   }
 
-  if (error) {
+  if (!isTourActive && error) {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>
@@ -416,7 +163,7 @@ export default function HomeComponent() {
     );
   }
 
-  if (!movies.length) {
+  if (!isTourActive && !movies.length) {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>
@@ -441,8 +188,8 @@ export default function HomeComponent() {
         <div className={styles.headerText}>
           <h1 className={styles.pageTitle}>Discover</h1>
           <p className={styles.pageSubtitle}>
-            {suggestions.length - currentIndex} film
-            {suggestions.length - currentIndex !== 1 ? 's' : ''} in queue
+            {Math.max(0, rawList.length - effectiveIndex)} film
+            {rawList.length - effectiveIndex !== 1 ? 's' : ''} in queue
           </p>
         </div>
       </header>
@@ -454,7 +201,7 @@ export default function HomeComponent() {
             const isTop = stackIndex === 0;
             return (
               <SwipeCard
-                key={`${movie.id}-${stackIndex}`}
+                key={movie.id}
                 ref={isTop ? topCardRef : null}
                 movie={movie}
                 isTop={isTop}

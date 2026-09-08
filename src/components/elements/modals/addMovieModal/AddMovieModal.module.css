@@ -458,6 +458,22 @@
   color: var(--color-ink-18);
 }
 
+.addedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(140, 120, 81, 0.12);
+  border: 1px solid rgba(140, 120, 81, 0.3);
+  color: #8c7851;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .toggleIndicator {
   width: 1.625rem;
   height: 1.625rem;
