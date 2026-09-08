@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { X, Search, CheckCircle2, Globe } from 'lucide-react';
+import { X, Search, CheckCircle2, Globe, Loader2 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -333,12 +333,23 @@ export default function OttModal({ isOpen, onClose, selectedServices = [], onSav
             className={styles.btnFullPrimary}
             onClick={handleSave}
             disabled={saving || !hasChanges}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+            }}
           >
-            {saving
-              ? 'Saving…'
-              : hasChanges
-                ? `Done — ${localSelectedIds.length} selected`
-                : 'No changes'}
+            {saving ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                <span>Saving preferences…</span>
+              </>
+            ) : hasChanges ? (
+              `Done — ${localSelectedIds.length} selected`
+            ) : (
+              'No changes'
+            )}
           </button>
         </div>
       </div>

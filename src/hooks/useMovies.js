@@ -36,6 +36,56 @@ function useMoviesUrl(url) {
 }
 
 /**
+ * Hook for searching movies by query.
+ */
+export function useSearchMovies(query) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query) return undefined;
+    const controller = new AbortController();
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
+    api
+      .get(`/v1/movies/search?q=${encodeURIComponent(query)}`, {
+        signal: controller.signal,
+      })
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        setError(err);
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [query]);
+
+  return { data, error, loading };
+}
+
+/**
+ * Hook for fetching movie details by TMDB ID.
+ */
+export function useMovieDetails(tmdbId) {
+  const url = tmdbId ? `/v1/movies/${tmdbId}` : null;
+  const { data, error, loading, refetch } = useMoviesUrl(url);
+
+  return {
+    movieData: data?.data || data || null,
+    loading,
+    error,
+    refetch,
+  };
+}
+
+/**
  * Hook for fetching trending movies with pagination and infinite scroll support.
  */
 export function useTrendingMovies(options = {}) {
@@ -87,14 +137,9 @@ export function useTrendingMovies(options = {}) {
   }, [hasMore, totalPages]);
 
   const refresh = useCallback(() => {
-    pageRef.current = 1;
-    isLoadingRef.current = false;
-    observerFiredRef.current = false;
-    setPage(1);
     setMovies([]);
-    setTotalPages(1);
-    setHasMore(true);
-    setIsFetchingMore(false);
+    setPage(1);
+    pageRef.current = 1;
     refetch();
   }, [refetch]);
 
@@ -112,141 +157,60 @@ export function useTrendingMovies(options = {}) {
 }
 
 /**
- * Hook for searching movies with pagination and debouncing.
+ * Hook for fetching movie reviews from API.
  */
-export function useSearchMovies(initialQuery = '', options = {}) {
-  const { enabled = true } = options;
-  const [query, setQuery] = useState(initialQuery);
-  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
-  const [page, setPage] = useState(1);
-  const [movies, setMovies] = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [isDebouncing, setIsDebouncing] = useState(false);
-
-  const debounceTimerRef = useRef(null);
-  const pageRef = useRef(1);
-  const isLoadingRef = useRef(false);
-  const observerFiredRef = useRef(false);
-
-  const url =
-    enabled && debouncedQuery.length >= 2
-      ? `/v1/movies/search?q=${encodeURIComponent(debouncedQuery)}&page=${page}`
-      : null;
+export function useMovieReviews(tmdbId) {
+  const url = tmdbId ? `/v1/movies/${tmdbId}/reviews` : null;
   const { data, error, loading, refetch } = useMoviesUrl(url);
 
-  useEffect(() => {
-    if (!data) return;
-    const apiMovies = data.movies || [];
-    const apiTotalPages = data.total_pages ?? 1;
-    const currentPage = data.page ?? 1;
-    const nextHasMore = currentPage < apiTotalPages;
-    queueMicrotask(() => {
-      setTotalPages(apiTotalPages);
-      setHasMore(nextHasMore);
-      setMovies((prev) => {
-        if (currentPage === 1) return apiMovies;
-        const ids = new Set(prev.map((m) => m.tmdb_id || m.id));
-        return [...prev, ...apiMovies.filter((m) => !ids.has(m.tmdb_id || m.id))];
-      });
-      setIsFetchingMore(false);
-    });
-    isLoadingRef.current = false;
-    observerFiredRef.current = false;
-  }, [data]);
-
-  useEffect(() => {
-    if (loading && page > 1) {
-      queueMicrotask(() => setIsFetchingMore(true));
-      isLoadingRef.current = true;
-    }
-  }, [loading, page]);
-
-  const handleSearch = useCallback(
-    (newQuery) => {
-      setQuery(newQuery);
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      if (newQuery.trim().length < 2) {
-        setDebouncedQuery('');
-        setMovies([]);
-        setPage(1);
-        setTotalPages(1);
-        setHasMore(true);
-        setIsDebouncing(false);
-        pageRef.current = 1;
-        return;
-      }
-      setIsDebouncing(true);
-      debounceTimerRef.current = setTimeout(() => {
-        setIsDebouncing(false);
-        if (newQuery.trim() !== debouncedQuery) {
-          pageRef.current = 1;
-          setPage(1);
-          setMovies([]);
-          setTotalPages(1);
-          setHasMore(true);
-          setDebouncedQuery(newQuery.trim());
-        }
-      }, 400);
-    },
-    [debouncedQuery]
-  );
-
-  const fetchNextPage = useCallback(() => {
-    if (isLoadingRef.current || !hasMore || !debouncedQuery || observerFiredRef.current) return;
-    observerFiredRef.current = true;
-    const nextPage = pageRef.current + 1;
-    if (nextPage > totalPages) {
-      queueMicrotask(() => setHasMore(false));
-      return;
-    }
-    pageRef.current = nextPage;
-    setPage(nextPage);
-  }, [debouncedQuery, hasMore, totalPages]);
-
-  const refresh = useCallback(() => {
-    setMovies([]);
-    setPage(1);
-    pageRef.current = 1;
-    refetch();
-  }, [refetch]);
-
-  const clearSearch = useCallback(() => {
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    setQuery('');
-    setDebouncedQuery('');
-    setMovies([]);
-    setPage(1);
-    setTotalPages(1);
-    setHasMore(true);
-    setIsFetchingMore(false);
-    setIsDebouncing(false);
-    pageRef.current = 1;
-    isLoadingRef.current = false;
-    observerFiredRef.current = false;
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    };
-  }, []);
-
   return {
-    movies,
-    page,
-    totalPages,
-    hasMore,
+    reviews: data?.reviews || data?.data || [],
     loading,
     error,
-    fetchNextPage,
-    refresh,
-    setQuery: handleSearch,
-    clearSearch,
-    isActive: debouncedQuery.length >= 2,
-    query,
-    isFetchingMore,
-    isDebouncing,
+    refetch,
   };
+}
+
+/**
+ * Helper to submit a new movie review to API.
+ */
+export async function createMovieReview(tmdbId, rating, reviewText) {
+  const res = await api.post('/v1/reviews', {
+    tmdb_id: Number(tmdbId),
+    rating: Number(rating),
+    review_text: reviewText,
+  });
+  return res.data;
+}
+
+/**
+ * Hook for fetching user collection movie IDs ('favorites' | 'watchlist' | 'watched')
+ */
+export function useCollectionIds(collectionType, enabled = true) {
+  const [ids, setIds] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!collectionType || !enabled) return undefined;
+    const controller = new AbortController();
+    queueMicrotask(() => setLoading(true));
+
+    api
+      .get(`/v1/${collectionType}/ids`, { signal: controller.signal })
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        const fetched =
+          res.data?.tmdb_ids || res.data?.ids || (Array.isArray(res.data) ? res.data : []);
+        setIds(fetched);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [collectionType, enabled]);
+
+  return { ids, loading };
 }

@@ -51,6 +51,7 @@ export default function Login() {
     if (result.access_token) {
       saveAuthTokens({
         accessToken: result.access_token,
+        refreshToken: result.refresh_token,
       });
 
       saveAuthFlags({

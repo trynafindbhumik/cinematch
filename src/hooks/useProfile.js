@@ -19,57 +19,69 @@ export function useProfile() {
   };
 }
 
-export function useUpdateProfile() {
+export function useUpdateProfile(initialOptions = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const trigger = useCallback(async (url, payload, options = {}) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const isFormData = payload instanceof FormData;
-      const res = await api({
-        method: 'PUT',
-        url,
-        data: payload,
-        ...(isFormData ? {} : { headers: { 'Content-Type': 'application/json' } }),
-        ...options,
-      });
-      setData(res.data);
-      setLoading(false);
-      options.onSuccess?.(res.data);
-      return res.data;
-    } catch (err) {
-      setError(err);
-      setLoading(false);
-      options.onError?.(err);
-      throw err;
-    }
-  }, []);
+  const trigger = useCallback(
+    async (url, payload, options = {}) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const isFormData = payload instanceof FormData;
+        const res = await api({
+          method: 'PUT',
+          url,
+          data: payload,
+          ...(isFormData ? {} : { headers: { 'Content-Type': 'application/json' } }),
+          ...options,
+        });
+        setData(res.data);
+        setLoading(false);
+        options.onSuccess?.(res.data);
+        initialOptions?.onSuccess?.(res.data);
+        return res.data;
+      } catch (err) {
+        setError(err);
+        setLoading(false);
+        options.onError?.(err);
+        initialOptions?.onError?.(err);
+        throw err;
+      }
+    },
+    [initialOptions]
+  );
 
   return [data, loading, error, trigger];
 }
 
-export function useDeleteProfilePicture() {
+export function useDeleteProfilePicture(initialOptions = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const trigger = useCallback(async (url) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.delete(url);
-      setData(res.data);
-      setLoading(false);
-      return res.data;
-    } catch (err) {
-      setError(err);
-      setLoading(false);
-      throw err;
-    }
-  }, []);
+  const trigger = useCallback(
+    async (url, options = {}) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await api.delete(url, options);
+        setData(res.data);
+        setLoading(false);
+        options.onSuccess?.(res.data);
+        initialOptions?.onSuccess?.(res.data);
+        return res.data;
+      } catch (err) {
+        setError(err);
+        setLoading(false);
+        options.onError?.(err);
+        initialOptions?.onError?.(err);
+        throw err;
+      }
+    },
+    [initialOptions]
+  );
 
   return [data, loading, error, trigger];
 }

@@ -1,14 +1,15 @@
 'use client';
 
 import clsx from 'clsx';
-import { X, Search, Film, Clapperboard, Check, BookmarkPlus } from 'lucide-react';
+import { X, Search, Film, Clapperboard, Check, BookmarkPlus, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
 import Input from '@/components/ui/input/Input';
 import { useModal } from '@/context/ModalContext';
-import { useTrendingMovies, useSearchMovies } from '@/hooks/useMovies';
+import { useTour } from '@/context/TourContext';
+import { useTrendingMovies, useSearchMovies, useCollectionIds } from '@/hooks/useMovies';
 import { useSwipeToClose } from '@/hooks/useSwipeToClose';
 
 import sharedStyles from '../Modals.module.css';
@@ -22,13 +23,29 @@ import styles from './AddMovieModal.module.css';
  *  - onAdd          : (movies: Movie[]) => void | Promise
  *  - title          : string
  *  - subtitle       : string
+ *  - existingIds    : number[]
+ *  - collectionType : 'favorites' | 'watchlist' | 'watched'
  */
-export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Movie', subtitle }) {
+export default function AddMovieModal({
+  isOpen,
+  onClose,
+  onAdd,
+  title = 'Add Movie',
+  subtitle,
+  existingIds = [],
+  collectionType = null,
+}) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [isClosing, setIsClosing] = useState(false);
 
   const { openModal, closeModal } = useModal();
+  const { isActive: isTourActive } = useTour() || {};
+  const { ids: apiCollectionIds } = useCollectionIds(collectionType, isOpen);
+
+  const allExistingIds = useMemo(() => {
+    return Array.from(new Set([...existingIds, ...(apiCollectionIds || [])]));
+  }, [existingIds, apiCollectionIds]);
 
   const scrollBodyRef = useRef(null);
   const loadMoreRef = useRef(null);
@@ -49,19 +66,18 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
   });
 
   // Search movies hook
-  const {
-    movies: searchResults,
-    hasMore: searchHasMore,
-    loading: searchLoading,
-    isFetchingMore: searchIsFetchingMore,
-    isDebouncing: searchIsDebouncing,
-    fetchNextPage: fetchSearchNextPage,
-    setQuery: setSearchQuery,
-    clearSearch,
-    query: currentSearchQuery,
-  } = useSearchMovies('', {
-    enabled: isOpen,
-  });
+  const { data: searchData, loading: searchLoading } = useSearchMovies(
+    isOpen && search.trim().length >= 2 ? search.trim() : ''
+  );
+
+  const searchResults =
+    searchData?.movies || searchData?.data || (Array.isArray(searchData) ? searchData : []);
+  const searchHasMore = searchData?.has_more || false;
+  const searchIsFetchingMore = false;
+  const searchIsDebouncing = false;
+  const fetchSearchNextPage = useCallback(() => {}, []);
+  const clearSearch = useCallback(() => setSearch(''), []);
+  const currentSearchQuery = search || '';
 
   // Scroll to top when search query changes
   useEffect(() => {
@@ -71,25 +87,55 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
   }, [currentSearchQuery]);
 
   // Determine which hook to use based on search state
-  // isUserTyping: User has typed at least 2 characters
-  // isTypingDebouncing: User is typing and API call hasn't been made yet
-  // isSearchMode: API has been called and we have a debounced query
-  const isUserTyping = search.trim().length >= 2;
   const isSearchMode = currentSearchQuery.length >= 2;
 
-  // Check if we're in debounce phase (user typed but API not called yet)
+  // Check if we're in debounce phase
   const isDebouncing = searchIsDebouncing;
 
-  // When debouncing, don't show any movies (just show loading skeletons)
-  const showMovies = !isDebouncing && (isSearchMode || !isUserTyping);
+  // Display movies array (with tour fallback if empty during tour mode)
+  const TOUR_DUMMY = [
+    {
+      id: 550,
+      tmdb_id: 550,
+      title: 'Fight Club',
+      poster_url: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+      tmdb_rating: 84,
+      release_year: 1999,
+      genres: ['Drama', 'Thriller'],
+    },
+    {
+      id: 157336,
+      tmdb_id: 157336,
+      title: 'Interstellar',
+      poster_url: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      tmdb_rating: 86,
+      release_year: 2014,
+      genres: ['Sci-Fi', 'Drama'],
+    },
+    {
+      id: 27205,
+      tmdb_id: 27205,
+      title: 'Inception',
+      poster_url: 'https://image.tmdb.org/t/p/w500/oYuLEW9W2vBBGLB2JSXA3iMoVpq.jpg',
+      tmdb_rating: 83,
+      release_year: 2010,
+      genres: ['Action', 'Sci-Fi'],
+    },
+  ];
 
-  // When debouncing, clear displayMovies to show loading skeletons
-  const displayMovies = showMovies ? (isSearchMode ? searchResults : trendingMovies) : [];
-  const movies = displayMovies;
+  const fetchedMovies = isSearchMode ? searchResults : trendingMovies;
+  const displayMovies =
+    fetchedMovies && fetchedMovies.length > 0
+      ? fetchedMovies
+      : isTourActive
+        ? TOUR_DUMMY
+        : fetchedMovies;
+
+  const movies = displayMovies || [];
 
   const hasMore = isSearchMode ? searchHasMore : trendingHasMore;
 
-  // Loading states - show loading during debounce OR when fetching from API
+  // Loading states
   const isInitialLoading = (isSearchMode ? searchLoading : trendingLoading) && movies.length === 0;
   const loading = isDebouncing || isInitialLoading;
   const isFetchingMore = isSearchMode ? searchIsFetchingMore : trendingIsFetchingMore;
@@ -162,13 +208,9 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
   }, [isOpen, openModal, closeModal]);
 
   // Handle search input change
-  const handleSearchChange = useCallback(
-    (value) => {
-      setSearch(value);
-      setSearchQuery(value);
-    },
-    [setSearchQuery]
-  );
+  const handleSearchChange = useCallback((value) => {
+    setSearch(value);
+  }, []);
 
   // Handle clearing search - reset trending to page 1
   const handleClearSearch = useCallback(() => {
@@ -202,12 +244,22 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
     }
   }, [isClosing, onClose, clearSearch]);
 
-  const handleSubmit = useCallback(() => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = useCallback(async () => {
     const selectedMovies = movies.filter((m) => selected.has(m.tmdb_id || m.id));
-    if (selectedMovies.length === 0) return;
-    onAdd?.(selectedMovies);
-    handleClose();
-  }, [movies, selected, onAdd, handleClose]);
+    if (selectedMovies.length === 0 || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await onAdd?.(selectedMovies);
+      handleClose();
+    } catch (err) {
+      console.error('Failed to add movies:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [movies, selected, onAdd, handleClose, isSubmitting]);
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) handleClose();
@@ -313,6 +365,9 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
               <div className={styles.cinematicMovieList}>
                 {movies.map((movie) => {
                   const movieId = movie.tmdb_id || movie.id;
+                  const isAlreadyAdded = allExistingIds.some(
+                    (id) => String(id) === String(movieId) || String(id) === String(movie.id)
+                  );
                   const isSelected = selected.has(movieId);
 
                   return (
@@ -320,9 +375,12 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
                       key={movieId}
                       className={clsx(
                         styles.cinematicMovieRow,
-                        isSelected && styles.cinematicMovieRowSelected
+                        isSelected && styles.cinematicMovieRowSelected,
+                        isAlreadyAdded && styles.cinematicMovieRowAdded
                       )}
-                      onClick={() => toggleSelect(movie)}
+                      disabled={isAlreadyAdded}
+                      onClick={() => !isAlreadyAdded && toggleSelect(movie)}
+                      style={isAlreadyAdded ? { opacity: 0.65, cursor: 'not-allowed' } : undefined}
                     >
                       <div className={styles.cinematicThumb}>
                         <Image
@@ -336,7 +394,7 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
                         <div
                           className={clsx(
                             styles.selectedOverlay,
-                            isSelected && styles.selectedOverlayActive
+                            (isSelected || isAlreadyAdded) && styles.selectedOverlayActive
                           )}
                         >
                           <Check size={14} />
@@ -351,9 +409,21 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
                         </p>
                       </div>
 
-                      <div className={styles.toggleIndicator}>
-                        {isSelected ? <Check size={14} /> : '+'}
-                      </div>
+                      {isAlreadyAdded ? (
+                        <div className={styles.addedBadge}>
+                          <Check size={12} />
+                          <span>Added</span>
+                        </div>
+                      ) : (
+                        <div
+                          className={clsx(
+                            styles.toggleIndicator,
+                            isSelected && styles.toggleIndicatorSelected
+                          )}
+                        >
+                          {isSelected ? <Check size={14} /> : '+'}
+                        </div>
+                      )}
                     </button>
                   );
                 })}
@@ -442,9 +512,19 @@ export default function AddMovieModal({ isOpen, onClose, onAdd, title = 'Add Mov
             type="button"
             className={clsx('text-sm', styles.submitBtn)}
             onClick={handleSubmit}
+            disabled={isSubmitting}
           >
-            <BookmarkPlus size={15} />
-            <span className={styles.submitBtnLabel}>Add to Collection</span>
+            {isSubmitting ? (
+              <>
+                <Loader2 size={15} className="animate-spin" />
+                <span className={styles.submitBtnLabel}>Adding to Collection…</span>
+              </>
+            ) : (
+              <>
+                <BookmarkPlus size={15} />
+                <span className={styles.submitBtnLabel}>Add to Collection</span>
+              </>
+            )}
           </button>
         </div>
       </div>

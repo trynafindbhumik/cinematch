@@ -175,8 +175,11 @@ export default function Overview({ onNavigateToReviews }) {
     [triggerAddFav, silentRefreshFavorites, success, showError]
   );
 
+  const [deletingFavIds, setDeletingFavIds] = useState(new Set());
+
   const handleRemoveFavorite = useCallback(
     async (id) => {
+      setDeletingFavIds((prev) => new Set(prev).add(id));
       try {
         await triggerRemoveFav(`/v1/favorites/${id}`, null, {
           allowEmptyBody: true,
@@ -188,6 +191,12 @@ export default function Overview({ onNavigateToReviews }) {
         success('Removed from favorites', 'Movie removed from your favorites');
       } catch (err) {
         showError('Failed', err?.message || 'Could not remove from favorites');
+      } finally {
+        setDeletingFavIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
       }
     },
     [triggerRemoveFav, silentRefreshFavorites, success, showError]
@@ -300,6 +309,7 @@ export default function Overview({ onNavigateToReviews }) {
                   key={movie.id}
                   movie={mapMovie(movie)}
                   showActions
+                  isDeleting={deletingFavIds.has(movie.id)}
                   onDelete={() => handleRemoveFavorite(movie.id)}
                 />
               ))}
@@ -350,6 +360,7 @@ export default function Overview({ onNavigateToReviews }) {
                   <MovieCard
                     movie={mapMovie(movie)}
                     showActions
+                    isDeleting={deletingFavIds.has(movie.id)}
                     onDelete={() => handleRemoveFavorite(movie.id)}
                   />
                 </div>
@@ -506,6 +517,8 @@ export default function Overview({ onNavigateToReviews }) {
         onAdd={handleAddFavorite}
         title="Add to Favorites"
         subtitle="Pick a film that defines your taste."
+        collectionType="favorites"
+        existingIds={(movies || []).map((f) => f.tmdb_id || f.id)}
       />
     </div>
   );

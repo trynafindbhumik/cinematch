@@ -60,7 +60,10 @@ export default function Signup() {
 
   const handleOtpVerified = async (response) => {
     if (response?.access_token) {
-      saveAuthTokens({ accessToken: response.access_token });
+      saveAuthTokens({
+        accessToken: response.access_token,
+        refreshToken: response.refresh_token,
+      });
       saveAuthFlags({
         isVerified: response.is_verified,
         needsOnboarding: response.needs_onboarding,
